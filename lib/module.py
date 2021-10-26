@@ -34,6 +34,7 @@ class Module():
     def __init__(self, name, protocol=None, port=None):
         """
         Module(engine, name, protocol, port)
+        Module(engine, name, protocol)
         Module(engine, name)
 
         Base Module constructor.
@@ -43,7 +44,6 @@ class Module():
         :param protocol: 'osc' or 'midi'
         :param port:
             udp port number or unix socket path if protocol is 'osc'
-            else midi port name (only used in alsa/jack)
             can be None module has no fixed input port
         """
 
@@ -52,6 +52,8 @@ class Module():
         self.protocol = protocol
         if protocol == 'osc' and type(port) is str and port[0] == '/':
             self.port = 'osc.unix://' + port
+        elif protocol == 'midi':
+            self.port = name
         else:
             self.port = port
 

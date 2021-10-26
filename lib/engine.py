@@ -3,13 +3,13 @@ LOGGER = logging.getLogger(__name__)
 
 import time
 import liblo
-import rtmidi
 import queue
 import fnmatch
 import atexit
 import sys
 import os
 import pyinotify
+from pyalsa import alsaseq
 from signal import signal, SIGINT, SIGTERM
 
 from .config import *
@@ -32,14 +32,15 @@ class Engine():
         :param folder:
             path to config folder where state files will be saved to and loaded from
         """
+        self.name = name
+
         self.osc_server = liblo.Server(port)
         self.osc_server.add_method(None, None, self.route_osc)
         self.osc_inputs = {}
         self.osc_outputs = {}
 
-        self.midi_inputs = {}
-        self.midi_outputs = {}
-        self.midi_queue = queue.Queue()
+        self.midi_server = alsaseq.Sequencer(clientname=self.name)
+        self.midi_ports = {}
 
         self.routes = {}
         self.active_route = None
@@ -89,9 +90,9 @@ class Engine():
                 pass
 
             # process midi messages
-            while not self.midi_queue.empty():
-                m = self.midi_queue.get_nowait()
-                self.route('midi', m['port'], m['address'], m['args'])
+            midi_events = self.midi_server.receive_events()
+            for e in midi_events:
+                self.route_midi(e)
 
             # update animations
             if self.current_time - last_animation >= ANIMATION_PERIOD:
@@ -176,11 +177,7 @@ class Engine():
                 self.osc_inputs[module.port] = module.name
                 self.osc_outputs[module.name] = module.port
             elif module.protocol == 'midi':
-                self.midi_inputs[module.name] = rtmidi.MidiIn(rtmidi.API_LINUX_ALSA, module.name + ' IN')
-                self.midi_inputs[module.name].open_virtual_port(module.port)
-                self.midi_outputs[module.name] = rtmidi.MidiOut(rtmidi.API_LINUX_ALSA, module.name + ' OUT')
-                self.midi_outputs[module.name].open_virtual_port(module.port)
-                self.midi_inputs[module.name].set_callback(self.route_midi, module.name)
+                self.midi_ports[module.name] = self.midi_server.create_simple_port(module.name, alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC | alsaseq.SEQ_PORT_TYPE_APPLICATION, alsaseq.SEQ_PORT_CAP_WRITE | alsaseq.SEQ_PORT_CAP_SUBS_WRITE | alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
 
     def flush(self):
         """
@@ -193,6 +190,8 @@ class Engine():
             self.send(message.protocol, message.port, message.address, *message.args)
 
         self.queue = []
+
+        self.midi_server.sync_output_queue()
 
     def send(self, protocol, port, address, *args):
         """
@@ -215,11 +214,13 @@ class Engine():
 
         elif protocol == 'midi':
 
-            if port in self.midi_outputs:
+            if port in self.midi_ports:
 
-                midi_message = osc_to_midi(address, args)
-                if midi_message:
-                    self.midi_outputs[port].send(midi_message)
+                midi_event = osc_to_midi(address, args)
+                if midi_event:
+                    midi_event.source = (self.midi_server.client_id, self.midi_ports[port])
+                    self.midi_server.output_event(midi_event)
+                    self.midi_server.drain_output()
 
     def add_route(self, route):
         """
@@ -274,16 +275,15 @@ class Engine():
             port = self.osc_inputs[src.port]
         self.route('osc', port, address, args)
 
-    def route_midi(self, event, data):
+    def route_midi(self, event):
         """
         Route incoming raw midi events.
         """
-        message, deltatime = event
-        osc_message = midi_to_osc(message)
+        port = self.midi_server.get_port_info(event.dest[1],event.dest[0])['name']
+        osc_message = midi_to_osc(event)
         if osc_message:
-            osc_message['port'] = data
-            self.midi_queue.put(osc_message)
-
+            osc_message['port'] = port
+            self.route('midi', port, osc_message['address'], osc_message['args'])
 
     def start_scene(self, name, scene, *args, **kwargs):
         """
