@@ -39,8 +39,10 @@ def midi_to_osc(event):
         osc['args'] = [data['control.channel'], data['control.value']]
     elif mtype == SEQ_EVENT_SYSEX:
         osc['args'] = data['ext']
-    else:
+    elif mtype == SEQ_EVENT_CONTROLLER:
         osc['args'] = [data['control.channel'], data['control.param'], data['control.value']]
+    else:
+        return None
 
     return osc
 
@@ -60,7 +62,9 @@ def osc_to_midi(address, args):
         event.set_data({'control.channel': args[0], 'control.value': args[1]})
     elif mtype == SEQ_EVENT_SYSEX:
         event.set_data({'ext': args})
-    else:
+    elif mtype == SEQ_EVENT_CONTROLLER:
         event.set_data({'control.channel': args[0], 'control.param': args[1], 'control.value': args[2]})
-
+    else:
+        return None
+        
     return event
