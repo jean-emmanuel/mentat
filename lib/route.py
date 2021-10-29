@@ -80,12 +80,12 @@ class Route():
 
         Wait for given amount of time. Can only called in scenes.
         Subsequent calls to wait() in a scene do not drift with time
-        and can be safely used to create beat sequences. Example:
-        beat_1()
-        self.wait(1, 'b') # will wait 1 beat minus beat_1's exec time
-        beat_2()
-        self.wait(1, 'b') # will wait 1 beat minus beat_1 and beat_2's exec time
-
+        and can be safely used to create beat sequences.
+            # Example
+            beat_1()
+            self.wait(1, 'b') # will wait 1 beat minus beat_1's exec time
+            beat_2()
+            self.wait(1, 'b') # will wait 1 beat minus beat_1 and beat_2's exec time
 
         :param duration: amount of time to wait
         :param mode: 'beats' or 'seconds' (only the first letter matters)

@@ -81,20 +81,20 @@ class Module():
         self.engine = engine
 
         if submodule:
-            # init for submodules
+            # init for submodules only
             for name in self.submodules:
                 self.submodules[name].module_path = self.module_path + module.module_path
 
         else:
-            # init for 1st level modules
+            # init for 1st level modules only
             self.states_folder = '%s/states/%s' % (self.engine.folder, self.name)
             for file in glob.glob('%s/*.json'):
                 name = file.split('/')[-1].split('.')[0]
                 self.load(name, preload=True)
 
+        # init submodules
         for name in self.submodules:
-            # init submodules
-            self.submodules[name].initialize(engine, True)
+            self.submodules[name].initialize(self.engine, True)
 
         for module_path in self.watched_modules:
             # register watched modules callbacks
@@ -123,6 +123,9 @@ class Module():
         self.submodules[module.name] = module
         module.protocol = self.protocol
         module.port = self.port
+        if self.engine is not None:
+            # if module is already initialized, initialize submodule
+            module.initialize(self.engine, True)
 
     def add_parameter(self, name, address=None, types=None, static_args=[]):
         """
