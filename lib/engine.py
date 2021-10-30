@@ -50,7 +50,7 @@ class Engine():
 
         self.is_running = False
 
-        self.current_time = time.time()
+        self.current_time = time.monotonic_ns()
         # self.timer = Timer(self)
         self.bpm = 120
 
@@ -78,12 +78,13 @@ class Engine():
         self.is_running = True
 
         last_animation = 0
+        animation_period = ANIMATION_PERIOD * 1000000
 
         LOGGER.info('started')
 
         while self.is_running:
 
-            self.current_time = time.time()
+            self.current_time = time.monotonic_ns()
 
             # process osc messages
             while self.osc_server and self.osc_server.recv(0):

@@ -107,7 +107,7 @@ class Parameter():
         if type(self.animate_to) is not list:
             self.animate_to = [self.animate_to]
         self.animate_start = current_time
-        self.animate_duration = duration
+        self.animate_duration = duration * 1000000000
         self.animate_easing = [
             EASING_FUNCTIONS[easing](
                 start=self.animate_from[i],

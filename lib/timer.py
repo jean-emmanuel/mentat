@@ -24,7 +24,7 @@ class Timer():
             LOGGER.error('unrecognized mode "%s" for wait()' % mode)
             return
 
-        while time.time() - self.start_time < duration:
+        while time.monotonic_ns() - self.start_time < duration:
             time.sleep(MAINLOOP_PERDIO)
 
         self.start_time += duration
