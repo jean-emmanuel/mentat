@@ -1,12 +1,12 @@
 from mentat.module import Module
 
-class Test(Module):
+class SubKlick(Module):
 
     def __init__(self, *args, **kwargs):
 
         Module.__init__(self, *args, **kwargs)
 
-        self.add_parameter('bite', '/klick/simple/set_bite', 'f')
+        self.add_parameter('thing', '/subklick/simple/set_thing', 'f')
 
 
 class Klick(Module):
@@ -15,7 +15,7 @@ class Klick(Module):
 
         Module.__init__(self, *args, **kwargs)
 
-        self.add_submodule(Test('test'))
+        self.add_submodule(SubKlick('test'))
 
         self.add_parameter('pattern', '/klick/simple/set_pattern', 's')
         self.add_parameter('tempo', '/klick/simple/set_tempo', 'f')

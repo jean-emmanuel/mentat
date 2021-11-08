@@ -4,7 +4,7 @@ from .klick import Klick
 from .pedalboard import Pedalboard
 from .nonmixer import NonMixer
 
-engine = Engine('JoeLeTaxi', 5555, '/home/bordun/Dev/Mentat/tmp')
+engine = Engine('JoeLeTaxi', 5555, '/home/bordun/Dev/Mentat/example')
 
 nonmixer = NonMixer('non', 'osc', 11143)
 klick1 = Klick('klick-1', 'osc', 12000)

@@ -3,6 +3,8 @@ LOGGER = logging.getLogger(__name__)
 
 import glob
 import json
+import pathlib
+import re
 
 from .utils import *
 from .message import Message
@@ -95,7 +97,7 @@ class Module():
         else:
             # init for 1st level modules only
             self.states_folder = '%s/states/%s' % (self.engine.folder, self.name)
-            for file in glob.glob('%s/*.json'):
+            for file in glob.glob('%s/*.json' % self.states_folder):
                 name = file.split('/')[-1].split('.')[0]
                 self.load(name, preload=True)
 
@@ -325,7 +327,7 @@ class Module():
 
         for name in self.parameters:
 
-            state.append([name, self.parameters[name].get()])
+            state.append([name, *self.parameters[name].get()])
 
         for name in self.submodules:
 
@@ -347,8 +349,13 @@ class Module():
         """
         file = '%s/%s.json' % (self.states_folder, name)
         self.states[name] = self.get_state()
+        pathlib.Path(self.states_folder).mkdir(parents=True, exist_ok=True)
         f = open(file, 'w')
-        f.write(json.dumps(self.states[name]))
+        s = json.dumps(self.states[name], indent=2)
+        s = re.sub(r'\n\s\s\s\s', ' ', s)
+        s = re.sub(r'\n\s\s(\],?)', r'\1', s)
+        s = re.sub(r'\s\s\[\s', '  [', s)
+        f.write(s)
         f.close()
         LOGGER.info('%s: state "%s" saved to %s' % (self.name, name, file))
 
@@ -367,17 +374,17 @@ class Module():
 
             file = '%s/%s.json' % (self.states_folder, name)
             f = open(file)
-            self.state[name] = json.loads(f.read())
+            self.states[name] = json.loads(f.read())
             f.close()
             LOGGER.info('%s: state "%s" preloaded from %s' % (self.name, name, file))
 
         if not preload:
 
-            for data in self.state[name]:
+            for data in self.states[name]:
 
                 self.set(*data)
-                LOGGER.info('%s: state "%s" loaded' % (self.name, name))
 
+            LOGGER.info('%s: state "%s" loaded' % (self.name, name))
 
     @public_method
     def route(self, address, args):

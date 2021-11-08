@@ -13,6 +13,13 @@ class RouteBase(Route):
             print('midi from kbd: ', address, args)
             mon.send(address, *args)
 
+        if address == '/save':
+            klick1.save('test')
+
+
+        if address == '/load':
+            klick1.load('test')
+
         if address == '/scene':
             # klick1.set('tempo', 12)
             # klick1.set('pattern', 'xXXx')
@@ -21,9 +28,6 @@ class RouteBase(Route):
             klick1.animate('tempo', 10, 20, duration=2, mode='beats')
             # klick1.animate('test', 'bite', 10, 20, duration=2)
             # self.wait(1, '') # forbidden
-
-        if address == '/set_x':
-            x = args[0]
 
         if address == '/set_route':
             engine.set_route(args[0])

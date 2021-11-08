@@ -162,7 +162,8 @@ class Engine():
             if hasattr(m, '__file__'):
                 f = os.path.abspath(m.__file__)
                 # only watch file if it's in the same directory as the main script
-                if f.startswith(base_dir):
+                # + module src files
+                if f.startswith(base_dir)  or 'mentat' in m.__name__:
                     wm.add_watch(f, pyinotify.IN_MODIFY, lambda e: self.restart())
         self.notifier.start()
 
