@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html $if(lang)$ lang="$lang$" $endif$ dir="ltr">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>$if(title)$$title$$endif$</title>
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+        <link rel="apple-touch-icon-precomposed" href="images/apple-touch-icon.png">
+        <meta name="generator" content="pandoc-uikit" />
+        $for(author-meta)$
+        <meta name="author" content="$author-meta$" />
+        $endfor$
+        $if(date-meta)$
+        <meta name="date" content="$date-meta$" />
+        $endif$
+        <title>$if(title-prefix)$$title-prefix$ - $endif$$pagetitle$</title>
+        <style>
+            :root {
+                --color-text: #333;
+                --color-accent: #0090c0;
+                --side-width: 300px;
+                --p-margin: 20px
+            }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                /* font: inherit; */
+            }
+            body {
+                display: flex;
+                flex-direction: row;
+                width: 960px;
+                /* margin: var(--p-margin) auto 0; */
+
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+                line-height: 1.4;
+                font-size: 14px;
+                color: var(--color-text);
+            }
+            aside {
+                width: var(--side-width);
+                margin-right: 20px;
+                background: #eee;
+            }
+            main {
+                flex: 1;
+                padding-top: var(--p-margin);
+                min-width: 0;
+            }
+
+            aside ul {
+                list-style: none;
+            }
+            aside > ul {
+                list-style: none;
+                position: fixed;
+                top: 0;
+                width: calc(var(--side-width));
+                height: 100%;
+                padding-top: var(--p-margin);
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding-left: 0;
+                white-space: nowrap;
+            }
+            aside > ul > li {
+                margin-left: var(--p-margin);
+            }
+            aside li {
+                margin: 0;
+            }
+            ul {
+                padding-left: 20px;
+            }
+            h1, h2, h3, ul, pre, p {
+                margin-bottom: var(--p-margin);
+            }
+            hr {
+                margin: calc(2 * var(--p-margin)) 0;
+                opacity: 0.5;
+            }
+            a {
+                text-decoration: none
+            }
+            aside a {
+                color: inherit;
+            }
+            aside a:hover, main a {
+                color: var(--color-accent);
+            }
+            h1, h2, h3 {
+                padding-top: var(--p-margin);
+                margin-top: calc(-1 * var(--p-margin));
+            }
+            .content {
+                padding-left: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <aside>
+            $if(toc)$
+            $toc$
+            $endif$
+        </aside>
+
+        <main>
+$body$
+        </main>
+
+    </body>
+</html>

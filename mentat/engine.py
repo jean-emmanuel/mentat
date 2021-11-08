@@ -13,24 +13,26 @@ from pyalsa import alsaseq
 from signal import signal, SIGINT, SIGTERM
 
 from .config import *
+from .utils import *
 from .midi import osc_to_midi, midi_to_osc
 from .thread import KillableThread as Thread
 from .timer import Timer
 
+
 class Engine():
 
+    @public_method
     def __init__(self, name, port, folder):
         """
         Engine(name, port, folder)
 
         Engine constructor.
 
-        :param name:
-            client name
-        :param port:
-            osc input port, can be an udp port number or a unix socket path
-        :param folder:
-            path to config folder where state files will be saved to and loaded from
+        **Parameters**
+
+        - name: client name
+        - port: osc input port, can be an udp port number or a unix socket path
+        - folder: path to config folder where state files will be saved to and loaded from
         """
         self.name = name
 
@@ -51,7 +53,6 @@ class Engine():
         self.is_running = False
 
         self.current_time = time.monotonic_ns()
-        # self.timer = Timer(self)
         self.bpm = 120
 
         self.folder = folder
@@ -60,6 +61,7 @@ class Engine():
 
         self.notifier = None
 
+    @public_method
     def start(self):
         """
         start()
@@ -110,6 +112,7 @@ class Engine():
         LOGGER.info('stopped')
 
 
+    @public_method
     def stop(self):
         """
         stop()
@@ -130,6 +133,7 @@ class Engine():
             except:
                 pass
 
+    @public_method
     def restart(self):
         """
         restart()
@@ -143,6 +147,7 @@ class Engine():
         LOGGER.info('restarting...')
         self.stop()
 
+    @public_method
     def autorestart(self):
         """
         autorestart()
@@ -163,13 +168,16 @@ class Engine():
                     wm.add_watch(f, pyinotify.IN_MODIFY, lambda e: self.restart())
         self.notifier.start()
 
+    @public_method
     def add_module(self, module):
         """
         add_module(module)
 
         Add a module.
 
-        :param module: Module object
+        **Parameters**
+
+        - module: Module object
         """
         self.modules[module.name] = module
 
@@ -194,17 +202,20 @@ class Engine():
 
         self.midi_server.sync_output_queue()
 
+    @public_method
     def send(self, protocol, port, address, *args):
         """
         send(protocol, port, address, *args)
 
         Send OSC / MIDI message.
 
-        :param protocol: 'osc' or 'midi'
-        :param port:
+        **Parameters**
+
+        - protocol: 'osc' or 'midi'
+        - port:
             module name or udp port number or unix socket path if protocol is 'osc'
-        :param address: osc address
-        :param args: values
+        - address: osc address
+        - args: values
         """
         if protocol == 'osc':
 
@@ -223,23 +234,29 @@ class Engine():
                     self.midi_server.output_event(midi_event)
                     self.midi_server.drain_output()
 
+    @public_method
     def add_route(self, route):
         """
         add_route(route)
 
         Add a route.
 
-        :param route: Route object
+        **Parameters**
+
+        - route: Route object
         """
         self.routes[route.name] = route
 
+    @public_method
     def set_route(self, name):
         """
         set_route(name)
 
         Set active route.
 
-        :param name: route name
+        **Parameters**
+
+        - name: route name
         """
         if name in self.routes:
             if self.active_route:
@@ -256,10 +273,12 @@ class Engine():
 
         Unified route for osc and midi messages.
 
-        :param protocol: 'osc' or 'midi'
-        :param port: name of module or port number if unknown
-        :param address: osc address
-        :param args: list of values
+        **Parameters**
+
+        - protocol: 'osc' or 'midi'
+        - port: name of module or port number if unknown
+        - address: osc address
+        - args: list of values
         """
         if port in self.modules:
             self.modules[port].route(address, args)
@@ -293,10 +312,12 @@ class Engine():
         Start function in a thread.
         If a scene with the same name is already running, it will be stopped.
 
-        :param name: scene name
-        :param scene: function or method
-        :param *args: arguments for the scene function
-        :param *kwargs: keyword arguments for the scene function
+        **Parameters**
+
+        - name: scene name
+        - scene: function or method
+        - *args: arguments for the scene function
+        - *kwargs: keyword arguments for the scene function
         """
         self.stop_scene(name)
         self.scenes_timers[name] = Timer(self)
@@ -310,8 +331,10 @@ class Engine():
 
         Stop scene thread.
 
-        :param name: scene name
-        :param scene: function or method
+        **Parameters**
+
+        - name: scene name
+        - scene: function or method
         """
         if '*' in name:
             for n in fnmatch.filter(self.scenes.keys(), name):
@@ -339,3 +362,16 @@ class Engine():
         else:
             LOGGER.error('cannot call wait() from main thread')
             return None
+
+    @public_method
+    def set_bpm(self, bpm):
+        """
+        set_bpm(bpm)
+
+        Set engine bpm.
+
+        **Parameters**
+
+        - bpm: beats per seconds
+        """
+        self.bpm = max(float(bpm), 0.001)

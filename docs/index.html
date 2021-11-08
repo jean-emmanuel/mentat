@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html  dir="ltr">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Mentat</title>
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+        <link rel="apple-touch-icon-precomposed" href="images/apple-touch-icon.png">
+        <meta name="generator" content="pandoc-uikit" />
+                        <title>Mentat</title>
+        <style>
+            :root {
+                --color-text: #333;
+                --color-accent: #0090c0;
+                --side-width: 300px;
+                --p-margin: 20px
+            }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                /* font: inherit; */
+            }
+            body {
+                display: flex;
+                flex-direction: row;
+                width: 960px;
+                /* margin: var(--p-margin) auto 0; */
+
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+                line-height: 1.4;
+                font-size: 14px;
+                color: var(--color-text);
+            }
+            aside {
+                width: var(--side-width);
+                margin-right: 20px;
+                background: #eee;
+            }
+            main {
+                flex: 1;
+                padding-top: var(--p-margin);
+                min-width: 0;
+            }
+
+            aside ul {
+                list-style: none;
+            }
+            aside > ul {
+                list-style: none;
+                position: fixed;
+                top: 0;
+                width: calc(var(--side-width));
+                height: 100%;
+                padding-top: var(--p-margin);
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding-left: 0;
+                white-space: nowrap;
+            }
+            aside > ul > li {
+                margin-left: var(--p-margin);
+            }
+            aside li {
+                margin: 0;
+            }
+            ul {
+                padding-left: 20px;
+            }
+            h1, h2, h3, ul, pre, p {
+                margin-bottom: var(--p-margin);
+            }
+            hr {
+                margin: calc(2 * var(--p-margin)) 0;
+                opacity: 0.5;
+            }
+            a {
+                text-decoration: none
+            }
+            aside a {
+                color: inherit;
+            }
+            aside a:hover, main a {
+                color: var(--color-accent);
+            }
+            h1, h2, h3 {
+                padding-top: var(--p-margin);
+                margin-top: calc(-1 * var(--p-margin));
+            }
+            .content {
+                padding-left: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <aside>
+                        <ul>
+                        <li><a href="#mentat">Mentat</a>
+                        <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#usage">Usage</a></li>
+                        </ul></li>
+                        <li><a href="#engine">Engine</a>
+                        <ul>
+                        <li><a href="#engine-1">Engine()</a></li>
+                        <li><a href="#engine.start">Engine.start()</a></li>
+                        <li><a href="#engine.stop">Engine.stop()</a></li>
+                        <li><a href="#engine.restart">Engine.restart()</a></li>
+                        <li><a href="#engine.autorestart">Engine.autorestart()</a></li>
+                        <li><a href="#engine.add_module">Engine.add_module()</a></li>
+                        <li><a href="#engine.send">Engine.send()</a></li>
+                        <li><a href="#engine.add_route">Engine.add_route()</a></li>
+                        <li><a href="#engine.set_route">Engine.set_route()</a></li>
+                        <li><a href="#engine.set_bpm">Engine.set_bpm()</a></li>
+                        </ul></li>
+                        <li><a href="#module">Module</a>
+                        <ul>
+                        <li><a href="#module-1">Module()</a></li>
+                        <li><a href="#module.initialize">Module.initialize()</a></li>
+                        <li><a href="#module.add_submodule">Module.add_submodule()</a></li>
+                        <li><a href="#module.set_aliases">Module.set_aliases()</a></li>
+                        <li><a href="#module.add_parameter">Module.add_parameter()</a></li>
+                        <li><a href="#module.get">Module.get()</a></li>
+                        <li><a href="#module.set">Module.set()</a></li>
+                        <li><a href="#module.animate">Module.animate()</a></li>
+                        <li><a href="#module.stop_animate">Module.stop_animate()</a></li>
+                        <li><a href="#module.save">Module.save()</a></li>
+                        <li><a href="#module.load">Module.load()</a></li>
+                        <li><a href="#module.route">Module.route()</a></li>
+                        <li><a href="#module.send">Module.send()</a></li>
+                        <li><a href="#module.watch_module">Module.watch_module()</a></li>
+                        <li><a href="#module.watched_module_changed">Module.watched_module_changed()</a></li>
+                        </ul></li>
+                        <li><a href="#parameter">Parameter</a>
+                        <ul>
+                        <li><a href="#parameter-1">Parameter()</a></li>
+                        <li><a href="#parameter.get">Parameter.get()</a></li>
+                        <li><a href="#parameter.set">Parameter.set()</a></li>
+                        </ul></li>
+                        <li><a href="#route">Route</a>
+                        <ul>
+                        <li><a href="#route-1">Route()</a></li>
+                        <li><a href="#route.initialize">Route.initialize()</a></li>
+                        <li><a href="#route.activate">Route.activate()</a></li>
+                        <li><a href="#route.deactivate">Route.deactivate()</a></li>
+                        <li><a href="#route.route">Route.route()</a></li>
+                        <li><a href="#route.start_scene">Route.start_scene()</a></li>
+                        <li><a href="#route.stop_scene">Route.stop_scene()</a></li>
+                        <li><a href="#route.wait">Route.wait()</a></li>
+                        </ul></li>
+                        </ul>
+                    </aside>
+
+        <main>
+<h2 id="mentat">Mentat</h2>
+<h3 id="overview">Overview</h3>
+<p><code>Mentat</code> is a HUB / Conductor for OSC / MIDI capable softwares. It aims to centralize all controls in one place, manage their state and create routings.</p>
+<h3 id="usage">Usage</h3>
+<p>The typical use case for <code>Mentat</code> a conductor for controlling a set of softwares during a live performance.</p>
+<p>The <a href="#engine"><code>Engine</code></a> object is the main object, it manages the OSC / MIDI backends, the modules and the routes.</p>
+<p><a href="#module"><code>Module</code></a> objects are interfaces between the controlled softwares and the engine. A set of controllable parameters may be defined for each module. The <code>Module</code> class may be subclassed to create advanced modules.</p>
+<p><a href="#route"><code>Route</code></a> objects represent the different parts of the performance (eg tracks for a musical show). The <code>Route</code> class should be subclassed for each track.</p>
+<p>When the engine receives a message from a module, it does the following</p>
+<ul>
+<li>call the module’s <a href="#module.route"><code>route()</code></a> method</li>
+<li>call the active route’s <a href="#route.route"><code>route()</code></a> method.</li>
+</ul>
+<p>Overriding these methods in the correponding class definitions will allow defining what should happend and when.</p>
+<h2 id="engine">Engine</h2>
+<h3 id="engine-1">Engine()</h3>
+<div class="content">
+<p><i>Engine(name, port, folder)</i></p>
+<p>Engine constructor.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: client name</li>
+<li>port: osc input port, can be an udp port number or a unix socket path</li>
+<li>folder: path to config folder where state files will be saved to and loaded from</li>
+</ul>
+</div>
+<h3 id="engine.start">Engine.start()</h3>
+<div class="content">
+<p><i>start()</i></p>
+<p>Start engine.</p>
+</div>
+<h3 id="engine.stop">Engine.stop()</h3>
+<div class="content">
+<p><i>stop()</i></p>
+<p>Stop engine.</p>
+</div>
+<h3 id="engine.restart">Engine.restart()</h3>
+<div class="content">
+<p><i>restart()</i></p>
+<p>Stop the engine and restart once the process is terminated. Borrowed from mididings.</p>
+</div>
+<h3 id="engine.autorestart">Engine.autorestart()</h3>
+<div class="content">
+<p><i>autorestart()</i></p>
+<p>Watch main script and imported modules and call restart when they change. Borrowed from mididings.</p>
+</div>
+<h3 id="engine.add_module">Engine.add_module()</h3>
+<div class="content">
+<p><i>add_module(module)</i></p>
+<p>Add a module.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>module: Module object</li>
+</ul>
+</div>
+<h3 id="engine.send">Engine.send()</h3>
+<div class="content">
+<p><i>send(protocol, port, address, *args)</i></p>
+<p>Send OSC / MIDI message.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>protocol: ‘osc’ or ‘midi’</li>
+<li>port: module name or udp port number or unix socket path if protocol is ‘osc’</li>
+<li>address: osc address</li>
+<li>args: values</li>
+</ul>
+</div>
+<h3 id="engine.add_route">Engine.add_route()</h3>
+<div class="content">
+<p><i>add_route(route)</i></p>
+<p>Add a route.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>route: Route object</li>
+</ul>
+</div>
+<h3 id="engine.set_route">Engine.set_route()</h3>
+<div class="content">
+<p><i>set_route(name)</i></p>
+<p>Set active route.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: route name</li>
+</ul>
+</div>
+<h3 id="engine.set_bpm">Engine.set_bpm()</h3>
+<div class="content">
+<p><i>set_bpm(bpm)</i></p>
+<p>Set engine bpm.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>bpm: beats per seconds</li>
+</ul>
+</div>
+<hr />
+<h2 id="module">Module</h2>
+<h3 id="module-1">Module()</h3>
+<div class="content">
+<p><i>Module(engine, name, protocol, port)</i> <i>Module(engine, name, protocol)</i> <i>Module(engine, name)</i></p>
+<p>Base Module constructor. Arguments protocol and port should be omitted only when the module is a submodule.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: module name</li>
+<li>protocol: ‘osc’ or ‘midi’</li>
+<li>port: udp port number or unix socket path if protocol is ‘osc’ can be None if the module has no fixed input port</li>
+</ul>
+</div>
+<h3 id="module.initialize">Module.initialize()</h3>
+<div class="content">
+<p><i>initialize(engine, submodule=False)</i></p>
+<p>Called by the engine when started.</p>
+</div>
+<h3 id="module.add_submodule">Module.add_submodule()</h3>
+<div class="content">
+<p><i>add_submodule(module)</i></p>
+<p>Add a submodule. Submodule’s protocol and port can be omitted, they will be inherited from their parent.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>module: Module object</li>
+</ul>
+</div>
+<h3 id="module.set_aliases">Module.set_aliases()</h3>
+<div class="content">
+<p><i>set_aliases(aliases)</i></p>
+<p>Set aliases for submodules. Aliases can be used in place of the submodule_name argument in some methods.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>aliases: {alias: name} dictionary</li>
+</ul>
+</div>
+<h3 id="module.add_parameter">Module.add_parameter()</h3>
+<div class="content">
+<p><i>add_parameter(parameter)</i> <i>add_parameter(name, address, types)</i> <i>add_parameter(name, address, types, static_args)</i> <i>add_parameter(name, address, types, static_args, default)</i></p>
+<p>Add parameter to module.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>parameter: parameter object</li>
+<li>name: name of parameter</li>
+<li>address: osc address of parameter</li>
+<li>types: osc typetags string, one letter per value, including static values</li>
+<li>static_args: list of static values before the ones that can be modified</li>
+<li>default: list of values</li>
+</ul>
+</div>
+<h3 id="module.get">Module.get()</h3>
+<div class="content">
+<p><i>get(parameter_name)</i> <i>get(submodule_name, param_name)</i></p>
+<p>Get value of parameter</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>parameter_name: name of parameter</li>
+<li>submodule_name: name of submodule, name of parameter</li>
+</ul>
+<p><strong>Return</strong> List of values</p>
+</div>
+<h3 id="module.set">Module.set()</h3>
+<div class="content">
+<p><i>set(parameter_name, <em>args)</i> <i>set(submodule_name, param_nam, </em>args)</i></p>
+<p>Set value of parameter. Schedule a message if the new value differs from the one in memory.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>parameter_name: name of parameter</li>
+<li>submodule_name: name of submodule, name of parameter</li>
+<li>*args: value(s)</li>
+</ul>
+</div>
+<h3 id="module.animate">Module.animate()</h3>
+<div class="content">
+<p><i>animate(parameter_name, start, end, duration, mode=‘seconds’, easing=‘linear’)</i> <i>animate(submodule_name, parameter_name, start, end, duration, mode=‘beats’, easing=‘linear’)</i></p>
+<p>Animate parameter.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>parameter_name: name of parameter</li>
+<li>submodule_name: name of submodule</li>
+<li>start: starting value(s), can be None to use currnet value</li>
+<li>end: ending value(s)</li>
+<li>duration: animation duration</li>
+<li>mode: ‘seconds’ or ‘beats’</li>
+<li>easing: easing function name</li>
+</ul>
+</div>
+<h3 id="module.stop_animate">Module.stop_animate()</h3>
+<div class="content">
+<p><i>stop_animate(parameter_name)</i> <i>stop_animate(submodule_name, param_name)</i></p>
+<p>Stop parameter animation.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>parameter_name: name of parameter, can be ’*’ to stop all animations.</li>
+<li>submodule_name: name of submodule, name of parameter</li>
+</ul>
+</div>
+<h3 id="module.save">Module.save()</h3>
+<div class="content">
+<p><i>save(name)</i></p>
+<p>Save current state (including submodules) to file.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: name of state save (without file extension)</li>
+</ul>
+</div>
+<h3 id="module.load">Module.load()</h3>
+<div class="content">
+<p><i>load(name)</i></p>
+<p>Load state from memory or from file if not preloaded already</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: name of state save (without file extension)</li>
+</ul>
+</div>
+<h3 id="module.route">Module.route()</h3>
+<div class="content">
+<p><i>route(address, args)</i></p>
+<p>Route messages received by the engine on the module’s port. Does nothing by default, method should be overriden in subclasses. Not called on submodules.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>address: osc address</li>
+<li>args: list of values</li>
+</ul>
+</div>
+<h3 id="module.send">Module.send()</h3>
+<div class="content">
+<p><i>send(address, *args)</i></p>
+<p>Send message to the module’s port.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>address: osc address</li>
+<li>*args: values</li>
+</ul>
+</div>
+<h3 id="module.watch_module">Module.watch_module()</h3>
+<div class="content">
+<p><i>watch_module(module_name, param_name, callback)</i></p>
+<p>Watch changes of a module’s parameter. Used by controller modules to collect feedback.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>module_name: name of module This argument can be suplied multiple time if targetted module is a submodule</li>
+<li>parameter_name: name of parameter, can be ’*’ to subscribe to all parameters including submodules’</li>
+</ul>
+</div>
+<h3 id="module.watched_module_changed">Module.watched_module_changed()</h3>
+<div class="content">
+<p><i>watched_module_changed(module_path, name, args)</i></p>
+<p>Called when the value of a watched module’s parameter updates. To be overridden in subclasses.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>module_path: list of module names (from parent to submodule)</li>
+<li>name: name of parameter</li>
+<li>args: values</li>
+</ul>
+</div>
+<hr />
+<h2 id="parameter">Parameter</h2>
+<h3 id="parameter-1">Parameter()</h3>
+<div class="content">
+<p><i>Parameter(name, address, types)</i> <i>Parameter(name, address, types, static_args)</i></p>
+<p>Parameter constructor.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: name of parameter</li>
+<li>address: osc address of parameter</li>
+<li>types: osc typetags string, one letter per value, including static values</li>
+<li>static_args: list of static values before the ones that can be modified</li>
+<li>default: list of values</li>
+</ul>
+</div>
+<h3 id="parameter.get">Parameter.get()</h3>
+<div class="content">
+<p><i>get()</i></p>
+<p>Get parameter value.</p>
+<p><strong>Return</strong> List of n values, where n is the number of values specified in constructor’s types option</p>
+</div>
+<h3 id="parameter.set">Parameter.set()</h3>
+<div class="content">
+<p><i>set(*args)</i></p>
+<p>Set parameter value.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>*args: n values, where n is the number of values specified in constructor’s types option</li>
+</ul>
+<p><strong>Return</strong> True is the new value differs from the old one, False otherwise</p>
+</div>
+<hr />
+<h2 id="route">Route</h2>
+<h3 id="route-1">Route()</h3>
+<div class="content">
+<p><i>Route()</i></p>
+<p>Route object constructor.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: route name</li>
+</ul>
+</div>
+<h3 id="route.initialize">Route.initialize()</h3>
+<div class="content">
+<p><i>initialize(engine)</i></p>
+<p>Called by the engine when started.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>engine: engine instance</li>
+</ul>
+</div>
+<h3 id="route.activate">Route.activate()</h3>
+<div class="content">
+<p><i>activate()</i></p>
+<p>Called when the engine switches to this route.</p>
+</div>
+<h3 id="route.deactivate">Route.deactivate()</h3>
+<div class="content">
+<p><i>deactivate()</i></p>
+<p>Called when the engine switches to another route.</p>
+</div>
+<h3 id="route.route">Route.route()</h3>
+<div class="content">
+<p><i>route(protocol, port, address, args)</i></p>
+<p>Process messages received by the engine.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>protocol: ‘osc’ or ‘midi’</li>
+<li>port: name of module or port number if unknown</li>
+<li>address: osc address</li>
+<li>args: list of values</li>
+</ul>
+</div>
+<h3 id="route.start_scene">Route.start_scene()</h3>
+<div class="content">
+<p><i>start_scene(name, scene, *args, **kwargs)</i></p>
+<p>Start scene in a thread. If a scene with the same name is already running, it will be stopped. Scenes should be implemented as methods of the Route object and can call self.wait() to create timed sequences or loops.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: scene name</li>
+<li>scene: function or method</li>
+<li>*args: arguments for the scene function</li>
+<li>*kwargs: keyword arguments for the scene function</li>
+</ul>
+</div>
+<h3 id="route.stop_scene">Route.stop_scene()</h3>
+<div class="content">
+<p><i>stop_scene(name, scene, *args, **kwargs)</i></p>
+<p>Stop scene thread.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: scene name, with wildcard support</li>
+<li>scene: function or method</li>
+</ul>
+</div>
+<h3 id="route.wait">Route.wait()</h3>
+<div class="content">
+<p><i>wait(duration, mode=‘beats’)</i></p>
+<p>Wait for given amount of time. Can only called in scenes. Subsequent calls to <i>wait()</i> in a scene do not drift with time and can be safely used to create beat sequences.</p>
+<pre><code># Example
+beat_1()
+self.&lt;i&gt;wait(1, &#39;b&#39;)&lt;/i&gt; # will wait 1 beat minus beat_1&#39;s exec time
+beat_2()
+self.&lt;i&gt;wait(1, &#39;b&#39;)&lt;/i&gt; # will wait 1 beat minus beat_1 and beat_2&#39;s exec time</code></pre>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>duration: amount of time to wait</li>
+<li>mode: ‘beats’ or ‘seconds’ (only the first letter matters)</li>
+</ul>
+</div>
+<hr />
+        </main>
+
+    </body>
+</html>

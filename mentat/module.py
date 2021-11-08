@@ -4,15 +4,18 @@ LOGGER = logging.getLogger(__name__)
 import glob
 import json
 
+from .utils import *
 from .message import Message
 from .parameter import Parameter
 
+from functools import wraps
 def submodule_method(method):
     """
     Decorator for Module methods that can be passed to submodules
     by passing the submodule's name as first argument instead
     of the usual first argument (ie parameter_name)
     """
+    @wraps(method)
     def decorated(self, *args, **kwargs):
         name = args[0]
 
@@ -31,6 +34,7 @@ def submodule_method(method):
 
 class Module():
 
+    @public_method
     def __init__(self, name, protocol=None, port=None):
         """
         Module(engine, name, protocol, port)
@@ -40,11 +44,13 @@ class Module():
         Base Module constructor.
         Arguments protocol and port should be omitted only when the module is a submodule.
 
-        :param name: module name
-        :param protocol: 'osc' or 'midi'
-        :param port:
+        **Parameters**
+
+        - name: module name
+        - protocol: 'osc' or 'midi'
+        - port:
             udp port number or unix socket path if protocol is 'osc'
-            can be None module has no fixed input port
+            can be None if the module has no fixed input port
         """
 
         self.engine = None
@@ -72,9 +78,10 @@ class Module():
         self.states = {}
         self.states_folder = ''
 
+    @public_method
     def initialize(self, engine, submodule=False):
         """
-        initialize()
+        initialize(engine, submodule=False)
 
         Called by the engine when started.
         """
@@ -110,6 +117,7 @@ class Module():
                         self.watched_module_changed
                     )
 
+    @public_method
     def add_submodule(self, module):
         """
         add_submodule(module)
@@ -118,7 +126,9 @@ class Module():
         Submodule's protocol and port can be omitted,
         they will be inherited from their parent.
 
-        :param module: Module object
+        **Parameters**
+
+        - module: Module object
         """
         self.submodules[module.name] = module
         module.protocol = self.protocol
@@ -127,19 +137,38 @@ class Module():
             # if module is already initialized, initialize submodule
             module.initialize(self.engine, True)
 
+    @public_method
+    def set_aliases(self, aliases):
+        """
+        set_aliases(aliases)
+
+        Set aliases for submodules.
+        Aliases can be used in place of the submodule_name argument in some methods.
+
+        **Parameters**
+
+        - aliases: {alias: name} dictionary
+        """
+        self.aliases = aliases
+
+    @public_method
     def add_parameter(self, name, address=None, types=None, static_args=[]):
         """
         add_parameter(parameter)
         add_parameter(name, address, types)
         add_parameter(name, address, types, static_args)
+        add_parameter(name, address, types, static_args, default)
 
         Add parameter to module.
 
-        :param parameter: parameter object
-        :param name: name of parameter
-        :param address: osc address of parameter
-        :param types: osc typetags string, one letter per value, including static values
-        :param static_args: list of static values before the ones that can be modified
+        **Parameters**
+
+        - parameter: parameter object
+        - name: name of parameter
+        - address: osc address of parameter
+        - types: osc typetags string, one letter per value, including static values
+        - static_args: list of static values before the ones that can be modified
+        - default: list of values
         """
         if isinstance(name, Parameter):
             self.parameters[name.name] = parameter
@@ -148,6 +177,7 @@ class Module():
                 name, address, types, static_args
             )
 
+    @public_method
     @submodule_method
     def get(self, *args):
         """
@@ -156,11 +186,13 @@ class Module():
 
         Get value of parameter
 
-        :param parameter_name: name of parameter
-        :param submodule_name: name of submodule, name of parameter
+        **Parameters**
 
-        :return:
-            List of values
+        - parameter_name: name of parameter
+        - submodule_name: name of submodule, name of parameter
+
+        **Return**
+        List of values
         """
         name = args[0]
 
@@ -171,6 +203,7 @@ class Module():
         else:
             LOGGER.error('get: parameter "%s" not found' % name)
 
+    @public_method
     @submodule_method
     def set(self, *args):
         """
@@ -180,9 +213,11 @@ class Module():
         Set value of parameter.
         Schedule a message if the new value differs from the one in memory.
 
-        :param parameter_name: name of parameter
-        :param submodule_name: name of submodule, name of parameter
-        :param *args: value(s)
+        **Parameters**
+
+        - parameter_name: name of parameter
+        - submodule_name: name of submodule, name of parameter
+        - *args: value(s)
         """
         name = args[0]
 
@@ -198,31 +233,37 @@ class Module():
         else:
             LOGGER.error('set: parameter "%s" not found' % name)
 
+    @public_method
     @submodule_method
     def animate(self, *args, **kwargs):
         """
-        animate(parameter_name, start, end, duration, easing='linear'):
-        animate(submodule_name, parameter_name, start, end, duration, easing='linear'):
+        animate(parameter_name, start, end, duration, mode='seconds', easing='linear')
+        animate(submodule_name, parameter_name, start, end, duration, mode='beats', easing='linear')
 
         Animate parameter.
 
-        :param parameter_name: name of parameter
-        :param submodule_name: name of submodule
-        :param start: starting value(s), can be None to use currnet value
-        :param end: ending value(s)
-        :param duration: animation duration
+        **Parameters**
+
+        - parameter_name: name of parameter
+        - submodule_name: name of submodule
+        - start: starting value(s), can be None to use currnet value
+        - end: ending value(s)
+        - duration: animation duration
+        - mode: 'seconds' or 'beats'
+        - easing: easing function name
         """
         name = args[0]
 
         if name in self.parameters:
 
             parameter = self.parameters[name]
-            parameter.start_animation(self.engine.current_time, *args[1:], **kwargs)
+            parameter.start_animation(self.engine, *args[1:], **kwargs)
             if name not in self.animations and parameter.animate_running:
                 self.animations.append(name)
         else:
             LOGGER.error('animate: parameter "%s" not found' % name)
 
+    @public_method
     @submodule_method
     def stop_animate(self, *args):
         """
@@ -231,8 +272,10 @@ class Module():
 
         Stop parameter animation.
 
-        :param parameter_name: name of parameter, can be '*' to stop all animations.
-        :param submodule_name: name of submodule, name of parameter
+        **Parameters**
+
+        - parameter_name: name of parameter, can be '*' to stop all animations.
+        - submodule_name: name of submodule, name of parameter
         """
         name = args[0]
 
@@ -275,8 +318,8 @@ class Module():
 
         Get state of all parameters and submodules' parameters.
 
-        :return:
-            List of lists that can be fed to set()
+        **Return**
+        List of lists that can be fed to set()
         """
         state = []
 
@@ -291,13 +334,16 @@ class Module():
 
         return state
 
+    @public_method
     def save(self, name):
         """
         save(name)
 
         Save current state (including submodules) to file.
 
-        :param name: name of state save (without file extension)
+        **Parameters**
+
+        - name: name of state save (without file extension)
         """
         file = '%s/%s.json' % (self.states_folder, name)
         self.states[name] = self.get_state()
@@ -306,13 +352,16 @@ class Module():
         f.close()
         LOGGER.info('%s: state "%s" saved to %s' % (self.name, name, file))
 
+    @public_method
     def load(self, name, preload=False):
         """
         load(name)
 
         Load state from memory or from file if not preloaded already
 
-        :param name: name of state save (without file extension)
+        **Parameters**
+
+        - name: name of state save (without file extension)
         """
         if name not in self.states:
 
@@ -330,6 +379,7 @@ class Module():
                 LOGGER.info('%s: state "%s" loaded' % (self.name, name))
 
 
+    @public_method
     def route(self, address, args):
         """
         route(address, args)
@@ -338,34 +388,42 @@ class Module():
         Does nothing by default, method should be overriden in subclasses.
         Not called on submodules.
 
-        :param address: osc address
-        :param args: list of values
+        **Parameters**
+
+        - address: osc address
+        - args: list of values
         """
         pass
 
+    @public_method
     def send(self, address, *args):
         """
         send(address, *args)
 
         Send message to the module's port.
 
-        :param address: osc address
-        :param *args: values
+        **Parameters**
+
+        - address: osc address
+        - *args: values
         """
         if self.port:
             self.engine.send(self.protocol, self.port, address, *args)
 
+    @public_method
     def watch_module(self, *args):
         """
-        watch_module(submodule_name, param_name, callback)
+        watch_module(module_name, param_name, callback)
 
         Watch changes of a module's parameter.
         Used by controller modules to collect feedback.
 
-        :param module_name:
+        **Parameters**
+
+        - module_name:
             name of module This argument can be suplied multiple time if
             targetted module is a submodule
-        :param parameter_name:
+        - parameter_name:
             name of parameter, can be '*' to subscribe to all parameters
             including submodules'
         """
@@ -375,6 +433,7 @@ class Module():
             self.watched_modules[module_path] = []
         self.watched_modules[module_path].append(parameter_name)
 
+    @public_method
     def watched_module_changed(self, module_path, name, args):
         """
         watched_module_changed(module_path, name, args)
@@ -382,9 +441,11 @@ class Module():
         Called when the value of a watched module's parameter updates.
         To be overridden in subclasses.
 
-        :param module_path: list of module names (from parent to submodule)
-        :param name: name of parameter
-        :param args: values
+        **Parameters**
+
+        - module_path: list of module names (from parent to submodule)
+        - name: name of parameter
+        - args: values
         """
         pass
 
@@ -397,12 +458,14 @@ class Module():
         Register a callback function to be called whenever the value
         of a parameter changes. Used by controller modules to collect feedback.
 
-        :param submodule_name:
+        **Parameters**
+
+        - submodule_name:
             name of submodule
-        :param parameter_name:
+        - parameter_name:
             name of parameter, can be '*' to subscribe to all parameters
             including submodules'
-        :param callback:
+        - callback:
             function or method
         """
         name = args[0]
@@ -429,7 +492,9 @@ class Module():
             name: name of parameter
             args: values
 
-        :param name: name of parameter
+        **Parameters**
+
+        - name: name of parameter
         """
         if name in self.parameters_callbacks:
             for callback in self.parameters_callbacks[name]:

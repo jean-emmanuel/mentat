@@ -1,18 +1,26 @@
-from .easing import EASING_FUNCTIONS
 import time
+from enum import Enum
+
+from .utils import *
+from .easing import EASING_FUNCTIONS
+
 class Parameter():
 
-    def __init__(self, name, address, types, static_args=[]):
+    @public_method
+    def __init__(self, name, address, types, static_args=[], default=None):
         """
         Parameter(name, address, types)
         Parameter(name, address, types, static_args)
 
         Parameter constructor.
 
-        :param name: name of parameter
-        :param address: osc address of parameter
-        :param types: osc typetags string, one letter per value, including static values
-        :param static_args: list of static values before the ones that can be modified
+        **Parameters**
+
+        - name: name of parameter
+        - address: osc address of parameter
+        - types: osc typetags string, one letter per value, including static values
+        - static_args: list of static values before the ones that can be modified
+        - default: list of values
         """
 
         self.name = name
@@ -30,31 +38,38 @@ class Parameter():
         self.animate_to = 0
         self.animate_easing = None
 
+        if default is not None:
+            self.set(default)
+
+    @public_method
     def get(self):
         """
         get()
 
         Get parameter value.
 
-        :return:
-            list of n values, where n is the number of
-            values specified in constructor's types option
+        **Return**
+        List of n values, where n is the number of
+        values specified in constructor's types option
         """
 
         return self.args[-self.n_args:]
 
+    @public_method
     def set(self, *args):
         """
         set(*args)
 
         Set parameter value.
 
-        :param *args:
+        **Parameters**
+
+        - *args:
             n values, where n is the number of
             values specified in constructor's types option
 
-        :return:
-            True is the new value differs from the old one, False otherwise
+        **Return**
+        True is the new value differs from the old one, False otherwise
         """
         if len(args) != self.n_args:
             # LOGGER ERROR
@@ -74,11 +89,13 @@ class Parameter():
 
         Cast value to given type.
 
-        :param arg: input value
-        :param type: osc typetag letter (supported: 'ifsTF')
+        **Parameters**
 
-        :return:
-            casted value
+        - arg: input value
+        - type: osc typetag letter (supported: 'ifsTF')
+
+        **Return**
+        Casted value
         """
 
         if type == 'i':
@@ -94,7 +111,7 @@ class Parameter():
         else:
             return arg
 
-    def start_animation(self, current_time, start, end, duration, easing='linear'):
+    def start_animation(self, engine, start, end, duration, mode='beats', easing='linear'):
 
         if not easing in EASING_FUNCTIONS:
             LOGGER.error('unknown easing "%s", falling back to "linear"' % easing)
@@ -102,12 +119,20 @@ class Parameter():
 
         self.animate_from = start if start is not None else self.get()
         self.animate_to = end
+        self.animate_start = engine.current_time
+        self.animate_duration = duration * 1000000000
+
         if type(self.animate_from) is not list:
             self.animate_from = [self.animate_from]
         if type(self.animate_to) is not list:
             self.animate_to = [self.animate_to]
-        self.animate_start = current_time
-        self.animate_duration = duration * 1000000000
+
+        if mode[0] == 'b':
+            self.animate_duration = self.animate_duration * 60. / engine.bpm
+        elif mode[0] != 's':
+            LOGGER.error('start_animation: unrecognized mode "%s"' % mode)
+            return
+
         self.animate_easing = [
             EASING_FUNCTIONS[easing](
                 start=self.animate_from[i],
@@ -118,9 +143,9 @@ class Parameter():
         ]
 
         if len(self.animate_from) != self.n_args:
-            LOGGER.error('wrong number of values for argument "from" (expected %i)' % self.n_args)
+            LOGGER.error('start_animation: wrong number of values for argument "from" (expected %i)' % self.n_args)
         elif len(self.animate_from) != self.n_args:
-            LOGGER.error('wrong number of values for argument "to" (expected %i)' % self.n_args)
+            LOGGER.error('start_animation: wrong number of values for argument "to" (expected %i)' % self.n_args)
         else:
             self.animate_running = True
 

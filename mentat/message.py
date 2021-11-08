@@ -7,11 +7,13 @@ class Message():
 
         OSC / MIDI Message constructor
 
-        :param protocol: 'osc' or 'midi'
-        :param module: module name
-        :param port: udp port number or osc.unix:// socket path if protocol is 'osc'
-        :param address: osc address
-        :param *args: values
+        **Parameters**
+
+        - protocol: 'osc' or 'midi'
+        - module: module name
+        - port: udp port number or osc.unix:// socket path if protocol is 'osc'
+        - address: osc address
+        - *args: values
         """
         self.protocol = protocol
         self.port = port
