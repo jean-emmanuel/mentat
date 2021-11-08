@@ -9,8 +9,7 @@ class Parameter():
     @public_method
     def __init__(self, name, address, types, static_args=[], default=None):
         """
-        Parameter(name, address, types)
-        Parameter(name, address, types, static_args)
+        Parameter(name, address, types, static_args=[], default=None)
 
         Parameter constructor.
 
@@ -49,6 +48,7 @@ class Parameter():
         Get parameter value.
 
         **Return**
+        
         List of n values, where n is the number of
         values specified in constructor's types option
         """

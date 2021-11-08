@@ -157,9 +157,7 @@ class Module():
     def add_parameter(self, name, address=None, types=None, static_args=[]):
         """
         add_parameter(parameter)
-        add_parameter(name, address, types)
-        add_parameter(name, address, types, static_args)
-        add_parameter(name, address, types, static_args, default)
+        add_parameter(name, address, types, static_args=[], default=None)
 
         Add parameter to module.
 
@@ -191,9 +189,10 @@ class Module():
         **Parameters**
 
         - parameter_name: name of parameter
-        - submodule_name: name of submodule, name of parameter
+        - submodule_name: name of submodule
 
         **Return**
+
         List of values
         """
         name = args[0]
@@ -321,6 +320,7 @@ class Module():
         Get state of all parameters and submodules' parameters.
 
         **Return**
+        
         List of lists that can be fed to set()
         """
         state = []

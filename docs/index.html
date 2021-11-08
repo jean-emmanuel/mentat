@@ -169,6 +169,7 @@
 <li>call the active route’s <a href="#route.route"><code>route()</code></a> method.</li>
 </ul>
 <p>Overriding these methods in the correponding class definitions will allow defining what should happend and when.</p>
+<hr />
 <h2 id="engine">Engine</h2>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
@@ -287,7 +288,7 @@
 </div>
 <h3 id="module.add_parameter">Module.add_parameter()</h3>
 <div class="content">
-<p><i>add_parameter(parameter)</i><br/> <i>add_parameter(name, address, types)</i><br/> <i>add_parameter(name, address, types, static_args)</i><br/> <i>add_parameter(name, address, types, static_args, default)</i><br/></p>
+<p><i>add_parameter(parameter)</i><br/> <i>add_parameter(name, address, types, static_args=[], default=None)</i><br/></p>
 <p>Add parameter to module.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -306,9 +307,10 @@
 <p><strong>Parameters</strong></p>
 <ul>
 <li>parameter_name: name of parameter</li>
-<li>submodule_name: name of submodule, name of parameter</li>
+<li>submodule_name: name of submodule</li>
 </ul>
-<p><strong>Return</strong> List of values</p>
+<p><strong>Return</strong></p>
+<p>List of values</p>
 </div>
 <h3 id="module.set">Module.set()</h3>
 <div class="content">
@@ -409,7 +411,7 @@
 <h2 id="parameter">Parameter</h2>
 <h3 id="parameter-1">Parameter()</h3>
 <div class="content">
-<p><i>Parameter(name, address, types)</i><br/> <i>Parameter(name, address, types, static_args)</i><br/></p>
+<p><i>Parameter(name, address, types, static_args=[], default=None)</i><br/></p>
 <p>Parameter constructor.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -424,7 +426,8 @@
 <div class="content">
 <p><i>get()</i><br/></p>
 <p>Get parameter value.</p>
-<p><strong>Return</strong> List of n values, where n is the number of values specified in constructor’s types option</p>
+<p><strong>Return</strong></p>
+<p>List of n values, where n is the number of values specified in constructor’s types option</p>
 </div>
 <h3 id="parameter.set">Parameter.set()</h3>
 <div class="content">
