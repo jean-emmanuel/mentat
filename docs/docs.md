@@ -32,7 +32,7 @@ Overriding these methods in the correponding class definitions will allow defini
 
 <div class='content'>
 
-<i>Engine(name, port, folder)</i>
+<i>Engine(name, port, folder)</i><br/>
 
 Engine constructor.
 
@@ -48,7 +48,7 @@ Engine constructor.
 
 <div class='content'>
 
-<i>start()</i>
+<i>start()</i><br/>
 
 Start engine.
 
@@ -58,7 +58,7 @@ Start engine.
 
 <div class='content'>
 
-<i>stop()</i>
+<i>stop()</i><br/>
 
 Stop engine.
 
@@ -68,10 +68,9 @@ Stop engine.
 
 <div class='content'>
 
-<i>restart()</i>
+<i>restart()</i><br/>
 
 Stop the engine and restart once the process is terminated.
-Borrowed from mididings.
 
 </div>
 
@@ -79,10 +78,9 @@ Borrowed from mididings.
 
 <div class='content'>
 
-<i>autorestart()</i>
+<i>autorestart()</i><br/>
 
 Watch main script and imported modules and call restart when they change.
-Borrowed from mididings.
 
 </div>
 
@@ -90,7 +88,7 @@ Borrowed from mididings.
 
 <div class='content'>
 
-<i>add_module(module)</i>
+<i>add_module(module)</i><br/>
 
 Add a module.
 
@@ -104,7 +102,7 @@ Add a module.
 
 <div class='content'>
 
-<i>send(protocol, port, address, *args)</i>
+<i>send(protocol, port, address, *args)</i><br/>
 
 Send OSC / MIDI message.
 
@@ -122,7 +120,7 @@ Send OSC / MIDI message.
 
 <div class='content'>
 
-<i>add_route(route)</i>
+<i>add_route(route)</i><br/>
 
 Add a route.
 
@@ -136,7 +134,7 @@ Add a route.
 
 <div class='content'>
 
-<i>set_route(name)</i>
+<i>set_route(name)</i><br/>
 
 Set active route.
 
@@ -150,7 +148,7 @@ Set active route.
 
 <div class='content'>
 
-<i>set_bpm(bpm)</i>
+<i>set_bpm(bpm)</i><br/>
 
 Set engine bpm.
 
@@ -168,9 +166,9 @@ Set engine bpm.
 
 <div class='content'>
 
-<i>Module(engine, name, protocol, port)</i>
-<i>Module(engine, name, protocol)</i>
-<i>Module(engine, name)</i>
+<i>Module(engine, name, protocol, port)</i><br/>
+<i>Module(engine, name, protocol)</i><br/>
+<i>Module(engine, name)</i><br/>
 
 Base Module constructor.
 Arguments protocol and port should be omitted only when the module is a submodule.
@@ -189,7 +187,7 @@ Arguments protocol and port should be omitted only when the module is a submodul
 
 <div class='content'>
 
-<i>initialize(engine, submodule=False)</i>
+<i>initialize(engine, submodule=False)</i><br/>
 
 Called by the engine when started.
 
@@ -199,7 +197,7 @@ Called by the engine when started.
 
 <div class='content'>
 
-<i>add_submodule(module)</i>
+<i>add_submodule(module)</i><br/>
 
 Add a submodule.
 Submodule's protocol and port can be omitted,
@@ -215,7 +213,7 @@ they will be inherited from their parent.
 
 <div class='content'>
 
-<i>set_aliases(aliases)</i>
+<i>set_aliases(aliases)</i><br/>
 
 Set aliases for submodules.
 Aliases can be used in place of the submodule_name argument in some methods.
@@ -230,10 +228,10 @@ Aliases can be used in place of the submodule_name argument in some methods.
 
 <div class='content'>
 
-<i>add_parameter(parameter)</i>
-<i>add_parameter(name, address, types)</i>
-<i>add_parameter(name, address, types, static_args)</i>
-<i>add_parameter(name, address, types, static_args, default)</i>
+<i>add_parameter(parameter)</i><br/>
+<i>add_parameter(name, address, types)</i><br/>
+<i>add_parameter(name, address, types, static_args)</i><br/>
+<i>add_parameter(name, address, types, static_args, default)</i><br/>
 
 Add parameter to module.
 
@@ -252,8 +250,8 @@ Add parameter to module.
 
 <div class='content'>
 
-<i>get(parameter_name)</i>
-<i>get(submodule_name, param_name)</i>
+<i>get(parameter_name)</i><br/>
+<i>get(submodule_name, param_name)</i><br/>
 
 Get value of parameter
 
@@ -271,8 +269,8 @@ List of values
 
 <div class='content'>
 
-<i>set(parameter_name, *args)</i>
-<i>set(submodule_name, param_nam, *args)</i>
+<i>set(parameter_name, *args)</i><br/>
+<i>set(submodule_name, param_nam, *args)</i><br/>
 
 Set value of parameter.
 Schedule a message if the new value differs from the one in memory.
@@ -289,8 +287,8 @@ Schedule a message if the new value differs from the one in memory.
 
 <div class='content'>
 
-<i>animate(parameter_name, start, end, duration, mode='seconds', easing='linear')</i>
-<i>animate(submodule_name, parameter_name, start, end, duration, mode='beats', easing='linear')</i>
+<i>animate(parameter_name, start, end, duration, mode='seconds', easing='linear')</i><br/>
+<i>animate(submodule_name, parameter_name, start, end, duration, mode='beats', easing='linear')</i><br/>
 
 Animate parameter.
 
@@ -310,8 +308,8 @@ Animate parameter.
 
 <div class='content'>
 
-<i>stop_animate(parameter_name)</i>
-<i>stop_animate(submodule_name, param_name)</i>
+<i>stop_animate(parameter_name)</i><br/>
+<i>stop_animate(submodule_name, param_name)</i><br/>
 
 Stop parameter animation.
 
@@ -326,7 +324,7 @@ Stop parameter animation.
 
 <div class='content'>
 
-<i>save(name)</i>
+<i>save(name)</i><br/>
 
 Save current state (including submodules) to file.
 
@@ -340,7 +338,7 @@ Save current state (including submodules) to file.
 
 <div class='content'>
 
-<i>load(name)</i>
+<i>load(name)</i><br/>
 
 Load state from memory or from file if not preloaded already
 
@@ -354,7 +352,7 @@ Load state from memory or from file if not preloaded already
 
 <div class='content'>
 
-<i>route(address, args)</i>
+<i>route(address, args)</i><br/>
 
 Route messages received by the engine on the module's port.
 Does nothing by default, method should be overriden in subclasses.
@@ -371,7 +369,7 @@ Not called on submodules.
 
 <div class='content'>
 
-<i>send(address, *args)</i>
+<i>send(address, *args)</i><br/>
 
 Send message to the module's port.
 
@@ -386,7 +384,7 @@ Send message to the module's port.
 
 <div class='content'>
 
-<i>watch_module(module_name, param_name, callback)</i>
+<i>watch_module(module_name, param_name, callback)</i><br/>
 
 Watch changes of a module's parameter.
 Used by controller modules to collect feedback.
@@ -406,7 +404,7 @@ Used by controller modules to collect feedback.
 
 <div class='content'>
 
-<i>watched_module_changed(module_path, name, args)</i>
+<i>watched_module_changed(module_path, name, args)</i><br/>
 
 Called when the value of a watched module's parameter updates.
 To be overridden in subclasses.
@@ -427,8 +425,8 @@ To be overridden in subclasses.
 
 <div class='content'>
 
-<i>Parameter(name, address, types)</i>
-<i>Parameter(name, address, types, static_args)</i>
+<i>Parameter(name, address, types)</i><br/>
+<i>Parameter(name, address, types, static_args)</i><br/>
 
 Parameter constructor.
 
@@ -446,7 +444,7 @@ Parameter constructor.
 
 <div class='content'>
 
-<i>get()</i>
+<i>get()</i><br/>
 
 Get parameter value.
 
@@ -460,7 +458,7 @@ values specified in constructor's types option
 
 <div class='content'>
 
-<i>set(*args)</i>
+<i>set(*args)</i><br/>
 
 Set parameter value.
 
@@ -483,7 +481,7 @@ True is the new value differs from the old one, False otherwise
 
 <div class='content'>
 
-<i>Route()</i>
+<i>Route()</i><br/>
 
 Route object constructor.
 
@@ -497,7 +495,7 @@ Route object constructor.
 
 <div class='content'>
 
-<i>initialize(engine)</i>
+<i>initialize(engine)</i><br/>
 
 Called by the engine when started.
 
@@ -511,7 +509,7 @@ Called by the engine when started.
 
 <div class='content'>
 
-<i>activate()</i>
+<i>activate()</i><br/>
 
 Called when the engine switches to this route.
 
@@ -521,7 +519,7 @@ Called when the engine switches to this route.
 
 <div class='content'>
 
-<i>deactivate()</i>
+<i>deactivate()</i><br/>
 
 Called when the engine switches to another route.
 
@@ -531,7 +529,7 @@ Called when the engine switches to another route.
 
 <div class='content'>
 
-<i>route(protocol, port, address, args)</i>
+<i>route(protocol, port, address, args)</i><br/>
 
 Process messages received by the engine.
 
@@ -548,7 +546,7 @@ Process messages received by the engine.
 
 <div class='content'>
 
-<i>start_scene(name, scene, *args, **kwargs)</i>
+<i>start_scene(name, scene, *args, **kwargs)</i><br/>
 
 Start scene in a thread.
 If a scene with the same name is already running, it will be stopped.
@@ -568,7 +566,7 @@ can call self.wait() to create timed sequences or loops.
 
 <div class='content'>
 
-<i>stop_scene(name, scene, *args, **kwargs)</i>
+<i>stop_scene(name, scene, *args, **kwargs)</i><br/>
 
 Stop scene thread.
 
@@ -583,18 +581,18 @@ Stop scene thread.
 
 <div class='content'>
 
-<i>wait(duration, mode='beats')</i>
+<i>wait(duration, mode='beats')</i><br/>
 
 Wait for given amount of time. Can only called in scenes.
-Subsequent calls to <i>wait()</i> in a scene do not drift with time
+Subsequent calls to wait() in a scene do not drift with time
 and can be safely used to create beat sequences.
 
 ```
 # Example
 beat_1()
-self.<i>wait(1, 'b')</i> # will wait 1 beat minus beat_1's exec time
+self.wait(1, 'b') # will wait 1 beat minus beat_1's exec time
 beat_2()
-self.<i>wait(1, 'b')</i> # will wait 1 beat minus beat_1 and beat_2's exec time
+self.wait(1, 'b') # will wait 1 beat minus beat_1 and beat_2's exec time
 ```
 
 **Parameters**

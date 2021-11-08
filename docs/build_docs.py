@@ -59,7 +59,7 @@ for mod in [Engine, Module, Parameter, Route]:
         docs += "<div class='content'>\n\n"
         mdoc = getdoc(method)
 
-        mdoc = re.sub("(%s\\(.*\\))" % name, r'<i>\1</i>', mdoc)
+        mdoc = re.sub("^(%s\\(.*\\))" % name, r'<i>\1</i><br/>', mdoc, flags=re.MULTILINE)
 
         # docs += "<i>zdzef</i>"
         docs += mdoc

@@ -172,7 +172,7 @@
 <h2 id="engine">Engine</h2>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
-<p><i>Engine(name, port, folder)</i></p>
+<p><i>Engine(name, port, folder)</i><br/></p>
 <p>Engine constructor.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -183,27 +183,27 @@
 </div>
 <h3 id="engine.start">Engine.start()</h3>
 <div class="content">
-<p><i>start()</i></p>
+<p><i>start()</i><br/></p>
 <p>Start engine.</p>
 </div>
 <h3 id="engine.stop">Engine.stop()</h3>
 <div class="content">
-<p><i>stop()</i></p>
+<p><i>stop()</i><br/></p>
 <p>Stop engine.</p>
 </div>
 <h3 id="engine.restart">Engine.restart()</h3>
 <div class="content">
-<p><i>restart()</i></p>
-<p>Stop the engine and restart once the process is terminated. Borrowed from mididings.</p>
+<p><i>restart()</i><br/></p>
+<p>Stop the engine and restart once the process is terminated.</p>
 </div>
 <h3 id="engine.autorestart">Engine.autorestart()</h3>
 <div class="content">
-<p><i>autorestart()</i></p>
-<p>Watch main script and imported modules and call restart when they change. Borrowed from mididings.</p>
+<p><i>autorestart()</i><br/></p>
+<p>Watch main script and imported modules and call restart when they change.</p>
 </div>
 <h3 id="engine.add_module">Engine.add_module()</h3>
 <div class="content">
-<p><i>add_module(module)</i></p>
+<p><i>add_module(module)</i><br/></p>
 <p>Add a module.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -212,7 +212,7 @@
 </div>
 <h3 id="engine.send">Engine.send()</h3>
 <div class="content">
-<p><i>send(protocol, port, address, *args)</i></p>
+<p><i>send(protocol, port, address, *args)</i><br/></p>
 <p>Send OSC / MIDI message.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -224,7 +224,7 @@
 </div>
 <h3 id="engine.add_route">Engine.add_route()</h3>
 <div class="content">
-<p><i>add_route(route)</i></p>
+<p><i>add_route(route)</i><br/></p>
 <p>Add a route.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -233,7 +233,7 @@
 </div>
 <h3 id="engine.set_route">Engine.set_route()</h3>
 <div class="content">
-<p><i>set_route(name)</i></p>
+<p><i>set_route(name)</i><br/></p>
 <p>Set active route.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -242,7 +242,7 @@
 </div>
 <h3 id="engine.set_bpm">Engine.set_bpm()</h3>
 <div class="content">
-<p><i>set_bpm(bpm)</i></p>
+<p><i>set_bpm(bpm)</i><br/></p>
 <p>Set engine bpm.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -253,7 +253,7 @@
 <h2 id="module">Module</h2>
 <h3 id="module-1">Module()</h3>
 <div class="content">
-<p><i>Module(engine, name, protocol, port)</i> <i>Module(engine, name, protocol)</i> <i>Module(engine, name)</i></p>
+<p><i>Module(engine, name, protocol, port)</i><br/> <i>Module(engine, name, protocol)</i><br/> <i>Module(engine, name)</i><br/></p>
 <p>Base Module constructor. Arguments protocol and port should be omitted only when the module is a submodule.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -264,12 +264,12 @@
 </div>
 <h3 id="module.initialize">Module.initialize()</h3>
 <div class="content">
-<p><i>initialize(engine, submodule=False)</i></p>
+<p><i>initialize(engine, submodule=False)</i><br/></p>
 <p>Called by the engine when started.</p>
 </div>
 <h3 id="module.add_submodule">Module.add_submodule()</h3>
 <div class="content">
-<p><i>add_submodule(module)</i></p>
+<p><i>add_submodule(module)</i><br/></p>
 <p>Add a submodule. Submodule’s protocol and port can be omitted, they will be inherited from their parent.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -278,7 +278,7 @@
 </div>
 <h3 id="module.set_aliases">Module.set_aliases()</h3>
 <div class="content">
-<p><i>set_aliases(aliases)</i></p>
+<p><i>set_aliases(aliases)</i><br/></p>
 <p>Set aliases for submodules. Aliases can be used in place of the submodule_name argument in some methods.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -287,7 +287,7 @@
 </div>
 <h3 id="module.add_parameter">Module.add_parameter()</h3>
 <div class="content">
-<p><i>add_parameter(parameter)</i> <i>add_parameter(name, address, types)</i> <i>add_parameter(name, address, types, static_args)</i> <i>add_parameter(name, address, types, static_args, default)</i></p>
+<p><i>add_parameter(parameter)</i><br/> <i>add_parameter(name, address, types)</i><br/> <i>add_parameter(name, address, types, static_args)</i><br/> <i>add_parameter(name, address, types, static_args, default)</i><br/></p>
 <p>Add parameter to module.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -301,7 +301,7 @@
 </div>
 <h3 id="module.get">Module.get()</h3>
 <div class="content">
-<p><i>get(parameter_name)</i> <i>get(submodule_name, param_name)</i></p>
+<p><i>get(parameter_name)</i><br/> <i>get(submodule_name, param_name)</i><br/></p>
 <p>Get value of parameter</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -312,7 +312,7 @@
 </div>
 <h3 id="module.set">Module.set()</h3>
 <div class="content">
-<p><i>set(parameter_name, <em>args)</i> <i>set(submodule_name, param_nam, </em>args)</i></p>
+<p><i>set(parameter_name, <em>args)</i><br/> <i>set(submodule_name, param_nam, </em>args)</i><br/></p>
 <p>Set value of parameter. Schedule a message if the new value differs from the one in memory.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -323,7 +323,7 @@
 </div>
 <h3 id="module.animate">Module.animate()</h3>
 <div class="content">
-<p><i>animate(parameter_name, start, end, duration, mode=‘seconds’, easing=‘linear’)</i> <i>animate(submodule_name, parameter_name, start, end, duration, mode=‘beats’, easing=‘linear’)</i></p>
+<p><i>animate(parameter_name, start, end, duration, mode=‘seconds’, easing=‘linear’)</i><br/> <i>animate(submodule_name, parameter_name, start, end, duration, mode=‘beats’, easing=‘linear’)</i><br/></p>
 <p>Animate parameter.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -338,7 +338,7 @@
 </div>
 <h3 id="module.stop_animate">Module.stop_animate()</h3>
 <div class="content">
-<p><i>stop_animate(parameter_name)</i> <i>stop_animate(submodule_name, param_name)</i></p>
+<p><i>stop_animate(parameter_name)</i><br/> <i>stop_animate(submodule_name, param_name)</i><br/></p>
 <p>Stop parameter animation.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -348,7 +348,7 @@
 </div>
 <h3 id="module.save">Module.save()</h3>
 <div class="content">
-<p><i>save(name)</i></p>
+<p><i>save(name)</i><br/></p>
 <p>Save current state (including submodules) to file.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -357,7 +357,7 @@
 </div>
 <h3 id="module.load">Module.load()</h3>
 <div class="content">
-<p><i>load(name)</i></p>
+<p><i>load(name)</i><br/></p>
 <p>Load state from memory or from file if not preloaded already</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -366,7 +366,7 @@
 </div>
 <h3 id="module.route">Module.route()</h3>
 <div class="content">
-<p><i>route(address, args)</i></p>
+<p><i>route(address, args)</i><br/></p>
 <p>Route messages received by the engine on the module’s port. Does nothing by default, method should be overriden in subclasses. Not called on submodules.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -376,7 +376,7 @@
 </div>
 <h3 id="module.send">Module.send()</h3>
 <div class="content">
-<p><i>send(address, *args)</i></p>
+<p><i>send(address, *args)</i><br/></p>
 <p>Send message to the module’s port.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -386,7 +386,7 @@
 </div>
 <h3 id="module.watch_module">Module.watch_module()</h3>
 <div class="content">
-<p><i>watch_module(module_name, param_name, callback)</i></p>
+<p><i>watch_module(module_name, param_name, callback)</i><br/></p>
 <p>Watch changes of a module’s parameter. Used by controller modules to collect feedback.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -396,7 +396,7 @@
 </div>
 <h3 id="module.watched_module_changed">Module.watched_module_changed()</h3>
 <div class="content">
-<p><i>watched_module_changed(module_path, name, args)</i></p>
+<p><i>watched_module_changed(module_path, name, args)</i><br/></p>
 <p>Called when the value of a watched module’s parameter updates. To be overridden in subclasses.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -409,7 +409,7 @@
 <h2 id="parameter">Parameter</h2>
 <h3 id="parameter-1">Parameter()</h3>
 <div class="content">
-<p><i>Parameter(name, address, types)</i> <i>Parameter(name, address, types, static_args)</i></p>
+<p><i>Parameter(name, address, types)</i><br/> <i>Parameter(name, address, types, static_args)</i><br/></p>
 <p>Parameter constructor.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -422,13 +422,13 @@
 </div>
 <h3 id="parameter.get">Parameter.get()</h3>
 <div class="content">
-<p><i>get()</i></p>
+<p><i>get()</i><br/></p>
 <p>Get parameter value.</p>
 <p><strong>Return</strong> List of n values, where n is the number of values specified in constructor’s types option</p>
 </div>
 <h3 id="parameter.set">Parameter.set()</h3>
 <div class="content">
-<p><i>set(*args)</i></p>
+<p><i>set(*args)</i><br/></p>
 <p>Set parameter value.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -440,7 +440,7 @@
 <h2 id="route">Route</h2>
 <h3 id="route-1">Route()</h3>
 <div class="content">
-<p><i>Route()</i></p>
+<p><i>Route()</i><br/></p>
 <p>Route object constructor.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -449,7 +449,7 @@
 </div>
 <h3 id="route.initialize">Route.initialize()</h3>
 <div class="content">
-<p><i>initialize(engine)</i></p>
+<p><i>initialize(engine)</i><br/></p>
 <p>Called by the engine when started.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -458,17 +458,17 @@
 </div>
 <h3 id="route.activate">Route.activate()</h3>
 <div class="content">
-<p><i>activate()</i></p>
+<p><i>activate()</i><br/></p>
 <p>Called when the engine switches to this route.</p>
 </div>
 <h3 id="route.deactivate">Route.deactivate()</h3>
 <div class="content">
-<p><i>deactivate()</i></p>
+<p><i>deactivate()</i><br/></p>
 <p>Called when the engine switches to another route.</p>
 </div>
 <h3 id="route.route">Route.route()</h3>
 <div class="content">
-<p><i>route(protocol, port, address, args)</i></p>
+<p><i>route(protocol, port, address, args)</i><br/></p>
 <p>Process messages received by the engine.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -480,7 +480,7 @@
 </div>
 <h3 id="route.start_scene">Route.start_scene()</h3>
 <div class="content">
-<p><i>start_scene(name, scene, *args, **kwargs)</i></p>
+<p><i>start_scene(name, scene, *args, **kwargs)</i><br/></p>
 <p>Start scene in a thread. If a scene with the same name is already running, it will be stopped. Scenes should be implemented as methods of the Route object and can call self.wait() to create timed sequences or loops.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -492,7 +492,7 @@
 </div>
 <h3 id="route.stop_scene">Route.stop_scene()</h3>
 <div class="content">
-<p><i>stop_scene(name, scene, *args, **kwargs)</i></p>
+<p><i>stop_scene(name, scene, *args, **kwargs)</i><br/></p>
 <p>Stop scene thread.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -502,13 +502,13 @@
 </div>
 <h3 id="route.wait">Route.wait()</h3>
 <div class="content">
-<p><i>wait(duration, mode=‘beats’)</i></p>
-<p>Wait for given amount of time. Can only called in scenes. Subsequent calls to <i>wait()</i> in a scene do not drift with time and can be safely used to create beat sequences.</p>
+<p><i>wait(duration, mode=‘beats’)</i><br/></p>
+<p>Wait for given amount of time. Can only called in scenes. Subsequent calls to wait() in a scene do not drift with time and can be safely used to create beat sequences.</p>
 <pre><code># Example
 beat_1()
-self.&lt;i&gt;wait(1, &#39;b&#39;)&lt;/i&gt; # will wait 1 beat minus beat_1&#39;s exec time
+self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1&#39;s exec time
 beat_2()
-self.&lt;i&gt;wait(1, &#39;b&#39;)&lt;/i&gt; # will wait 1 beat minus beat_1 and beat_2&#39;s exec time</code></pre>
+self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec time</code></pre>
 <p><strong>Parameters</strong></p>
 <ul>
 <li>duration: amount of time to wait</li>

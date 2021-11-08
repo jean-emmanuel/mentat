@@ -139,7 +139,6 @@ class Engine():
         restart()
 
         Stop the engine and restart once the process is terminated.
-        Borrowed from mididings.
         """
         def restart_python():
             os.execl(sys.executable, sys.executable, *sys.argv)
@@ -153,7 +152,6 @@ class Engine():
         autorestart()
 
         Watch main script and imported modules and call restart when they change.
-        Borrowed from mididings.
         """
         wm = pyinotify.WatchManager()
         self.notifier = pyinotify.ThreadedNotifier(wm)
