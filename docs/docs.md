@@ -146,17 +146,42 @@ Set active route.
 
 </div>
 
-### Engine.set_bpm()
+### Engine.set_tempo()
 
 <div class='content'>
 
-<i>set_bpm(bpm)</i><br/>
+<i>set_tempo(bpm)</i><br/>
 
-Set engine bpm.
+Set engine tempo.
 
 **Parameters**
 
-- bpm: beats per seconds
+- bpm: beats per minute
+
+</div>
+
+### Engine.set_cycle_length()
+
+<div class='content'>
+
+<i>set_cycle_length(eighth_notes)</i><br/>
+
+Set engine cycle (measure) length.
+
+**Parameters**
+
+- eighth_notes: eighth notes per cycle
+
+</div>
+
+### Engine.start_cycle()
+
+<div class='content'>
+
+<i>start_cycle()</i><br/>
+
+Set current time as cycle start.
+Affects Route.wait_next_cycle() method.
 
 </div>
 
@@ -470,7 +495,8 @@ Set parameter value.
     values specified in constructor's types option
 
 **Return**
-True is the new value differs from the old one, False otherwise
+
+`True` is the new value differs from the old one, `False` otherwise
 
 </div>
 
@@ -587,6 +613,7 @@ Stop scene thread.
 Wait for given amount of time. Can only called in scenes.
 Subsequent calls to wait() in a scene do not drift with time
 and can be safely used to create beat sequences.
+The engine's `tempo` must be set for the `beats` mode to work.
 
 ```
 # Example
@@ -600,6 +627,18 @@ self.wait(1, 'b') # will wait 1 beat minus beat_1 and beat_2's exec time
 
 - duration: amount of time to wait
 - mode: 'beats' or 'seconds' (only the first letter matters)
+
+</div>
+
+### Route.wait_next_cycle()
+
+<div class='content'>
+
+<i>wait_next_cycle()</i><br/>
+
+Wait until next cycle begins. The engine's `tempo` and `cycle_length`
+must be set and the engine's `start_cycle()` method
+must be called at the beginning of a cycle for this to work.
 
 </div>
 

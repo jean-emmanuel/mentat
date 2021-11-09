@@ -53,7 +53,9 @@ class Engine():
         self.is_running = False
 
         self.current_time = time.monotonic_ns()
-        self.bpm = 120
+        self.cycle_start_time = self.current_time
+        self.cycle_length = 8
+        self.tempo = 120
 
         self.folder = folder
         self.modules = {}
@@ -363,14 +365,37 @@ class Engine():
             return None
 
     @public_method
-    def set_bpm(self, bpm):
+    def set_tempo(self, bpm):
         """
-        set_bpm(bpm)
+        set_tempo(bpm)
 
-        Set engine bpm.
+        Set engine tempo.
 
         **Parameters**
 
-        - bpm: beats per seconds
+        - bpm: beats per minute
         """
-        self.bpm = max(float(bpm), 0.001)
+        self.tempo = max(float(bpm), 0.001)
+
+    @public_method
+    def set_cycle_length(self, eighth_notes):
+        """
+        set_cycle_length(eighth_notes)
+
+        Set engine cycle (measure) length.
+
+        **Parameters**
+
+        - eighth_notes: eighth notes per cycle
+        """
+        self.cycle_length = float(eighth_notes)
+
+    @public_method
+    def start_cycle(self):
+        """
+        start_cycle()
+
+        Set current time as cycle start.
+        Affects Route.wait_next_cycle() method.
+        """
+        self.cycle_start_time = self.current_time

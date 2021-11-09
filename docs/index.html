@@ -114,7 +114,9 @@
                         <li><a href="#engine.send">Engine.send()</a></li>
                         <li><a href="#engine.add_route">Engine.add_route()</a></li>
                         <li><a href="#engine.set_route">Engine.set_route()</a></li>
-                        <li><a href="#engine.set_bpm">Engine.set_bpm()</a></li>
+                        <li><a href="#engine.set_tempo">Engine.set_tempo()</a></li>
+                        <li><a href="#engine.set_cycle_length">Engine.set_cycle_length()</a></li>
+                        <li><a href="#engine.start_cycle">Engine.start_cycle()</a></li>
                         </ul></li>
                         <li><a href="#module">Module</a>
                         <ul>
@@ -150,6 +152,7 @@
                         <li><a href="#route.start_scene">Route.start_scene()</a></li>
                         <li><a href="#route.stop_scene">Route.stop_scene()</a></li>
                         <li><a href="#route.wait">Route.wait()</a></li>
+                        <li><a href="#route.wait_next_cycle">Route.wait_next_cycle()</a></li>
                         </ul></li>
                         </ul>
                     </aside>
@@ -241,14 +244,28 @@
 <li>name: route name</li>
 </ul>
 </div>
-<h3 id="engine.set_bpm">Engine.set_bpm()</h3>
+<h3 id="engine.set_tempo">Engine.set_tempo()</h3>
 <div class="content">
-<p><i>set_bpm(bpm)</i><br/></p>
-<p>Set engine bpm.</p>
+<p><i>set_tempo(bpm)</i><br/></p>
+<p>Set engine tempo.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li>bpm: beats per seconds</li>
+<li>bpm: beats per minute</li>
 </ul>
+</div>
+<h3 id="engine.set_cycle_length">Engine.set_cycle_length()</h3>
+<div class="content">
+<p><i>set_cycle_length(eighth_notes)</i><br/></p>
+<p>Set engine cycle (measure) length.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>eighth_notes: eighth notes per cycle</li>
+</ul>
+</div>
+<h3 id="engine.start_cycle">Engine.start_cycle()</h3>
+<div class="content">
+<p><i>start_cycle()</i><br/></p>
+<p>Set current time as cycle start. Affects Route.wait_next_cycle() method.</p>
 </div>
 <hr />
 <h2 id="module">Module</h2>
@@ -437,7 +454,8 @@
 <ul>
 <li>*args: n values, where n is the number of values specified in constructor’s types option</li>
 </ul>
-<p><strong>Return</strong> True is the new value differs from the old one, False otherwise</p>
+<p><strong>Return</strong></p>
+<p><code>True</code> is the new value differs from the old one, <code>False</code> otherwise</p>
 </div>
 <hr />
 <h2 id="route">Route</h2>
@@ -506,7 +524,7 @@
 <h3 id="route.wait">Route.wait()</h3>
 <div class="content">
 <p><i>wait(duration, mode=‘beats’)</i><br/></p>
-<p>Wait for given amount of time. Can only called in scenes. Subsequent calls to wait() in a scene do not drift with time and can be safely used to create beat sequences.</p>
+<p>Wait for given amount of time. Can only called in scenes. Subsequent calls to wait() in a scene do not drift with time and can be safely used to create beat sequences. The engine’s <code>tempo</code> must be set for the <code>beats</code> mode to work.</p>
 <pre><code># Example
 beat_1()
 self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1&#39;s exec time
@@ -517,6 +535,11 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <li>duration: amount of time to wait</li>
 <li>mode: ‘beats’ or ‘seconds’ (only the first letter matters)</li>
 </ul>
+</div>
+<h3 id="route.wait_next_cycle">Route.wait_next_cycle()</h3>
+<div class="content">
+<p><i>wait_next_cycle()</i><br/></p>
+<p>Wait until next cycle begins. The engine’s <code>tempo</code> and <code>cycle_length</code> must be set and the engine’s <code>start_cycle()</code> method must be called at the beginning of a cycle for this to work.</p>
 </div>
 <hr />
         </main>

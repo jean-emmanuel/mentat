@@ -105,6 +105,7 @@ class Route():
         Wait for given amount of time. Can only called in scenes.
         Subsequent calls to wait() in a scene do not drift with time
         and can be safely used to create beat sequences.
+        The engine's `tempo` must be set for the `beats` mode to work.
 
         ```
         # Example
@@ -122,3 +123,16 @@ class Route():
         timer = self.engine.get_scene_timer()
         if timer:
             timer.wait(duration, mode)
+
+    @public_method
+    def wait_next_cycle(self):
+        """
+        wait_next_cycle()
+
+        Wait until next cycle begins. The engine's `tempo` and `cycle_length`
+        must be set and the engine's `start_cycle()` method
+        must be called at the beginning of a cycle for this to work.
+        """
+        timer = self.engine.get_scene_timer()
+        if timer:
+            timer.wait_next_cycle()
