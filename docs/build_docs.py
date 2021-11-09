@@ -1,7 +1,7 @@
 from sys import path
 path.insert(0, '../')
 
-from mentat import Engine, Module, Parameter, Route
+from mentat import Engine, Module, Route
 
 from inspect import getmembers, getdoc, signature, getsourcelines
 import re
@@ -38,7 +38,7 @@ Overriding these methods in the correponding class definitions will allow defini
 
 """
 
-for mod in [Engine, Module, Parameter, Route]:
+for mod in [Engine, Module, Route]:
 
     # docs += "## Engine\n\n"
     docs += "## %s\n\n" % mod.__name__

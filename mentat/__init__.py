@@ -7,5 +7,4 @@ __version__ = '1.0.0-alpha'
 
 from .engine import Engine
 from .module import Module
-from .parameter import Parameter
 from .route import Route

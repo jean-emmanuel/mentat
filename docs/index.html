@@ -136,12 +136,6 @@
                         <li><a href="#module.watch_module">Module.watch_module()</a></li>
                         <li><a href="#module.watched_module_changed">Module.watched_module_changed()</a></li>
                         </ul></li>
-                        <li><a href="#parameter">Parameter</a>
-                        <ul>
-                        <li><a href="#parameter-1">Parameter()</a></li>
-                        <li><a href="#parameter.get">Parameter.get()</a></li>
-                        <li><a href="#parameter.set">Parameter.set()</a></li>
-                        </ul></li>
                         <li><a href="#route">Route</a>
                         <ul>
                         <li><a href="#route-1">Route()</a></li>
@@ -305,11 +299,10 @@
 </div>
 <h3 id="module.add_parameter">Module.add_parameter()</h3>
 <div class="content">
-<p><i>add_parameter(parameter)</i><br/> <i>add_parameter(name, address, types, static_args=[], default=None)</i><br/></p>
+<p><i>add_parameter(name, address, types, static_args=[], default=None)</i><br/></p>
 <p>Add parameter to module.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li>parameter: parameter object</li>
 <li>name: name of parameter</li>
 <li>address: osc address of parameter</li>
 <li>types: osc typetags string, one letter per value, including static values</li>
@@ -423,39 +416,6 @@
 <li>name: name of parameter</li>
 <li>args: values</li>
 </ul>
-</div>
-<hr />
-<h2 id="parameter">Parameter</h2>
-<h3 id="parameter-1">Parameter()</h3>
-<div class="content">
-<p><i>Parameter(name, address, types, static_args=[], default=None)</i><br/></p>
-<p>Parameter constructor.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>name: name of parameter</li>
-<li>address: osc address of parameter</li>
-<li>types: osc typetags string, one letter per value, including static values</li>
-<li>static_args: list of static values before the ones that can be modified</li>
-<li>default: list of values</li>
-</ul>
-</div>
-<h3 id="parameter.get">Parameter.get()</h3>
-<div class="content">
-<p><i>get()</i><br/></p>
-<p>Get parameter value.</p>
-<p><strong>Return</strong></p>
-<p>List of n values, where n is the number of values specified in constructor’s types option</p>
-</div>
-<h3 id="parameter.set">Parameter.set()</h3>
-<div class="content">
-<p><i>set(*args)</i><br/></p>
-<p>Set parameter value.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>*args: n values, where n is the number of values specified in constructor’s types option</li>
-</ul>
-<p><strong>Return</strong></p>
-<p><code>True</code> is the new value differs from the old one, <code>False</code> otherwise</p>
 </div>
 <hr />
 <h2 id="route">Route</h2>

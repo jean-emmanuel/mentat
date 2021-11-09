@@ -255,14 +255,12 @@ Aliases can be used in place of the submodule_name argument in some methods.
 
 <div class='content'>
 
-<i>add_parameter(parameter)</i><br/>
 <i>add_parameter(name, address, types, static_args=[], default=None)</i><br/>
 
 Add parameter to module.
 
 **Parameters**
 
-- parameter: parameter object
 - name: name of parameter
 - address: osc address of parameter
 - types: osc typetags string, one letter per value, including static values
@@ -440,63 +438,6 @@ To be overridden in subclasses.
 - module_path: list of module names (from parent to submodule)
 - name: name of parameter
 - args: values
-
-</div>
-
-----
-
-## Parameter
-
-### Parameter()
-
-<div class='content'>
-
-<i>Parameter(name, address, types, static_args=[], default=None)</i><br/>
-
-Parameter constructor.
-
-**Parameters**
-
-- name: name of parameter
-- address: osc address of parameter
-- types: osc typetags string, one letter per value, including static values
-- static_args: list of static values before the ones that can be modified
-- default: list of values
-
-</div>
-
-### Parameter.get()
-
-<div class='content'>
-
-<i>get()</i><br/>
-
-Get parameter value.
-
-**Return**
-
-List of n values, where n is the number of
-values specified in constructor's types option
-
-</div>
-
-### Parameter.set()
-
-<div class='content'>
-
-<i>set(*args)</i><br/>
-
-Set parameter value.
-
-**Parameters**
-
-- *args:
-    n values, where n is the number of
-    values specified in constructor's types option
-
-**Return**
-
-`True` is the new value differs from the old one, `False` otherwise
 
 </div>
 

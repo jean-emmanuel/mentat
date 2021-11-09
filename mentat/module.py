@@ -154,28 +154,21 @@ class Module():
         self.aliases = aliases
 
     @public_method
-    def add_parameter(self, name, address=None, types=None, static_args=[]):
+    def add_parameter(self, name, address, types, static_args=[]):
         """
-        add_parameter(parameter)
         add_parameter(name, address, types, static_args=[], default=None)
 
         Add parameter to module.
 
         **Parameters**
 
-        - parameter: parameter object
         - name: name of parameter
         - address: osc address of parameter
         - types: osc typetags string, one letter per value, including static values
         - static_args: list of static values before the ones that can be modified
         - default: list of values
         """
-        if isinstance(name, Parameter):
-            self.parameters[name.name] = parameter
-        else:
-            self.parameters[name] = Parameter(
-                name, address, types, static_args
-            )
+        self.parameters[name] = Parameter(name, address, types, static_args)
 
     @public_method
     @submodule_method
@@ -320,7 +313,7 @@ class Module():
         Get state of all parameters and submodules' parameters.
 
         **Return**
-        
+
         List of lists that can be fed to set()
         """
         state = []
