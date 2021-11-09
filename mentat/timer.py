@@ -25,6 +25,6 @@ class Timer():
             return
 
         while time.monotonic_ns() - self.start_time < duration:
-            time.sleep(MAINLOOP_PERDIO)
+            time.sleep(MAINLOOP_PERIOD)
 
         self.start_time += duration

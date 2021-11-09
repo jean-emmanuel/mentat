@@ -1,5 +1,5 @@
-import time
-from enum import Enum
+import logging
+LOGGER = logging.getLogger(__name__)
 
 from .utils import *
 from .easing import EASING_FUNCTIONS
@@ -48,7 +48,7 @@ class Parameter():
         Get parameter value.
 
         **Return**
-        
+
         List of n values, where n is the number of
         values specified in constructor's types option
         """
@@ -69,11 +69,12 @@ class Parameter():
             values specified in constructor's types option
 
         **Return**
-        True is the new value differs from the old one, False otherwise
+
+        `True` is the new value differs from the old one, `False` otherwise
         """
         if len(args) != self.n_args:
-            # LOGGER ERROR
-            raise TypeError('wrong number of arguments for %s (%s)' % (name, address))
+            LOGGER.error('wrong number of arguments for %s (%s). %i expected, %i provided' % (name, address, self.n_args, len(args)))
+            return False
 
         for i in range(self.n_args):
             value = self.cast(args[i], self.types[i - self.n_args])

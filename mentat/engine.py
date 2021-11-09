@@ -107,7 +107,7 @@ class Engine():
             self.flush()
 
             # take some rest
-            time.sleep(MAINLOOP_PERDIO)
+            time.sleep(MAINLOOP_PERIOD)
 
         LOGGER.info('stopped')
 
