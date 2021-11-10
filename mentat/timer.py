@@ -20,11 +20,15 @@ class Timer():
 
         if mode[0] == 'b':
             duration = duration * 60. / self.engine.tempo
-        elif mode[0] != 's':
+            duration *= 1000000000 # s to ns
+        elif mode[0] == 's':
+            duration *= 1000000000 # s to ns
+        elif mode == 'ns':
+            pass
+        else:
             LOGGER.error('unrecognized mode "%s" for wait()' % mode)
             return
 
-        duration *= 1000000000 # s to ns
 
         while self.engine.current_time - self.start_time < duration:
             time.sleep(MAINLOOP_PERIOD)
@@ -33,9 +37,8 @@ class Timer():
 
     def wait_next_cycle(self):
 
-        cycle_duration = self.engine.cycle_length / 2 * 60 / self.engine.tempo
+        cycle_duration = 1000000000 * self.engine.cycle_length / 2 * 60 / self.engine.tempo
         elapsed_time = (self.engine.current_time - self.engine.cycle_start_time)
-        elapsed_time /= 1000000000 # ns to s
         time_before_next_cycle = cycle_duration - elapsed_time % cycle_duration
 
-        self.wait(time_before_next_cycle, 's')
+        self.wait(time_before_next_cycle, 'ns')
