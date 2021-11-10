@@ -26,7 +26,7 @@ class Timer():
 
         duration *= 1000000000 # s to ns
 
-        while time.monotonic_ns() - self.start_time < duration:
+        while self.engine.current_time - self.start_time < duration:
             time.sleep(MAINLOOP_PERIOD)
 
         self.start_time += duration
