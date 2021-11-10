@@ -173,12 +173,12 @@ cd mentat
 python3 setup.py install</code></pre>
 <h3 id="usage">Usage</h3>
 <p>The typical use case for <code>Mentat</code> a conductor for controlling a set of softwares during a live performance.</p>
-<p>The <a href="#engine"><code>Engine</code></a> object is the main object, it manages the OSC / MIDI backends, the modules and the routes. It also hold a tempo, a cycle length (measure) and a time reference that’s used to create timed scenes and sequences in a musical way (beats).</p>
+<p>The <a href="#engine"><code>Engine</code></a> object is the main object, it manages the OSC / MIDI backends, the modules and the routes. It also holds a tempo, a cycle length (measure) and a time reference that’s used to create timed scenes and sequences in a musical way (using beats instead of seconds).</p>
 <p><a href="#module"><code>Module</code></a> objects are interfaces between the controlled softwares and the engine. The <code>Module</code> class should be subclassed to create dedicated modules classes for different softwares.</p>
 <p>A set of controllable parameters can be defined for each module, each parameter being an alias for an OSC / MIDI value in the controlled software.</p>
-<p>Controlled paramaters should only modified using the module’s <code>set()</code> and <code>animate()</code> methods in order to guarantee that the state of the modules reflects the actual state of the software. This removes the need for feedback from said softwares and allows us to trust <code>Mentat</code> as the source of truth during the performance.</p>
+<p>Controlled parameters should only modified using the module’s <a href="#module.set"><code>set()</code></a> and <a href="#module.animate"><code>animate()</code></a> methods in order to guarantee that the state of the modules reflects the actual state of the softwares. This removes the need for feedback from said softwares and allows us to trust <code>Mentat</code> as the source of truth during the performance.</p>
 <p>All messages received by the engine that are coming from a software associated with a module are first passed to that module’s <a href="#module.route"><code>route()</code></a> method.</p>
-<p><a href="#route"><code>Route</code></a> objects represent the different parts of the performance (eg tracks / songs in a musical show). The <code>Engine</code> has one active route at a time and will pass all incoming messages to its route’s <a href="#route.route"><code>route()</code></a> method.</p>
+<p><a href="#route"><code>Route</code></a> objects represent the different parts of the performance (eg tracks / songs in a musical show). The <code>Engine</code> has one active route at a time and will pass all incoming messages to its <a href="#route.route"><code>route()</code></a> method.</p>
 <p>Each track should be a dedicated class derived from the <code>Route</code> class. The <a href="#route.route"><code>route()</code></a> method definition will allow writing the actual routing that should occur during that track.</p>
 <hr />
 <h2 id="engine">Engine</h2>
