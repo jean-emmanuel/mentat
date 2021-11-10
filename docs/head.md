@@ -25,7 +25,7 @@ The typical use case for Mentat is a conductor for controlling a set of software
 The [`Engine`](#engine) object is the main object, it manages the OSC / MIDI backends, the modules and the routes. It also holds a tempo, a cycle length (measure) and a time reference that's used to create timed scenes and sequences in a musical way (using beats instead of seconds).
 
 [`Module`](#module) objects are interfaces between the controlled softwares and the engine. The `Module` class should be subclassed to
-create dedicated modules classes for different softwares.
+create dedicated module classes for different softwares.
 
 A set of controllable parameters can be defined for each module, each parameter being an alias for an OSC / MIDI value in the controlled software.
 
