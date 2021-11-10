@@ -2,3 +2,5 @@
 __pycache__
 build/
 *.egg-info/
+docs/docs.md
+docs/index.md
