@@ -21,10 +21,3 @@ class GlobalRoute(Route):
 
         if address == '/set_route':
             engine.set_route(args[0])
-
-
-    def part(self, *args, **kwargs):
-        # custom method defined in routes
-        # defined here because it ends up called
-        # since all child classes call super().part()
-        pass

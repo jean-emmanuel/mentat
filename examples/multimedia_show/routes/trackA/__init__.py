@@ -15,7 +15,9 @@ class TrackA(Light, Video, Audio, GlobalRoute):
         Custom method to handle the different parts in the track
         in a sementic way
         """
-        super().part(*args, **kwargs)
+        Audio.part(self, *args, **kwargs)
+        Video.part(self, *args, **kwargs)
+        Light.part(self, *args, **kwargs)
 
     def route(self, protocol, port, address, args):
         """
