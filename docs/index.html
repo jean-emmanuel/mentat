@@ -29,7 +29,7 @@
                 /* margin: var(--p-margin) auto 0; */
 
                 font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
-                line-height: 1.4;
+                line-height: 1.5;
                 font-size: 14px;
                 color: var(--color-text);
             }
@@ -91,6 +91,16 @@
             .content {
                 padding-left: 20px;
             }
+            pre, code {
+                background: #eee;
+                padding: 0 2px;
+                border: 1px solid rgba(0,0,0,0.05);
+            }
+            pre code {
+                padding: 0;
+                background: none;
+                border: none;
+            }
         </style>
     </head>
 
@@ -101,6 +111,7 @@
                         <li><a href="#mentat">Mentat</a>
                         <ul>
                         <li><a href="#overview">Overview</a></li>
+                        <li><a href="#install">Install</a></li>
                         <li><a href="#usage">Usage</a></li>
                         </ul></li>
                         <li><a href="#engine">Engine</a>
@@ -155,17 +166,20 @@
 <h2 id="mentat">Mentat</h2>
 <h3 id="overview">Overview</h3>
 <p><code>Mentat</code> is a HUB / Conductor for OSC / MIDI capable softwares. It aims to centralize all controls in one place, manage their state and create routings.</p>
+<p><code>Mentat</code> is a module for <code>python 3</code> and requires writing code, if you’re looking for a fully-featured software with a user interface, try <a href="https://benjamin.kuperberg.fr/chataigne/en">Chateigne</a> instead.</p>
+<h3 id="install">Install</h3>
+<pre><code>git clone https://github.com/jean-emmanuel/mentat/
+cd mentat
+python3 setup.py install</code></pre>
 <h3 id="usage">Usage</h3>
 <p>The typical use case for <code>Mentat</code> a conductor for controlling a set of softwares during a live performance.</p>
-<p>The <a href="#engine"><code>Engine</code></a> object is the main object, it manages the OSC / MIDI backends, the modules and the routes.</p>
-<p><a href="#module"><code>Module</code></a> objects are interfaces between the controlled softwares and the engine. A set of controllable parameters may be defined for each module. The <code>Module</code> class may be subclassed to create advanced modules.</p>
-<p><a href="#route"><code>Route</code></a> objects represent the different parts of the performance (eg tracks for a musical show). The <code>Route</code> class should be subclassed for each track.</p>
-<p>When the engine receives a message from a module, it does the following</p>
-<ul>
-<li>call the module’s <a href="#module.route"><code>route()</code></a> method</li>
-<li>call the active route’s <a href="#route.route"><code>route()</code></a> method.</li>
-</ul>
-<p>Overriding these methods in the correponding class definitions will allow defining what should happend and when.</p>
+<p>The <a href="#engine"><code>Engine</code></a> object is the main object, it manages the OSC / MIDI backends, the modules and the routes. It also hold a tempo, a cycle length (measure) and a time reference that’s used to create timed scenes and sequences in a musical way (beats).</p>
+<p><a href="#module"><code>Module</code></a> objects are interfaces between the controlled softwares and the engine. The <code>Module</code> class should be subclassed to create dedicated modules classes for different softwares.</p>
+<p>A set of controllable parameters can be defined for each module, each parameter being an alias for an OSC / MIDI value in the controlled software.</p>
+<p>Controlled paramaters should only modified using the module’s <code>set()</code> and <code>animate()</code> methods in order to guarantee that the state of the modules reflects the actual state of the software. This removes the need for feedback from said softwares and allows us to trust <code>Mentat</code> as the source of truth during the performance.</p>
+<p>All messages received by the engine that are coming from a software associated with a module are first passed to that module’s <a href="#module.route"><code>route()</code></a> method.</p>
+<p><a href="#route"><code>Route</code></a> objects represent the different parts of the performance (eg tracks / songs in a musical show). The <code>Engine</code> has one active route at a time and will pass all incoming messages to its route’s <a href="#route.route"><code>route()</code></a> method.</p>
+<p>Each track should be a dedicated class derived from the <code>Route</code> class. The <a href="#route.route"><code>route()</code></a> method definition will allow writing the actual routing that should occur during that track.</p>
 <hr />
 <h2 id="engine">Engine</h2>
 <h3 id="engine-1">Engine()</h3>
