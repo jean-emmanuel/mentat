@@ -2,6 +2,7 @@ from sys import path
 path.insert(0, '../')
 
 from mentat import Engine, Module, Route
+from mentat.logger import Logger
 
 from inspect import getmembers, getdoc, signature, getsourcelines
 import re
@@ -17,6 +18,8 @@ for mod in [Engine, Module, Route]:
     for name, obj in getmembers(mod):
         if hasattr(obj, '_public_method'):
             source, start_line = getsourcelines(obj)
+            if obj.__qualname__.split('.')[0] == 'Logger':
+                start_line += 10000
             methods.append([name, obj, start_line])
     methods.sort(key = lambda v: v[2])
 

@@ -1,6 +1,7 @@
 from .utils import *
+from .logger import Logger
 
-class Route():
+class Route(Logger):
 
     @public_method
     def __init__(self, name):
@@ -13,6 +14,7 @@ class Route():
 
         - name: route name
         """
+        Logger.__init__(self, __name__)
         self.engine = None
         self.name = name
 
@@ -59,7 +61,7 @@ class Route():
         - protocol: 'osc' or 'midi'
         - port: name of module or port number if unknown
         - address: osc address
-        - args: list of values 
+        - args: list of values
         """
         pass
 

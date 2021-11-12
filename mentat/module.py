@@ -1,6 +1,3 @@
-import logging
-LOGGER = logging.getLogger(__name__)
-
 import glob
 import json
 import pathlib
@@ -9,6 +6,7 @@ import re
 from .utils import *
 from .message import Message
 from .parameter import Parameter
+from .logger import Logger
 
 from functools import wraps
 def submodule_method(method):
@@ -34,7 +32,7 @@ def submodule_method(method):
 
     return decorated
 
-class Module():
+class Module(Logger):
 
     @public_method
     def __init__(self, name, protocol=None, port=None):
@@ -54,6 +52,7 @@ class Module():
             udp port number or unix socket path if protocol is 'osc'
             can be None if the module has no fixed input port
         """
+        Logger.__init__(self, __name__)
 
         self.engine = None
 
@@ -202,7 +201,7 @@ class Module():
             return self.parameters[name].get()
 
         else:
-            LOGGER.error('get: parameter "%s" not found' % name)
+            self.error('get: parameter "%s" not found' % name)
 
     @public_method
     @submodule_method
@@ -232,7 +231,7 @@ class Module():
                 self.engine.queue.append(message)
                 self.notify_parameter_change(name)
         else:
-            LOGGER.error('set: parameter "%s" not found' % name)
+            self.error('set: parameter "%s" not found' % name)
 
     @public_method
     @submodule_method
@@ -262,7 +261,7 @@ class Module():
             if name not in self.animations and parameter.animate_running:
                 self.animations.append(name)
         else:
-            LOGGER.error('animate: parameter "%s" not found' % name)
+            self.error('animate: parameter "%s" not found' % name)
 
     @public_method
     @submodule_method
@@ -357,7 +356,7 @@ class Module():
         s = re.sub(r'\s\s\[\s', '  [', s)
         f.write(s)
         f.close()
-        LOGGER.info('%s: state "%s" saved to %s' % (self.name, name, file))
+        self.info('%s: state "%s" saved to %s' % (self.name, name, file))
 
     @public_method
     def load(self, name, preload=False):
@@ -376,16 +375,16 @@ class Module():
             f = open(file)
             self.states[name] = json.loads(f.read())
             f.close()
-            LOGGER.info('%s: state "%s" preloaded from %s' % (self.name, name, file))
+            self.info('%s: state "%s" preloaded from %s' % (self.name, name, file))
 
         if not preload:
 
             if name in self.states:
                 for data in self.states[name]:
                     self.set(*data)
-                LOGGER.info('%s: state "%s" loaded' % (self.name, name))
+                self.info('%s: state "%s" loaded' % (self.name, name))
             else:
-                LOGGER.error('%s: state "%s" not found' % (self.name, name))
+                self.error('%s: state "%s" not found' % (self.name, name))
 
     @public_method
     def route(self, address, args):
@@ -512,42 +511,3 @@ class Module():
         if name in self.parameters_callbacks:
             for callback in self.parameters_callbacks[name]:
                 callback(self.module_path, name, self.get(name))
-
-    @public_method
-    def debug(self, message):
-        """
-        debug(message)
-
-        Print a debug message, prefixed with the module's name.
-
-        **Parameters**
-
-        - message: debug message
-        """
-        LOGGER.debug("%s: %s" % (self.name, message))
-
-    @public_method
-    def info(self, message):
-        """
-        info(message)
-
-        Print a info message, prefixed with the module's name.
-
-        **Parameters**
-
-        - message: info message
-        """
-        LOGGER.info("%s: %s" % (self.name, message))
-
-    @public_method
-    def error(self, message):
-        """
-        error(message)
-
-        Print an error message, prefixed with the module's name.
-
-        **Parameters**
-
-        - message: error message
-        """
-        LOGGER.error("%s: %s" % (self.name, message))

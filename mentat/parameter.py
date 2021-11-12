@@ -1,8 +1,6 @@
-import logging
-LOGGER = logging.getLogger(__name__)
-
 from .utils import *
 from .easing import EASING_FUNCTIONS
+from .logger import Logger
 
 class Parameter():
 
@@ -21,6 +19,7 @@ class Parameter():
         - static_args: list of static values before the ones that can be modified
         - default: list of values
         """
+        Logger.__init__(self, __name__)
 
         self.name = name
         self.address = address
@@ -72,7 +71,7 @@ class Parameter():
         `True` is the new value differs from the old one, `False` otherwise
         """
         if len(args) != self.n_args:
-            LOGGER.error('wrong number of arguments for %s (%s). %i expected, %i provided' % (name, address, self.n_args, len(args)))
+            self.error('wrong number of arguments for %s (%s). %i expected, %i provided' % (name, address, self.n_args, len(args)))
             return False
 
         for i in range(self.n_args):
@@ -114,7 +113,7 @@ class Parameter():
     def start_animation(self, engine, start, end, duration, mode='beats', easing='linear'):
 
         if not easing in EASING_FUNCTIONS:
-            LOGGER.error('unknown easing "%s", falling back to "linear"' % easing)
+            self.error('unknown easing "%s", falling back to "linear"' % easing)
             easing = 'linear'
 
         self.animate_from = start if start is not None else self.get()
@@ -130,7 +129,7 @@ class Parameter():
         if mode[0] == 'b':
             self.animate_duration = self.animate_duration * 60. / engine.bpm
         elif mode[0] != 's':
-            LOGGER.error('start_animation: unrecognized mode "%s"' % mode)
+            self.error('start_animation: unrecognized mode "%s"' % mode)
             return
 
         self.animate_easing = [
@@ -143,9 +142,9 @@ class Parameter():
         ]
 
         if len(self.animate_from) != self.n_args:
-            LOGGER.error('start_animation: wrong number of values for argument "from" (expected %i)' % self.n_args)
+            self.error('start_animation: wrong number of values for argument "from" (expected %i)' % self.n_args)
         elif len(self.animate_from) != self.n_args:
-            LOGGER.error('start_animation: wrong number of values for argument "to" (expected %i)' % self.n_args)
+            self.error('start_animation: wrong number of values for argument "to" (expected %i)' % self.n_args)
         else:
             self.animate_running = True
 

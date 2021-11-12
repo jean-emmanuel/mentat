@@ -1,6 +1,3 @@
-import logging
-LOGGER = logging.getLogger(__name__)
-
 import time
 import liblo
 import queue
@@ -17,9 +14,10 @@ from .utils import *
 from .midi import osc_to_midi, midi_to_osc
 from .thread import KillableThread as Thread
 from .timer import Timer
+from .logger import Logger
 
 
-class Engine():
+class Engine(Logger):
 
     @public_method
     def __init__(self, name, port, folder):
@@ -34,6 +32,8 @@ class Engine():
         - port: osc input port, can be an udp port number or a unix socket path
         - folder: path to config folder where state files will be saved to and loaded from
         """
+        Logger.__init__(self, __name__)
+
         self.name = name
 
         self.osc_server = liblo.Server(port)
@@ -84,7 +84,7 @@ class Engine():
         last_animation = 0
         animation_period = ANIMATION_PERIOD * 1000000
 
-        LOGGER.info('started')
+        self.info('started')
 
         while self.is_running:
 
@@ -111,7 +111,7 @@ class Engine():
             # take some rest
             time.sleep(MAINLOOP_PERIOD)
 
-        LOGGER.info('stopped')
+        self.info('stopped')
 
 
     @public_method
@@ -122,7 +122,7 @@ class Engine():
         Stop engine.
         """
 
-        LOGGER.info('stopping...')
+        self.info('stopping...')
         self.is_running = False
         self.stop_scene('*')
         if self.osc_server:
@@ -145,7 +145,7 @@ class Engine():
         def restart_python():
             os.execl(sys.executable, sys.executable, *sys.argv)
         atexit.register(restart_python)
-        LOGGER.info('restarting...')
+        self.info('restarting...')
         self.stop()
 
     @public_method
@@ -264,9 +264,9 @@ class Engine():
                 self.active_route.deactivate()
             self.active_route = self.routes[name]
             self.active_route.activate()
-            LOGGER.info('active route set to "%s"' % name)
+            self.info('active route set to "%s"' % name)
         else:
-            LOGGER.error('route "%s" not found' % name)
+            self.error('route "%s" not found' % name)
 
     def route(self, protocol, port, address, args):
         """
@@ -325,7 +325,7 @@ class Engine():
         self.scenes_timers[name] = Timer(self)
         self.scenes[name] = Thread(target=scene, name=name, args=args, kwargs=kwargs)
         self.scenes[name].start()
-        LOGGER.info('starting scene %s' % name)
+        self.info('starting scene %s' % name)
 
     def stop_scene(self, name):
         """
@@ -343,10 +343,10 @@ class Engine():
                 self.stop_scene(n)
         elif name in self.scenes:
             if self.scenes[name].is_alive():
-                LOGGER.info('stopping scene %s' % name)
+                self.info('stopping scene %s' % name)
                 self.scenes[name].kill()
             else:
-                LOGGER.info('cleaning scene %s' % name)
+                self.info('cleaning scene %s' % name)
             id = self.scenes[name].ident
             del self.scenes[name]
             del self.scenes_timers[name]
@@ -362,7 +362,7 @@ class Engine():
         if name in self.scenes_timers:
             return self.scenes_timers[name]
         else:
-            LOGGER.error('cannot call wait() from main thread')
+            self.error('cannot call wait() from main thread')
             return None
 
     @public_method

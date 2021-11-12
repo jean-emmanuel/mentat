@@ -131,6 +131,9 @@
                         <li><a href="#engine.set_tempo">Engine.set_tempo()</a></li>
                         <li><a href="#engine.set_cycle_length">Engine.set_cycle_length()</a></li>
                         <li><a href="#engine.start_cycle">Engine.start_cycle()</a></li>
+                        <li><a href="#engine.debug">Engine.debug()</a></li>
+                        <li><a href="#engine.info">Engine.info()</a></li>
+                        <li><a href="#engine.error">Engine.error()</a></li>
                         </ul></li>
                         <li><a href="#module">Module</a>
                         <ul>
@@ -149,6 +152,9 @@
                         <li><a href="#module.send">Module.send()</a></li>
                         <li><a href="#module.watch_module">Module.watch_module()</a></li>
                         <li><a href="#module.watched_module_changed">Module.watched_module_changed()</a></li>
+                        <li><a href="#module.debug">Module.debug()</a></li>
+                        <li><a href="#module.info">Module.info()</a></li>
+                        <li><a href="#module.error">Module.error()</a></li>
                         </ul></li>
                         <li><a href="#route">Route</a>
                         <ul>
@@ -161,6 +167,9 @@
                         <li><a href="#route.stop_scene">Route.stop_scene()</a></li>
                         <li><a href="#route.wait">Route.wait()</a></li>
                         <li><a href="#route.wait_next_cycle">Route.wait_next_cycle()</a></li>
+                        <li><a href="#route.debug">Route.debug()</a></li>
+                        <li><a href="#route.info">Route.info()</a></li>
+                        <li><a href="#route.error">Route.error()</a></li>
                         </ul></li>
                         </ul>
                     </aside>
@@ -172,7 +181,7 @@
 </div>
 <h3 id="overview">Overview</h3>
 <p>Mentat is a HUB / Conductor for OSC / MIDI capable softwares. It aims to centralize all controls in one place, manage their state and create routings.</p>
-<p>Mentat is a module for <a href="https://www.python.org/">python 3</a> and requires writing code, if you’re looking for a fully-featured software with a user interface, try <a href="https://benjamin.kuperberg.fr/chataigne/en">Chateigne</a> instead.</p>
+<p>Mentat is a module for <a href="https://www.python.org/">python 3</a> and requires writing code to work. If you’re looking for a fully-featured software with a user interface, try <a href="https://benjamin.kuperberg.fr/chataigne/en">Chateigne</a> instead.</p>
 <h3 id="install">Install</h3>
 <pre><code>git clone https://github.com/jean-emmanuel/mentat/
 cd mentat
@@ -180,7 +189,7 @@ python3 setup.py install</code></pre>
 <h3 id="usage">Usage</h3>
 <p>The typical use case for Mentat is a conductor for controlling a set of softwares during a live performance.</p>
 <p>The <a href="#engine"><code>Engine</code></a> object is the main object, it manages the OSC / MIDI backends, the modules and the routes. It also holds a tempo, a cycle length (measure) and a time reference that’s used to create timed scenes and sequences in a musical way (using beats instead of seconds).</p>
-<p><a href="#module"><code>Module</code></a> objects are interfaces between the controlled softwares and the engine. The <code>Module</code> class should be subclassed to create dedicated modules classes for different softwares.</p>
+<p><a href="#module"><code>Module</code></a> objects are interfaces between the controlled softwares and the engine. The <code>Module</code> class should be subclassed to create dedicated module classes for different softwares.</p>
 <p>A set of controllable parameters can be defined for each module, each parameter being an alias for an OSC / MIDI value in the controlled software.</p>
 <p>Controlled parameters should only modified using the module’s <a href="#module.set"><code>set()</code></a> and <a href="#module.animate"><code>animate()</code></a> methods in order to guarantee that the state of the modules reflects the actual state of the softwares. This removes the need for feedback from said softwares and allows us to trust Mentat as the source of truth during the performance.</p>
 <p>All messages received by the engine that are coming from a software associated with a module are first passed to that module’s <a href="#module.route"><code>route()</code></a> method.</p>
@@ -280,6 +289,33 @@ python3 setup.py install</code></pre>
 <div class="content">
 <p><i>start_cycle()</i><br/></p>
 <p>Set current time as cycle start. Affects Route.wait_next_cycle() method.</p>
+</div>
+<h3 id="engine.debug">Engine.debug()</h3>
+<div class="content">
+<p><i>debug(message)</i><br/></p>
+<p>Print a debug message, prefixed with the object’s name.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>message: debug message</li>
+</ul>
+</div>
+<h3 id="engine.info">Engine.info()</h3>
+<div class="content">
+<p><i>info(message)</i><br/></p>
+<p>Print a info message, prefixed with the object’s name.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>message: info message</li>
+</ul>
+</div>
+<h3 id="engine.error">Engine.error()</h3>
+<div class="content">
+<p><i>error(message)</i><br/></p>
+<p>Print an error message, prefixed with the object’s name.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>message: error message</li>
+</ul>
 </div>
 <hr />
 <h2 id="module">Module</h2>
@@ -405,6 +441,8 @@ python3 setup.py install</code></pre>
 <li>address: osc address</li>
 <li>args: list of values</li>
 </ul>
+<p><strong>Return</strong></p>
+<p><code>False</code> the message should not be passed to the engine’s active route after being processed by the module.</p>
 </div>
 <h3 id="module.send">Module.send()</h3>
 <div class="content">
@@ -435,6 +473,33 @@ python3 setup.py install</code></pre>
 <li>module_path: list of module names (from parent to submodule)</li>
 <li>name: name of parameter</li>
 <li>args: values</li>
+</ul>
+</div>
+<h3 id="module.debug">Module.debug()</h3>
+<div class="content">
+<p><i>debug(message)</i><br/></p>
+<p>Print a debug message, prefixed with the object’s name.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>message: debug message</li>
+</ul>
+</div>
+<h3 id="module.info">Module.info()</h3>
+<div class="content">
+<p><i>info(message)</i><br/></p>
+<p>Print a info message, prefixed with the object’s name.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>message: info message</li>
+</ul>
+</div>
+<h3 id="module.error">Module.error()</h3>
+<div class="content">
+<p><i>error(message)</i><br/></p>
+<p>Print an error message, prefixed with the object’s name.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>message: error message</li>
 </ul>
 </div>
 <hr />
@@ -520,6 +585,33 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <div class="content">
 <p><i>wait_next_cycle()</i><br/></p>
 <p>Wait until next cycle begins. The engine’s <code>tempo</code> and <code>cycle_length</code> must be set and the engine’s <code>start_cycle()</code> method must be called at the beginning of a cycle for this to work.</p>
+</div>
+<h3 id="route.debug">Route.debug()</h3>
+<div class="content">
+<p><i>debug(message)</i><br/></p>
+<p>Print a debug message, prefixed with the object’s name.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>message: debug message</li>
+</ul>
+</div>
+<h3 id="route.info">Route.info()</h3>
+<div class="content">
+<p><i>info(message)</i><br/></p>
+<p>Print a info message, prefixed with the object’s name.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>message: info message</li>
+</ul>
+</div>
+<h3 id="route.error">Route.error()</h3>
+<div class="content">
+<p><i>error(message)</i><br/></p>
+<p>Print an error message, prefixed with the object’s name.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>message: error message</li>
+</ul>
 </div>
 <hr />
         </main>
