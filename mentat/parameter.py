@@ -37,8 +37,7 @@ class Parameter():
         self.animate_to = 0
         self.animate_easing = None
 
-        if default is not None:
-            self.set(default)
+        self.default = default
 
     @public_method
     def get(self):

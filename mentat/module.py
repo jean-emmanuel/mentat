@@ -119,6 +119,13 @@ class Module():
                         self.watched_module_changed
                     )
 
+        for name in self.parameters:
+            if default := self.parameters[name].default is not None:
+                if type(default) == list:
+                    self.set(name, *default)
+                else:
+                    self.set(name, default)
+
     @public_method
     def add_submodule(self, module):
         """
@@ -154,7 +161,7 @@ class Module():
         self.aliases = aliases
 
     @public_method
-    def add_parameter(self, name, address, types, static_args=[]):
+    def add_parameter(self, name, address, types, static_args=[], default=None):
         """
         add_parameter(name, address, types, static_args=[], default=None)
 
@@ -363,7 +370,7 @@ class Module():
 
         - name: name of state save (without file extension)
         """
-        if name not in self.states:
+        if name not in self.states and preload:
 
             file = '%s/%s.json' % (self.states_folder, name)
             f = open(file)
@@ -373,11 +380,12 @@ class Module():
 
         if not preload:
 
-            for data in self.states[name]:
-
-                self.set(*data)
-
-            LOGGER.info('%s: state "%s" loaded' % (self.name, name))
+            if name in self.states:
+                for data in self.states[name]:
+                    self.set(*data)
+                LOGGER.info('%s: state "%s" loaded' % (self.name, name))
+            else:
+                LOGGER.error('%s: state "%s" not found' % (self.name, name))
 
     @public_method
     def route(self, address, args):
@@ -392,6 +400,11 @@ class Module():
 
         - address: osc address
         - args: list of values
+
+        **Return**
+
+        `False` the message should not be passed to the engine's
+        active route after being processed by the module.
         """
         pass
 
@@ -499,3 +512,42 @@ class Module():
         if name in self.parameters_callbacks:
             for callback in self.parameters_callbacks[name]:
                 callback(self.module_path, name, self.get(name))
+
+    @public_method
+    def debug(self, message):
+        """
+        debug(message)
+
+        Print a debug message, prefixed with the module's name.
+
+        **Parameters**
+
+        - message: debug message
+        """
+        LOGGER.debug("%s: %s" % (self.name, message))
+
+    @public_method
+    def info(self, message):
+        """
+        info(message)
+
+        Print a info message, prefixed with the module's name.
+
+        **Parameters**
+
+        - message: info message
+        """
+        LOGGER.info("%s: %s" % (self.name, message))
+
+    @public_method
+    def error(self, message):
+        """
+        error(message)
+
+        Print an error message, prefixed with the module's name.
+
+        **Parameters**
+
+        - message: error message
+        """
+        LOGGER.error("%s: %s" % (self.name, message))

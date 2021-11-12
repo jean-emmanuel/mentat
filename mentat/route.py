@@ -59,7 +59,7 @@ class Route():
         - protocol: 'osc' or 'midi'
         - port: name of module or port number if unknown
         - address: osc address
-        - args: list of values
+        - args: list of values 
         """
         pass
 

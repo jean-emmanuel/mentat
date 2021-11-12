@@ -282,7 +282,8 @@ class Engine():
         - args: list of values
         """
         if port in self.modules:
-            self.modules[port].route(address, args)
+            if self.modules[port].route(address, args) == False:
+                return
 
         if self.active_route:
             self.active_route.route(protocol, port, address, args)
