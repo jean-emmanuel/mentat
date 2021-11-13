@@ -146,6 +146,7 @@
                         <li><a href="#module.set">Module.set()</a></li>
                         <li><a href="#module.animate">Module.animate()</a></li>
                         <li><a href="#module.stop_animate">Module.stop_animate()</a></li>
+                        <li><a href="#module.send_state">Module.send_state()</a></li>
                         <li><a href="#module.save">Module.save()</a></li>
                         <li><a href="#module.load">Module.load()</a></li>
                         <li><a href="#module.route">Module.route()</a></li>
@@ -385,7 +386,7 @@ python3 setup.py install</code></pre>
 <p><strong>Parameters</strong></p>
 <ul>
 <li>parameter_name: name of parameter</li>
-<li>submodule_name: name of submodule, name of parameter</li>
+<li>submodule_name: name of submodule</li>
 <li>*args: value(s)</li>
 </ul>
 </div>
@@ -413,6 +414,11 @@ python3 setup.py install</code></pre>
 <li>parameter_name: name of parameter, can be ’*’ to stop all animations.</li>
 <li>submodule_name: name of submodule, name of parameter</li>
 </ul>
+</div>
+<h3 id="module.send_state">Module.send_state()</h3>
+<div class="content">
+<p><i>send_state()</i><br/></p>
+<p>Send current state of all parameters and submodules’ parameters.</p>
 </div>
 <h3 id="module.save">Module.save()</h3>
 <div class="content">

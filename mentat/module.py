@@ -205,7 +205,7 @@ class Module(Logger):
 
     @public_method
     @submodule_method
-    def set(self, *args):
+    def set(self, *args, force_send=False):
         """
         set(parameter_name, *args)
         set(submodule_name, param_nam, *args)
@@ -216,7 +216,7 @@ class Module(Logger):
         **Parameters**
 
         - parameter_name: name of parameter
-        - submodule_name: name of submodule, name of parameter
+        - submodule_name: name of submodule
         - *args: value(s)
         """
         name = args[0]
@@ -226,10 +226,12 @@ class Module(Logger):
             parameter = self.parameters[name]
             if parameter.animate_running:
                 parameter.stop_animation()
-            if parameter.set(*args[1:]) and self.port:
-                message = Message(self.protocol, self.port, parameter.address, *parameter.args)
-                self.engine.queue.append(message)
-                self.notify_parameter_change(name)
+            if self.port:
+                if change := parameter.set(*args[1:]) or force_send:
+                    message = Message(self.protocol, self.port, parameter.address, *parameter.args)
+                    self.engine.queue.append(message)
+                    if change:
+                        self.notify_parameter_change(name)
         else:
             self.error('set: parameter "%s" not found' % name)
 
@@ -281,6 +283,8 @@ class Module(Logger):
 
         if name == '*':
 
+            for sname in self.submodules:
+                self.submodules[sname].stop_animation('*')
             for name in self.animations:
                 self.parameters[name].stop_animation()
 
@@ -335,6 +339,24 @@ class Module(Logger):
 
         return state
 
+    def set_state(self, state, force_send=False):
+        """
+        set_state(state)
+
+        Set state of any number of parameters and submodules' parameters.
+        """
+        for data in self.states[name]:
+            self.set(*data, force_send=force_send)
+
+    @public_method
+    def send_state(self):
+        """
+        send_state()
+
+        Send current state of all parameters and submodules' parameters.
+        """
+        self.set_state(self.get_state(), force_send=True)
+
     @public_method
     def save(self, name):
         """
@@ -380,8 +402,7 @@ class Module(Logger):
         if not preload:
 
             if name in self.states:
-                for data in self.states[name]:
-                    self.set(*data)
+                self.set_state(self.states[name])
                 self.info('%s: state "%s" loaded' % (self.name, name))
             else:
                 self.error('%s: state "%s" not found' % (self.name, name))
