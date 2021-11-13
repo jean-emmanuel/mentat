@@ -119,11 +119,7 @@ class Module(Logger):
                     )
 
         for name in self.parameters:
-            if default := self.parameters[name].default is not None:
-                if type(default) == list:
-                    self.set(name, *default)
-                else:
-                    self.set(name, default)
+            self.init_parameter(name)
 
     @public_method
     def add_submodule(self, module):
@@ -172,9 +168,28 @@ class Module(Logger):
         - address: osc address of parameter
         - types: osc typetags string, one letter per value, including static values
         - static_args: list of static values before the ones that can be modified
-        - default: list of values
+        - default: value or list of values
         """
         self.parameters[name] = Parameter(name, address, types, static_args)
+        if self.engine is not None:
+            # if module is already initialized, initialize parameter
+            self.init_parameter(name)
+
+    def init_parameter(self, name):
+        """
+        init_parameter(name)
+
+        Apply parameter's default value and send it.
+
+        **Parameters**
+
+        - name: name of parameter
+        """
+        if default := self.parameters[name].default is not None:
+            if type(default) == list:
+                self.set(name, *default)
+            else:
+                self.set(name, default)
 
     @public_method
     @submodule_method

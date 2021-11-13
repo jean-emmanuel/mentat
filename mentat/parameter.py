@@ -24,7 +24,7 @@ class Parameter():
         self.name = name
         self.address = address
         self.types = types
-        self.args = [0] * len(types)
+        self.args = [None] * len(types)
         for i in range(len(static_args)):
             self.args[i] = static_args[i]
         self.n_args = len(types) - len(static_args)
@@ -142,9 +142,9 @@ class Parameter():
         ]
 
         if len(self.animate_from) != self.n_args:
-            self.error('start_animation: wrong number of values for argument "from" (expected %i)' % self.n_args)
+            self.error('start_animation: wrong number of values for argument "from" (%i expected, %i provided)' % (self.n_args, len(self.animate_from)))
         elif len(self.animate_from) != self.n_args:
-            self.error('start_animation: wrong number of values for argument "to" (expected %i)' % self.n_args)
+            self.error('start_animation: wrong number of values for argument "to" (%i expected, %i provided)' % (self.n_args, len(self.animate_from)))
         else:
             self.animate_running = True
 
