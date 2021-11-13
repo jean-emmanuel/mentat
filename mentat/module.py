@@ -127,7 +127,7 @@ class Module(Logger):
         add_submodule(module)
 
         Add a submodule.
-        Submodule's protocol and port can be omitted,
+        Submodule's protocol and port can be omitted, in which case
         they will be inherited from their parent.
 
         **Parameters**
@@ -135,8 +135,10 @@ class Module(Logger):
         - module: Module object
         """
         self.submodules[module.name] = module
-        module.protocol = self.protocol
-        module.port = self.port
+        if module.protocol is None:
+            module.protocol = self.protocol
+        if module.port is None:
+            module.port = self.port
         if self.engine is not None:
             # if module is already initialized, initialize submodule
             module.initialize(self.engine, True)
