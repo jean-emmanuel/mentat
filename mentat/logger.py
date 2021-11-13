@@ -4,7 +4,7 @@ import logging
 class Logger():
 
     def __init__(self, modname):
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger(modname)
 
     @public_method
     def debug(self, message):
