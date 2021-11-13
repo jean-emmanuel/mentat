@@ -2,7 +2,7 @@ from .utils import *
 from .easing import EASING_FUNCTIONS
 from .logger import Logger
 
-class Parameter():
+class Parameter(Logger):
 
     @public_method
     def __init__(self, name, address, types, static_args=[], default=None):
