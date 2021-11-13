@@ -119,7 +119,7 @@ class Module(Logger):
                     )
 
         for name in self.parameters:
-            self.init_parameter(name)
+            self.reset_parameter(name)
 
     @public_method
     def add_submodule(self, module):
@@ -173,11 +173,11 @@ class Module(Logger):
         self.parameters[name] = Parameter(name, address, types, static_args)
         if self.engine is not None:
             # if module is already initialized, initialize parameter
-            self.init_parameter(name)
+            self.reset_parameter(name)
 
-    def init_parameter(self, name):
+    def reset_parameter(self, name):
         """
-        init_parameter(name)
+        reset_parameter(name)
 
         Apply parameter's default value and send it.
 
@@ -249,6 +249,18 @@ class Module(Logger):
                         self.notify_parameter_change(name)
         else:
             self.error('set: parameter "%s" not found' % name)
+
+    @public_method
+    def reset(self):
+        """
+        reset()
+
+        Reset all parameters to their default values (including submodules')
+        """
+        for sname in self.submodules:
+            self.submodules[sname].reset()
+        for name in self.parameters:
+            self.reset_parameter(name)
 
     @public_method
     @submodule_method
