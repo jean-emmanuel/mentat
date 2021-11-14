@@ -18,8 +18,10 @@ for mod in [Engine, Module, Route]:
     for name, obj in getmembers(mod):
         if hasattr(obj, '_public_method'):
             source, start_line = getsourcelines(obj)
-            if obj.__qualname__.split('.')[0] == 'Logger':
+            if obj.__qualname__.split('.')[0] == 'Sequencer':
                 start_line += 10000
+            elif obj.__qualname__.split('.')[0] == 'Logger':
+                start_line += 20000
             methods.append([name, obj, start_line])
     methods.sort(key = lambda v: v[2])
 

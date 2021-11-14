@@ -154,6 +154,10 @@
                         <li><a href="#module.send">Module.send()</a></li>
                         <li><a href="#module.watch_module">Module.watch_module()</a></li>
                         <li><a href="#module.watched_module_changed">Module.watched_module_changed()</a></li>
+                        <li><a href="#module.start_scene">Module.start_scene()</a></li>
+                        <li><a href="#module.stop_scene">Module.stop_scene()</a></li>
+                        <li><a href="#module.wait">Module.wait()</a></li>
+                        <li><a href="#module.wait_next_cycle">Module.wait_next_cycle()</a></li>
                         <li><a href="#module.debug">Module.debug()</a></li>
                         <li><a href="#module.info">Module.info()</a></li>
                         <li><a href="#module.error">Module.error()</a></li>
@@ -487,6 +491,47 @@ python3 setup.py install</code></pre>
 <li>args: values</li>
 </ul>
 </div>
+<h3 id="module.start_scene">Module.start_scene()</h3>
+<div class="content">
+<p><i>start_scene(name, scene, *args, **kwargs)</i><br/></p>
+<p>Start scene in a thread. If a scene with the same name is already running, it will be stopped. Scenes should be implemented as methods of the object and can call self.wait() to create timed sequences or loops. Different objects may call a scene with the same name simultaneously.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: scene name</li>
+<li>scene: function or method</li>
+<li>*args: arguments for the scene function</li>
+<li>**kwargs: keyword arguments for the scene function</li>
+</ul>
+</div>
+<h3 id="module.stop_scene">Module.stop_scene()</h3>
+<div class="content">
+<p><i>stop_scene(name)</i><br/></p>
+<p>Stop scene thread.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: scene name, with wildcard support</li>
+</ul>
+</div>
+<h3 id="module.wait">Module.wait()</h3>
+<div class="content">
+<p><i>wait(duration, mode=‘beats’)</i><br/></p>
+<p>Wait for given amount of time. Can only called in scenes. Subsequent calls to wait() in a scene do not drift with time and can be safely used to create beat sequences. The engine’s <code>tempo</code> must be set for the <code>beats</code> mode to work.</p>
+<pre><code># Example
+beat_1()
+self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1&#39;s exec time
+beat_2()
+self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec time</code></pre>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>duration: amount of time to wait</li>
+<li>mode: ‘beats’ or ‘seconds’ (only the first letter matters)</li>
+</ul>
+</div>
+<h3 id="module.wait_next_cycle">Module.wait_next_cycle()</h3>
+<div class="content">
+<p><i>wait_next_cycle()</i><br/></p>
+<p>Wait until next cycle begins. The engine’s <code>tempo</code> and <code>cycle_length</code> must be set and the engine’s <code>start_cycle()</code> method must be called at the beginning of a cycle for this to work.</p>
+</div>
 <h3 id="module.debug">Module.debug()</h3>
 <div class="content">
 <p><i>debug(message)</i><br/></p>
@@ -522,7 +567,7 @@ python3 setup.py install</code></pre>
 <p>Route object constructor.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li>name: route name</li>
+<li>name: roustart_scte name</li>
 </ul>
 </div>
 <h3 id="route.initialize">Route.initialize()</h3>
@@ -559,23 +604,22 @@ python3 setup.py install</code></pre>
 <h3 id="route.start_scene">Route.start_scene()</h3>
 <div class="content">
 <p><i>start_scene(name, scene, *args, **kwargs)</i><br/></p>
-<p>Start scene in a thread. If a scene with the same name is already running, it will be stopped. Scenes should be implemented as methods of the Route object and can call self.wait() to create timed sequences or loops.</p>
+<p>Start scene in a thread. If a scene with the same name is already running, it will be stopped. Scenes should be implemented as methods of the object and can call self.wait() to create timed sequences or loops. Different objects may call a scene with the same name simultaneously.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li>name: scene name</li>
 <li>scene: function or method</li>
 <li>*args: arguments for the scene function</li>
-<li>*kwargs: keyword arguments for the scene function</li>
+<li>**kwargs: keyword arguments for the scene function</li>
 </ul>
 </div>
 <h3 id="route.stop_scene">Route.stop_scene()</h3>
 <div class="content">
-<p><i>stop_scene(name, scene, *args, **kwargs)</i><br/></p>
+<p><i>stop_scene(name)</i><br/></p>
 <p>Stop scene thread.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li>name: scene name, with wildcard support</li>
-<li>scene: function or method</li>
 </ul>
 </div>
 <h3 id="route.wait">Route.wait()</h3>

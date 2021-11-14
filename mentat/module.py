@@ -7,6 +7,7 @@ from .utils import *
 from .message import Message
 from .parameter import Parameter
 from .logger import Logger
+from .sequencer import Sequencer
 
 from functools import wraps
 def submodule_method(method):
@@ -32,7 +33,7 @@ def submodule_method(method):
 
     return decorated
 
-class Module(Logger):
+class Module(Logger, Sequencer):
 
     @public_method
     def __init__(self, name, protocol=None, port=None):
@@ -53,6 +54,7 @@ class Module(Logger):
             can be None if the module has no fixed input port
         """
         Logger.__init__(self, __name__)
+        Sequencer.__init__(self, __name__)
 
         self.engine = None
 
@@ -245,7 +247,7 @@ class Module(Logger):
                 parameter.stop_animation()
             if self.port:
                 if change := parameter.set(*args[1:]) or force_send:
-                    message = Message(self.protocol, self.port, parameter.address, *parameter.args)
+                    self.send(parameter.address, *parameter.args)
                     self.engine.queue.append(message)
                     if change:
                         self.notify_parameter_change(name)
@@ -339,8 +341,7 @@ class Module(Logger):
             parameter = self.parameters[name]
             if parameter.animate_running:
                 if parameter.update_animation(self.engine.current_time) and self.port:
-                    message = Message(self.protocol, self.port, parameter.address, *parameter.args)
-                    self.engine.queue.append(message)
+                    self.send(parameter.address, *parameter.args)
                     self.notify_parameter_change(name)
             else:
                 self.animations.remove(name)
@@ -470,7 +471,8 @@ class Module(Logger):
         - *args: values
         """
         if self.port:
-            self.engine.send(self.protocol, self.port, address, *args)
+            message = Message(self.protocol, self.port, address, *args)
+            self.engine.queue.append(message)
 
     @public_method
     def watch_module(self, *args):
