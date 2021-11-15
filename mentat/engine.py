@@ -68,6 +68,8 @@ class Engine(Logger):
 
         self.notifier = None
 
+        self.restarted = os.getenv('MENTAT_RESTART') is not None
+
     @public_method
     def start(self):
         """
@@ -150,6 +152,7 @@ class Engine(Logger):
         Stop the engine and restart once the process is terminated.
         """
         def restart_python():
+            os.environ['MENTAT_RESTART'] = '1'
             os.execl(sys.executable, sys.executable, *sys.argv)
         atexit.register(restart_python)
         self.info('restarting...')
