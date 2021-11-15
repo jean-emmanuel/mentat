@@ -3,6 +3,13 @@ from .logger import Logger
 from .sequencer import Sequencer
 
 class Route(Logger, Sequencer):
+    """
+    Routing object that processes messages received by the engine when active.
+
+    **Instance properties**
+
+    - `engine`: Engine instance, available once the engine is started
+    """
 
     @public_method
     def __init__(self, name):

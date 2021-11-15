@@ -203,6 +203,12 @@ python3 setup.py install</code></pre>
 <p>Each track should be a dedicated class derived from the <code>Route</code> class. The <a href="#route.route"><code>route()</code></a> method definition will allow writing the actual routing that should occur during that track.</p>
 <hr />
 <h2 id="engine">Engine</h2>
+<p>Main object</p>
+<p><strong>Instance properties</strong></p>
+<ul>
+<li><code>modules</code>: <code>dict</code> containing modules added to the engine with names as keys</li>
+<li><code>restarted</code>: <code>True</code> if the engine was restarted using <code>autorestart()</code></li>
+</ul>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
 <p><i>Engine(name, port, folder)</i><br/></p>
@@ -326,6 +332,11 @@ python3 setup.py install</code></pre>
 </div>
 <hr />
 <h2 id="module">Module</h2>
+<p>Interface between a software / hardware and the engine.</p>
+<p><strong>Instance properties</strong></p>
+<ul>
+<li><code>engine</code>: Engine instance, available once the engine is started</li>
+</ul>
 <h3 id="module-1">Module()</h3>
 <div class="content">
 <p><i>Module(engine, name, protocol, port)</i><br/> <i>Module(engine, name, protocol)</i><br/> <i>Module(engine, name)</i><br/></p>
@@ -562,6 +573,11 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 </div>
 <hr />
 <h2 id="route">Route</h2>
+<p>Routing object that processes messages received by the engine when active.</p>
+<p><strong>Instance properties</strong></p>
+<ul>
+<li><code>engine</code>: Engine instance, available once the engine is started</li>
+</ul>
 <h3 id="route-1">Route()</h3>
 <div class="content">
 <p><i>Route()</i><br/></p>

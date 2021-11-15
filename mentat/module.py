@@ -34,6 +34,13 @@ def submodule_method(method):
     return decorated
 
 class Module(Logger, Sequencer):
+    """
+    Interface between a software / hardware and the engine.
+
+    **Instance properties**
+
+    - `engine`: Engine instance, available once the engine is started
+    """
 
     @public_method
     def __init__(self, name, protocol=None, port=None):

@@ -11,8 +11,9 @@ docs = ""
 
 for mod in [Engine, Module, Route]:
 
-    # docs += "## Engine\n\n"
     docs += "## %s\n\n" % mod.__name__
+
+    docs += "%s\n\n" % getdoc(mod)
 
     methods = []
     for name, obj in getmembers(mod):

@@ -20,6 +20,14 @@ from .logger import Logger
 
 
 class Engine(Logger):
+    """
+    Main object
+
+    **Instance properties**
+
+    - `modules`: `dict` containing modules added to the engine with names as keys
+    - `restarted`: `True` if the engine was restarted using `autorestart()`
+    """
 
     @public_method
     def __init__(self, name, port, folder, debug=False):
