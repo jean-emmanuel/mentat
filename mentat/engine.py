@@ -78,6 +78,8 @@ class Engine(Logger):
             self.modules[name].initialize(self)
         for name in self.routes:
             self.routes[name].initialize(self)
+        if self.active_route:
+            self.active_route.activate()
 
         self.is_running = True
 
@@ -260,10 +262,11 @@ class Engine(Logger):
         - name: route name
         """
         if name in self.routes:
-            if self.active_route:
+            if self.active_route and self.is_running:
                 self.active_route.deactivate()
             self.active_route = self.routes[name]
-            self.active_route.activate()
+            if self.is_running:
+                self.active_route.activate()
             self.info('active route set to "%s"' % name)
         else:
             self.error('route "%s" not found' % name)
