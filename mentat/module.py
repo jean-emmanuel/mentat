@@ -248,7 +248,7 @@ class Module(Logger, Sequencer):
             if self.port:
                 if change := parameter.set(*args[1:]) or force_send:
                     self.send(parameter.address, *parameter.args)
-                    self.engine.queue.append(message)
+                    self.engine.put.append(message)
                     if change:
                         self.notify_parameter_change(name)
         else:
@@ -472,7 +472,7 @@ class Module(Logger, Sequencer):
         """
         if self.port:
             message = Message(self.protocol, self.port, address, *args)
-            self.engine.queue.append(message)
+            self.engine.queue.put(message)
 
     @public_method
     def watch_module(self, *args):

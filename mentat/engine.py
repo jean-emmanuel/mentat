@@ -6,9 +6,10 @@ import atexit
 import sys
 import os
 import pyinotify
+import logging
 from pyalsa import alsaseq
 from signal import signal, SIGINT, SIGTERM
-import logging
+from queue import Queue
 
 from .config import *
 from .utils import *
@@ -63,7 +64,7 @@ class Engine(Logger):
 
         self.folder = folder
         self.modules = {}
-        self.queue = []
+        self.queue = Queue()
 
         self.notifier = None
 
@@ -201,11 +202,9 @@ class Engine(Logger):
 
         Send messages in queue.
         """
-        for message in self.queue:
-
+        while not self.queue.empty():
+            message = self.queue.get()
             self.send(message.protocol, message.port, message.address, *message.args)
-
-        self.queue = []
 
         self.midi_server.sync_output_queue()
 
