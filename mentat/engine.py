@@ -32,7 +32,7 @@ class Engine(Logger):
         - name: client name
         - port: osc input port, can be an udp port number or a unix socket path
         - folder: path to config folder where state files will be saved to and loaded from
-        - debug: set to True to enable debug message
+        - debug: set to True to enable debug messages
         """
         Logger.__init__(self, __name__)
 
