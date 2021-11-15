@@ -1,11 +1,8 @@
 # add local package to import path
 # not needed if package is installed
 from sys import path
-path.insert(0, '../../')
-
-# configure logging
-import logging
-logging.basicConfig(level=logging.INFO)
+from os.path import dirname
+path.insert(0, dirname(__file__) + '/../../')
 
 # add modules
 from modules import *

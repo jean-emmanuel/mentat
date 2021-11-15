@@ -5,7 +5,7 @@ class Logger():
     """
     Mixin class, defines methods for logging.
     """
-    
+
     def __init__(self, modname):
         self.logger = logging.getLogger(modname)
 

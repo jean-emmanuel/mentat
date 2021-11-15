@@ -8,6 +8,7 @@ import os
 import pyinotify
 from pyalsa import alsaseq
 from signal import signal, SIGINT, SIGTERM
+import logging
 
 from .config import *
 from .utils import *
@@ -20,7 +21,7 @@ from .logger import Logger
 class Engine(Logger):
 
     @public_method
-    def __init__(self, name, port, folder):
+    def __init__(self, name, port, folder, debug=False):
         """
         Engine(name, port, folder)
 
@@ -31,10 +32,13 @@ class Engine(Logger):
         - name: client name
         - port: osc input port, can be an udp port number or a unix socket path
         - folder: path to config folder where state files will be saved to and loaded from
+        - debug: set to True to enable debug message
         """
         Logger.__init__(self, __name__)
 
         self.name = name
+
+        logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
         self.osc_server = liblo.Server(port)
         self.osc_server.add_method(None, None, self.route_osc)
