@@ -547,10 +547,12 @@ class Module(Logger, Sequencer):
             for pname in self.parameters:
                 self.add_parameter_change_callback(pname, callback)
 
-        if name not in self.parameters_callbacks:
-            self.parameters_callbacks[name] = []
+        else:
+            if name not in self.parameters_callbacks:
+                self.parameters_callbacks[name] = []
 
-        self.parameters_callbacks[name].append(callback)
+            self.parameters_callbacks[name].append(callback)
+            callback(self.module_path, name, self.get(name))
 
     def notify_parameter_change(self, name):
         """
