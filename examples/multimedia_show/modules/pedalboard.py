@@ -10,7 +10,7 @@ class Pedalboard(Module):
 
     def parameter_changed(self, module_path, name, values):
 
-        self.info('parameter changed: %s %s %s' % (module_path, name, values))
+        self.logger.info('parameter changed: %s %s %s' % (module_path, name, values))
 
     def route(self, address, args):
 

@@ -2,11 +2,11 @@ import glob
 import json
 import pathlib
 import re
+import logging
 
 from .utils import *
 from .message import Message
 from .parameter import Parameter
-from .logger import Logger
 from .sequencer import Sequencer
 from .engine import Engine
 
@@ -34,13 +34,14 @@ def submodule_method(method):
 
     return decorated
 
-class Module(Logger, Sequencer):
+class Module(Sequencer):
     """
     Interface between a software / hardware and the engine.
 
     **Instance properties**
 
     - `engine`: Engine instance
+    - `logger`: python logger
     """
 
     @public_method
@@ -61,12 +62,13 @@ class Module(Logger, Sequencer):
             udp port number or unix socket path if protocol is 'osc'
             can be None if the module has no fixed input port
         """
+        self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
-        Logger.__init__(self, __name__)
+
         Sequencer.__init__(self, __name__)
 
         if Engine.INSTANCE is None:
-            self.error('the engine must created before any module')
+            self.logger.error('the engine must created before any module')
             raise
         else:
             self.engine = Engine.INSTANCE
@@ -205,7 +207,7 @@ class Module(Logger, Sequencer):
             return self.parameters[name].get()
 
         else:
-            self.error('get: parameter "%s" not found' % name)
+            self.logger.error('get: parameter "%s" not found' % name)
 
     @public_method
     @submodule_method
@@ -236,7 +238,7 @@ class Module(Logger, Sequencer):
                     if change:
                         self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
         else:
-            self.error('set: parameter "%s" not found' % name)
+            self.logger.error('set: parameter "%s" not found' % name)
 
     @public_method
     def reset(self):
@@ -278,7 +280,7 @@ class Module(Logger, Sequencer):
             if name not in self.animations and parameter.animate_running:
                 self.animations.append(name)
         else:
-            self.error('animate: parameter "%s" not found' % name)
+            self.logger.error('animate: parameter "%s" not found' % name)
 
     @public_method
     @submodule_method
@@ -392,7 +394,7 @@ class Module(Logger, Sequencer):
         s = re.sub(r'\s\s\[\s', '  [', s)
         f.write(s)
         f.close()
-        self.info('%s: state "%s" saved to %s' % (self.name, name, file))
+        self.logger.info('%s: state "%s" saved to %s' % (self.name, name, file))
 
     @public_method
     def load(self, name, preload=False):
@@ -411,15 +413,15 @@ class Module(Logger, Sequencer):
             f = open(file)
             self.states[name] = json.loads(f.read())
             f.close()
-            self.info('%s: state "%s" preloaded from %s' % (self.name, name, file))
+            self.logger.info('%s: state "%s" preloaded from %s' % (self.name, name, file))
 
         if not preload:
 
             if name in self.states:
                 self.set_state(self.states[name])
-                self.info('%s: state "%s" loaded' % (self.name, name))
+                self.logger.info('%s: state "%s" loaded' % (self.name, name))
             else:
-                self.error('%s: state "%s" not found' % (self.name, name))
+                self.logger.error('%s: state "%s" not found' % (self.name, name))
 
     @public_method
     def route(self, address, args):

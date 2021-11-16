@@ -132,9 +132,6 @@
                         <li><a href="#engine.set_cycle_length">Engine.set_cycle_length()</a></li>
                         <li><a href="#engine.start_cycle">Engine.start_cycle()</a></li>
                         <li><a href="#engine.dispatch_event">Engine.dispatch_event()</a></li>
-                        <li><a href="#engine.debug">Engine.debug()</a></li>
-                        <li><a href="#engine.info">Engine.info()</a></li>
-                        <li><a href="#engine.error">Engine.error()</a></li>
                         </ul></li>
                         <li><a href="#module">Module</a>
                         <ul>
@@ -157,9 +154,6 @@
                         <li><a href="#module.stop_scene">Module.stop_scene()</a></li>
                         <li><a href="#module.wait">Module.wait()</a></li>
                         <li><a href="#module.wait_next_cycle">Module.wait_next_cycle()</a></li>
-                        <li><a href="#module.debug">Module.debug()</a></li>
-                        <li><a href="#module.info">Module.info()</a></li>
-                        <li><a href="#module.error">Module.error()</a></li>
                         </ul></li>
                         <li><a href="#route">Route</a>
                         <ul>
@@ -171,9 +165,6 @@
                         <li><a href="#route.stop_scene">Route.stop_scene()</a></li>
                         <li><a href="#route.wait">Route.wait()</a></li>
                         <li><a href="#route.wait_next_cycle">Route.wait_next_cycle()</a></li>
-                        <li><a href="#route.debug">Route.debug()</a></li>
-                        <li><a href="#route.info">Route.info()</a></li>
-                        <li><a href="#route.error">Route.error()</a></li>
                         </ul></li>
                         </ul>
                     </aside>
@@ -206,6 +197,7 @@ python3 setup.py install</code></pre>
 <ul>
 <li><code>modules</code>: <code>dict</code> containing modules added to the engine with names as keys</li>
 <li><code>restarted</code>: <code>True</code> if the engine was restarted using <code>autorestart()</code></li>
+<li><code>logger</code>: python logger</li>
 </ul>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
@@ -311,39 +303,13 @@ python3 setup.py install</code></pre>
 <li>*args: arguments for the callback function</li>
 </ul>
 </div>
-<h3 id="engine.debug">Engine.debug()</h3>
-<div class="content">
-<p><i>debug(message)</i><br/></p>
-<p>Print a debug message, prefixed with the object’s name.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>message: debug message</li>
-</ul>
-</div>
-<h3 id="engine.info">Engine.info()</h3>
-<div class="content">
-<p><i>info(message)</i><br/></p>
-<p>Print a info message, prefixed with the object’s name.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>message: info message</li>
-</ul>
-</div>
-<h3 id="engine.error">Engine.error()</h3>
-<div class="content">
-<p><i>error(message)</i><br/></p>
-<p>Print an error message, prefixed with the object’s name.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>message: error message</li>
-</ul>
-</div>
 <hr />
 <h2 id="module">Module</h2>
 <p>Interface between a software / hardware and the engine.</p>
 <p><strong>Instance properties</strong></p>
 <ul>
 <li><code>engine</code>: Engine instance</li>
+<li><code>logger</code>: python logger</li>
 </ul>
 <h3 id="module-1">Module()</h3>
 <div class="content">
@@ -548,39 +514,13 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <p><i>wait_next_cycle()</i><br/></p>
 <p>Wait until next cycle begins. The engine’s <code>tempo</code> and <code>cycle_length</code> must be set and the engine’s <code>start_cycle()</code> method must be called at the beginning of a cycle for this to work.</p>
 </div>
-<h3 id="module.debug">Module.debug()</h3>
-<div class="content">
-<p><i>debug(message)</i><br/></p>
-<p>Print a debug message, prefixed with the object’s name.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>message: debug message</li>
-</ul>
-</div>
-<h3 id="module.info">Module.info()</h3>
-<div class="content">
-<p><i>info(message)</i><br/></p>
-<p>Print a info message, prefixed with the object’s name.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>message: info message</li>
-</ul>
-</div>
-<h3 id="module.error">Module.error()</h3>
-<div class="content">
-<p><i>error(message)</i><br/></p>
-<p>Print an error message, prefixed with the object’s name.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>message: error message</li>
-</ul>
-</div>
 <hr />
 <h2 id="route">Route</h2>
 <p>Routing object that processes messages received by the engine when active.</p>
 <p><strong>Instance properties</strong></p>
 <ul>
 <li><code>engine</code>: Engine instance</li>
+<li><code>logger</code>: python logger</li>
 </ul>
 <h3 id="route-1">Route()</h3>
 <div class="content">
@@ -653,33 +593,6 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <div class="content">
 <p><i>wait_next_cycle()</i><br/></p>
 <p>Wait until next cycle begins. The engine’s <code>tempo</code> and <code>cycle_length</code> must be set and the engine’s <code>start_cycle()</code> method must be called at the beginning of a cycle for this to work.</p>
-</div>
-<h3 id="route.debug">Route.debug()</h3>
-<div class="content">
-<p><i>debug(message)</i><br/></p>
-<p>Print a debug message, prefixed with the object’s name.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>message: debug message</li>
-</ul>
-</div>
-<h3 id="route.info">Route.info()</h3>
-<div class="content">
-<p><i>info(message)</i><br/></p>
-<p>Print a info message, prefixed with the object’s name.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>message: info message</li>
-</ul>
-</div>
-<h3 id="route.error">Route.error()</h3>
-<div class="content">
-<p><i>error(message)</i><br/></p>
-<p>Print an error message, prefixed with the object’s name.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>message: error message</li>
-</ul>
 </div>
 <hr />
         </main>

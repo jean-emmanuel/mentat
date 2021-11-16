@@ -1,15 +1,17 @@
+import logging
+
 from .utils import *
-from .logger import Logger
 from .sequencer import Sequencer
 from .engine import Engine
 
-class Route(Logger, Sequencer):
+class Route(Sequencer):
     """
     Routing object that processes messages received by the engine when active.
 
     **Instance properties**
 
     - `engine`: Engine instance
+    - `logger`: python logger
     """
 
     @public_method
@@ -23,12 +25,13 @@ class Route(Logger, Sequencer):
 
         - name: roustart_scte name
         """
+        self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
-        Logger.__init__(self, __name__)
+
         Sequencer.__init__(self, __name__)
 
         if Engine.INSTANCE is None:
-            self.error('the engine must created before any module')
+            self.logger.error('the engine must created before any module')
             raise
         else:
             self.engine = Engine.INSTANCE

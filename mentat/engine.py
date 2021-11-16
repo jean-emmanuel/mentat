@@ -16,10 +16,9 @@ from .utils import *
 from .midi import osc_to_midi, midi_to_osc
 from .thread import KillableThread as Thread
 from .timer import Timer
-from .logger import Logger
 
 
-class Engine(Logger):
+class Engine():
     """
     Main object
 
@@ -27,6 +26,7 @@ class Engine(Logger):
 
     - `modules`: `dict` containing modules added to the engine with names as keys
     - `restarted`: `True` if the engine was restarted using `autorestart()`
+    - `logger`: python logger
     """
 
     INSTANCE = None
@@ -45,11 +45,11 @@ class Engine(Logger):
         - folder: path to config folder where state files will be saved to and loaded from
         - debug: set to True to enable debug messages
         """
+        self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
-        Logger.__init__(self, __name__)
 
         if Engine.INSTANCE is not None:
-            self.error('only one instance Engine can be created')
+            self.logger.error('only one instance Engine can be created')
             raise
         else:
             Engine.INSTANCE = self
@@ -110,7 +110,7 @@ class Engine(Logger):
         last_animation = 0
         animation_period = ANIMATION_PERIOD * 1000000
 
-        self.info('started')
+        self.logger.info('started')
         self.dispatch_event('engine_started')
 
         while self.is_running:
@@ -142,7 +142,7 @@ class Engine(Logger):
             # take some rest
             time.sleep(MAINLOOP_PERIOD)
 
-        self.info('stopped')
+        self.logger.info('stopped')
         self.dispatch_event('engine_stopped')
 
 
@@ -154,7 +154,7 @@ class Engine(Logger):
         Stop engine.
         """
 
-        self.info('stopping...')
+        self.logger.info('stopping...')
         self.dispatch_event('engine_stopping')
         self.is_running = False
         self.stop_scene('*')
@@ -176,7 +176,7 @@ class Engine(Logger):
         Stop the engine and restart once the process is terminated.
         """
         self.is_restarting = True
-        self.info('restarting...')
+        self.logger.info('restarting...')
 
     def _restart(self):
         def restart_python():
@@ -300,9 +300,9 @@ class Engine(Logger):
             self.active_route = self.routes[name]
             if self.is_running:
                 self.active_route.activate()
-            self.info('active route set to "%s"' % name)
+            self.logger.info('active route set to "%s"' % name)
         else:
-            self.error('route "%s" not found' % name)
+            self.logger.error('route "%s" not found' % name)
 
     def route(self, protocol, port, address, args):
         """
@@ -361,7 +361,7 @@ class Engine(Logger):
         self.scenes_timers[name] = Timer(self)
         self.scenes[name] = Thread(target=scene, name=name, args=args, kwargs=kwargs)
         self.scenes[name].start()
-        self.info('starting scene %s' % name)
+        self.logger.info('starting scene %s' % name)
 
     def stop_scene(self, name):
         """
@@ -379,10 +379,10 @@ class Engine(Logger):
                 self.stop_scene(n)
         elif name in self.scenes:
             if self.scenes[name].is_alive():
-                self.info('stopping scene %s' % name)
+                self.logger.info('stopping scene %s' % name)
                 self.scenes[name].kill()
             else:
-                self.info('cleaning scene %s' % name)
+                self.logger.info('cleaning scene %s' % name)
             id = self.scenes[name].ident
             del self.scenes[name]
             del self.scenes_timers[name]
@@ -398,7 +398,7 @@ class Engine(Logger):
         if name in self.scenes_timers:
             return self.scenes_timers[name]
         else:
-            self.error('cannot call wait() from main thread')
+            self.logger.error('cannot call wait() from main thread')
             return None
 
     @public_method

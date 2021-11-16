@@ -2,7 +2,6 @@ from sys import path
 path.insert(0, '../')
 
 from mentat import Engine, Module, Route
-from mentat.logger import Logger
 
 from inspect import getmembers, getdoc, signature, getsourcelines
 import re
@@ -21,8 +20,6 @@ for mod in [Engine, Module, Route]:
             source, start_line = getsourcelines(obj)
             if obj.__qualname__.split('.')[0] == 'Sequencer':
                 start_line += 10000
-            elif obj.__qualname__.split('.')[0] == 'Logger':
-                start_line += 20000
             methods.append([name, obj, start_line])
     methods.sort(key = lambda v: v[2])
 
