@@ -8,6 +8,7 @@ from .message import Message
 from .parameter import Parameter
 from .logger import Logger
 from .sequencer import Sequencer
+from .engine import Engine
 
 from functools import wraps
 def submodule_method(method):
@@ -39,7 +40,7 @@ class Module(Logger, Sequencer):
 
     **Instance properties**
 
-    - `engine`: Engine instance, available once the engine is started
+    - `engine`: Engine instance
     """
 
     @public_method
@@ -60,12 +61,19 @@ class Module(Logger, Sequencer):
             udp port number or unix socket path if protocol is 'osc'
             can be None if the module has no fixed input port
         """
+        self.name = name
         Logger.__init__(self, __name__)
         Sequencer.__init__(self, __name__)
 
-        self.engine = None
+        if Engine.INSTANCE is None:
+            self.error('the engine must created before any module')
+            raise
+        else:
+            self.engine = Engine.INSTANCE
 
-        self.name = name
+        self.parent_module = None
+        self.initialized = False
+
         self.protocol = protocol
         if protocol == 'osc' and type(port) is str and port[0] == '/':
             self.port = 'osc.unix://' + port
@@ -77,9 +85,6 @@ class Module(Logger, Sequencer):
         self.parameters = {}
         self.animations = []
 
-        self.parameters_callbacks = {}
-        self.watched_modules = {}
-
         self.submodules = {}
         self.aliases = {}
 
@@ -88,47 +93,22 @@ class Module(Logger, Sequencer):
         self.states = {}
         self.states_folder = ''
 
-    @public_method
-    def initialize(self, engine, submodule=False):
+    def initialize(self):
         """
-        initialize(engine, submodule=False)
+        initialize()
 
         Called by the engine when started.
         """
-        self.engine = engine
-
-        if submodule:
-            # init for submodules only
-            for name in self.submodules:
-                self.submodules[name].module_path = self.module_path + module.module_path
-
-        else:
-            # init for 1st level modules only
-            self.states_folder = '%s/states/%s' % (self.engine.folder, self.name)
-            for file in glob.glob('%s/*.json' % self.states_folder):
-                name = file.split('/')[-1].split('.')[0]
-                self.load(name, preload=True)
-
-        # init submodules
         for name in self.submodules:
-            self.submodules[name].initialize(self.engine, True)
+            self.submodules[name].module_path = self.module_path + self.submodules[name].module_path
+            self.submodules[name].initialize()
 
-        for module_path in self.watched_modules:
-            # register watched modules callbacks
-            parameter_names = self.watched_modules[module_path]
-            module_path = module_path.split('/')
-            module_name = module_path[0]
-            if module_name in self.engine.modules:
-                module = self.engine.modules[module_name]
-                for name in parameter_names:
-                    module.add_parameter_change_callback(
-                        *module_path[1:],
-                        name,
-                        self.watched_module_changed
-                    )
+        self.states_folder = '%s/states/%s' % (self.engine.folder, '/'.join(self.module_path))
+        for file in glob.glob('%s/*.json' % self.states_folder):
+            name = file.split('/')[-1].split('.')[0]
+            self.load(name, preload=True)
 
-        for name in self.parameters:
-            self.reset_parameter(name)
+        self.initialized = True
 
     @public_method
     def add_submodule(self, module):
@@ -148,9 +128,9 @@ class Module(Logger, Sequencer):
             module.protocol = self.protocol
         if module.port is None:
             module.port = self.port
-        if self.engine is not None:
-            # if module is already initialized, initialize submodule
-            module.initialize(self.engine, True)
+        module.parent_module = self
+        if self.initialized:
+            module.initialize()
 
     @public_method
     def set_aliases(self, aliases):
@@ -182,9 +162,7 @@ class Module(Logger, Sequencer):
         - default: value or list of values
         """
         self.parameters[name] = Parameter(name, address, types, static_args, default)
-        if self.engine is not None:
-            # if module is already initialized, initialize parameter
-            self.reset_parameter(name)
+        self.reset_parameter(name)
 
     def reset_parameter(self, name):
         """
@@ -256,7 +234,7 @@ class Module(Logger, Sequencer):
                 if change := parameter.set(*args[1:]) or force_send:
                     self.send(parameter.address, *parameter.args)
                     if change:
-                        self.notify_parameter_change(name)
+                        self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
         else:
             self.error('set: parameter "%s" not found' % name)
 
@@ -348,7 +326,7 @@ class Module(Logger, Sequencer):
             if parameter.animate_running:
                 if parameter.update_animation(self.engine.current_time) and self.port:
                     self.send(parameter.address, *parameter.args)
-                    self.notify_parameter_change(name)
+                    self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
             else:
                 self.animations.remove(name)
 
@@ -481,94 +459,28 @@ class Module(Logger, Sequencer):
             self.engine.queue.put(message)
 
     @public_method
-    def watch_module(self, *args):
+    def add_event_callback(self, event, callback):
         """
-        watch_module(module_name, param_name, callback)
+        add_event_callback(event, callback)
 
-        Watch changes of a module's parameter.
-        Used by controller modules to collect feedback.
+        Bind a callback function to an event.
 
         **Parameters**
 
-        - module_name:
-            name of module This argument can be suplied multiple time if
-            targetted module is a submodule
-        - parameter_name:
-            name of parameter, can be '*' to subscribe to all parameters
-            including submodules'
+        - event: name of event
+        - callback: function or method.
+        The callback's signature must match the event's arguments.
+
+        **Events**
+
+        - `engine_started`: emitted when the engine starts.
+        - `engine_stopping`: emitted before the engine stops
+        - `engine_stopped`: emitted when the engine is stopped
+        - `parameter_changed`: emitted when a module's parameter changes. Arguments:
+            - module_path: list of module names (from parent to submodule)
+            - name: name of parameter
+            - values: list of values
+
         """
-        module_path = '/'.join(args[:-1])
-        parameter_name = args[-1]
-        if module_path not in self.watched_modules:
-            self.watched_modules[module_path] = []
-        self.watched_modules[module_path].append(parameter_name)
 
-    @public_method
-    def watched_module_changed(self, module_path, name, args):
-        """
-        watched_module_changed(module_path, name, args)
-
-        Called when the value of a watched module's parameter updates.
-        To be overridden in subclasses.
-
-        **Parameters**
-
-        - module_path: list of module names (from parent to submodule)
-        - name: name of parameter
-        - args: values
-        """
-        pass
-
-    @submodule_method
-    def add_parameter_change_callback(self, *args):
-        """
-        add_parameter_change_callback(parameter_name, callback)
-        add_parameter_change_callback(submodule_name, param_name, callback)
-
-        Register a callback function to be called whenever the value
-        of a parameter changes. Used by controller modules to collect feedback.
-
-        **Parameters**
-
-        - submodule_name:
-            name of submodule
-        - parameter_name:
-            name of parameter, can be '*' to subscribe to all parameters
-            including submodules'
-        - callback:
-            function or method
-        """
-        name = args[0]
-        callback = args[1]
-
-        if name == '*':
-            for sname in self.submodules:
-                self.submodules[sname].add_parameter_change_callback('*', callback)
-            for pname in self.parameters:
-                self.add_parameter_change_callback(pname, callback)
-
-        else:
-            if name not in self.parameters_callbacks:
-                self.parameters_callbacks[name] = []
-
-            if callback not in self.parameters_callbacks[name]:
-                self.parameters_callbacks[name].append(callback)
-            callback(self.module_path, name, self.get(name))
-
-    def notify_parameter_change(self, name):
-        """
-        notify_parameter_change(name)
-
-        Called when the value of a parameter changes.
-        This calls registered callbacks for this parameter with three arguments:
-            module_path: list of module names (from parent to submodule)
-            name: name of parameter
-            args: values
-
-        **Parameters**
-
-        - name: name of parameter
-        """
-        if name in self.parameters_callbacks:
-            for callback in self.parameters_callbacks[name]:
-                callback(self.module_path, name, self.get(name))
+        self.engine.add_event_callback(event, callback)

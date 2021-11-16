@@ -1,6 +1,7 @@
 from .utils import *
 from .logger import Logger
 from .sequencer import Sequencer
+from .engine import Engine
 
 class Route(Logger, Sequencer):
     """
@@ -8,7 +9,7 @@ class Route(Logger, Sequencer):
 
     **Instance properties**
 
-    - `engine`: Engine instance, available once the engine is started
+    - `engine`: Engine instance
     """
 
     @public_method
@@ -22,24 +23,15 @@ class Route(Logger, Sequencer):
 
         - name: roustart_scte name
         """
+        self.name = name
         Logger.__init__(self, __name__)
         Sequencer.__init__(self, __name__)
 
-        self.engine = None
-        self.name = name
-
-    @public_method
-    def initialize(self, engine):
-        """
-        initialize(engine)
-
-        Called by the engine when started.
-
-        **Parameters**
-
-        - engine: engine instance
-        """
-        self.engine = engine
+        if Engine.INSTANCE is None:
+            self.error('the engine must created before any module')
+            raise
+        else:
+            self.engine = Engine.INSTANCE
 
     @public_method
     def activate(self):

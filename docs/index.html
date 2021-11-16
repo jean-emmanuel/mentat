@@ -131,6 +131,7 @@
                         <li><a href="#engine.set_tempo">Engine.set_tempo()</a></li>
                         <li><a href="#engine.set_cycle_length">Engine.set_cycle_length()</a></li>
                         <li><a href="#engine.start_cycle">Engine.start_cycle()</a></li>
+                        <li><a href="#engine.dispatch_event">Engine.dispatch_event()</a></li>
                         <li><a href="#engine.debug">Engine.debug()</a></li>
                         <li><a href="#engine.info">Engine.info()</a></li>
                         <li><a href="#engine.error">Engine.error()</a></li>
@@ -138,7 +139,6 @@
                         <li><a href="#module">Module</a>
                         <ul>
                         <li><a href="#module-1">Module()</a></li>
-                        <li><a href="#module.initialize">Module.initialize()</a></li>
                         <li><a href="#module.add_submodule">Module.add_submodule()</a></li>
                         <li><a href="#module.set_aliases">Module.set_aliases()</a></li>
                         <li><a href="#module.add_parameter">Module.add_parameter()</a></li>
@@ -152,8 +152,7 @@
                         <li><a href="#module.load">Module.load()</a></li>
                         <li><a href="#module.route">Module.route()</a></li>
                         <li><a href="#module.send">Module.send()</a></li>
-                        <li><a href="#module.watch_module">Module.watch_module()</a></li>
-                        <li><a href="#module.watched_module_changed">Module.watched_module_changed()</a></li>
+                        <li><a href="#module.add_event_callback">Module.add_event_callback()</a></li>
                         <li><a href="#module.start_scene">Module.start_scene()</a></li>
                         <li><a href="#module.stop_scene">Module.stop_scene()</a></li>
                         <li><a href="#module.wait">Module.wait()</a></li>
@@ -165,7 +164,6 @@
                         <li><a href="#route">Route</a>
                         <ul>
                         <li><a href="#route-1">Route()</a></li>
-                        <li><a href="#route.initialize">Route.initialize()</a></li>
                         <li><a href="#route.activate">Route.activate()</a></li>
                         <li><a href="#route.deactivate">Route.deactivate()</a></li>
                         <li><a href="#route.route">Route.route()</a></li>
@@ -303,6 +301,16 @@ python3 setup.py install</code></pre>
 <p><i>start_cycle()</i><br/></p>
 <p>Set current time as cycle start. Affects Route.wait_next_cycle() method.</p>
 </div>
+<h3 id="engine.dispatch_event">Engine.dispatch_event()</h3>
+<div class="content">
+<p><i>dispatch_event(event, *args)</i><br/></p>
+<p>Dispatch event to bound callback functions.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>event: name of event</li>
+<li>*args: arguments for the callback function</li>
+</ul>
+</div>
 <h3 id="engine.debug">Engine.debug()</h3>
 <div class="content">
 <p><i>debug(message)</i><br/></p>
@@ -335,7 +343,7 @@ python3 setup.py install</code></pre>
 <p>Interface between a software / hardware and the engine.</p>
 <p><strong>Instance properties</strong></p>
 <ul>
-<li><code>engine</code>: Engine instance, available once the engine is started</li>
+<li><code>engine</code>: Engine instance</li>
 </ul>
 <h3 id="module-1">Module()</h3>
 <div class="content">
@@ -347,11 +355,6 @@ python3 setup.py install</code></pre>
 <li>protocol: ‘osc’ or ‘midi’</li>
 <li>port: udp port number or unix socket path if protocol is ‘osc’ can be None if the module has no fixed input port</li>
 </ul>
-</div>
-<h3 id="module.initialize">Module.initialize()</h3>
-<div class="content">
-<p><i>initialize(engine, submodule=False)</i><br/></p>
-<p>Called by the engine when started.</p>
 </div>
 <h3 id="module.add_submodule">Module.add_submodule()</h3>
 <div class="content">
@@ -482,25 +485,26 @@ python3 setup.py install</code></pre>
 <li>*args: values</li>
 </ul>
 </div>
-<h3 id="module.watch_module">Module.watch_module()</h3>
+<h3 id="module.add_event_callback">Module.add_event_callback()</h3>
 <div class="content">
-<p><i>watch_module(module_name, param_name, callback)</i><br/></p>
-<p>Watch changes of a module’s parameter. Used by controller modules to collect feedback.</p>
+<p><i>add_event_callback(event, callback)</i><br/></p>
+<p>Bind a callback function to an event.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li>module_name: name of module This argument can be suplied multiple time if targetted module is a submodule</li>
-<li>parameter_name: name of parameter, can be ’*’ to subscribe to all parameters including submodules’</li>
+<li>event: name of event</li>
+<li>callback: function or method. The callback’s signature must match the event’s arguments.</li>
 </ul>
-</div>
-<h3 id="module.watched_module_changed">Module.watched_module_changed()</h3>
-<div class="content">
-<p><i>watched_module_changed(module_path, name, args)</i><br/></p>
-<p>Called when the value of a watched module’s parameter updates. To be overridden in subclasses.</p>
-<p><strong>Parameters</strong></p>
+<p><strong>Events</strong></p>
+<ul>
+<li><code>engine_started</code>: emitted when the engine starts.</li>
+<li><code>engine_stopping</code>: emitted before the engine stops</li>
+<li><code>engine_stopped</code>: emitted when the engine is stopped</li>
+<li><code>parameter_changed</code>: emitted when a module’s parameter changes. Arguments:
 <ul>
 <li>module_path: list of module names (from parent to submodule)</li>
 <li>name: name of parameter</li>
-<li>args: values</li>
+<li>values: list of values</li>
+</ul></li>
 </ul>
 </div>
 <h3 id="module.start_scene">Module.start_scene()</h3>
@@ -576,7 +580,7 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <p>Routing object that processes messages received by the engine when active.</p>
 <p><strong>Instance properties</strong></p>
 <ul>
-<li><code>engine</code>: Engine instance, available once the engine is started</li>
+<li><code>engine</code>: Engine instance</li>
 </ul>
 <h3 id="route-1">Route()</h3>
 <div class="content">
@@ -585,15 +589,6 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <p><strong>Parameters</strong></p>
 <ul>
 <li>name: roustart_scte name</li>
-</ul>
-</div>
-<h3 id="route.initialize">Route.initialize()</h3>
-<div class="content">
-<p><i>initialize(engine)</i><br/></p>
-<p>Called by the engine when started.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>engine: engine instance</li>
 </ul>
 </div>
 <h3 id="route.activate">Route.activate()</h3>

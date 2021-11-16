@@ -29,6 +29,8 @@ class Engine(Logger):
     - `restarted`: `True` if the engine was restarted using `autorestart()`
     """
 
+    INSTANCE = None
+
     @public_method
     def __init__(self, name, port, folder, debug=False):
         """
@@ -43,9 +45,15 @@ class Engine(Logger):
         - folder: path to config folder where state files will be saved to and loaded from
         - debug: set to True to enable debug messages
         """
+        self.name = name
         Logger.__init__(self, __name__)
 
-        self.name = name
+        if Engine.INSTANCE is not None:
+            self.error('only one instance Engine can be created')
+            raise
+        else:
+            Engine.INSTANCE = self
+
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
@@ -74,6 +82,8 @@ class Engine(Logger):
         self.folder = folder
         self.modules = {}
         self.queue = Queue()
+        self.event_callbacks = {}
+
 
         self.notifier = None
 
@@ -91,9 +101,7 @@ class Engine(Logger):
         signal(SIGTERM, lambda a,b: self.stop())
 
         for name in self.modules:
-            self.modules[name].initialize(self)
-        for name in self.routes:
-            self.routes[name].initialize(self)
+            self.modules[name].initialize()
         if self.active_route:
             self.active_route.activate()
 
@@ -103,6 +111,7 @@ class Engine(Logger):
         animation_period = ANIMATION_PERIOD * 1000000
 
         self.info('started')
+        self.dispatch_event('engine_started')
 
         while self.is_running:
 
@@ -134,6 +143,7 @@ class Engine(Logger):
             time.sleep(MAINLOOP_PERIOD)
 
         self.info('stopped')
+        self.dispatch_event('engine_stopped')
 
 
     @public_method
@@ -145,6 +155,7 @@ class Engine(Logger):
         """
 
         self.info('stopping...')
+        self.dispatch_event('engine_stopping')
         self.is_running = False
         self.stop_scene('*')
         if self.osc_server:
@@ -425,3 +436,31 @@ class Engine(Logger):
         Affects Route.wait_next_cycle() method.
         """
         self.cycle_start_time = self.current_time
+
+
+    def add_event_callback(self, event, callback):
+        """
+        add_event_callback(event, callback)
+
+        See module.add_event_callback()
+        """
+        if event not in self.event_callbacks:
+            self.event_callbacks[event] = []
+        if callback not in self.event_callbacks[event]:
+            self.event_callbacks[event].append(callback)
+
+    @public_method
+    def dispatch_event(self, event, *args):
+        """
+        dispatch_event(event, *args)
+
+        Dispatch event to bound callback functions.
+
+        **Parameters**
+
+        - event: name of event
+        - *args: arguments for the callback function
+        """
+        if event in self.event_callbacks:
+            for callback in self.event_callbacks[event]:
+                callback(*args)

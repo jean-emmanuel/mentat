@@ -1,9 +1,11 @@
+from modules import *
+
 class Audio():
 
     def part(self, *args, **kwargs):
 
         print('trackA audio route:', args)
-
+        klick1.set('tempo', 34)
         self.engine.start_cycle()
         self.start_scene('x', self.test)
 

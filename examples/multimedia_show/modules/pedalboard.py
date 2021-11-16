@@ -6,16 +6,14 @@ class Pedalboard(Module):
 
         Module.__init__(self, *args, **kwargs)
 
-        self.watch_module('klick-1', '*')
+        self.add_event_callback('parameter_changed', self.parameter_changed)
 
-    def watched_module_changed(self, module_path, name, args):
+    def parameter_changed(self, module_path, name, values):
 
-        self.send("/" + "/".join(module_path), *args)
-
-        print(self.name, module_path, name, args)
+        self.info('parameter changed: %s %s %s' % (module_path, name, values))
 
     def route(self, address, args):
 
         module_path = address.split('/')[1:]
-        
+
         self.engine.modules[module_path[0]].set(*module_path[:1], *args)
