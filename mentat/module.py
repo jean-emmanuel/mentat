@@ -255,7 +255,6 @@ class Module(Logger, Sequencer):
             if self.port:
                 if change := parameter.set(*args[1:]) or force_send:
                     self.send(parameter.address, *parameter.args)
-                    self.engine.put.append(message)
                     if change:
                         self.notify_parameter_change(name)
         else:
