@@ -15,7 +15,7 @@ class Klick(Module):
 
         Module.__init__(self, *args, **kwargs)
 
-        self.add_submodule(SubKlick('test'))
+        self.add_submodule(SubKlick('test', parent=self))
 
         self.add_parameter('pattern', '/klick/simple/set_pattern', 's')
         self.add_parameter('tempo', '/klick/simple/set_tempo', 'f')

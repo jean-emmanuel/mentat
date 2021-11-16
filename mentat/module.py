@@ -45,11 +45,9 @@ class Module(Sequencer):
     """
 
     @public_method
-    def __init__(self, name, protocol=None, port=None):
+    def __init__(self, name, protocol=None, port=None, parent=None):
         """
-        Module(engine, name, protocol, port)
-        Module(engine, name, protocol)
-        Module(engine, name)
+        Module(engine, name, protocol=None, port=None, parent=None)
 
         Base Module constructor.
         Arguments protocol and port should be omitted only when the module is a submodule.
@@ -61,6 +59,9 @@ class Module(Sequencer):
         - port:
             udp port number or unix socket path if protocol is 'osc'
             can be None if the module has no fixed input port
+        - parent:
+            if the module is a submodule, this must be set
+            to the parent module's instance
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
@@ -69,12 +70,11 @@ class Module(Sequencer):
 
         if Engine.INSTANCE is None:
             self.logger.error('the engine must created before any module')
-            raise
+            raise Exception
         else:
             self.engine = Engine.INSTANCE
 
-        self.parent_module = None
-        self.initialized = False
+        self.parent_module = parent
 
         self.protocol = protocol
         if protocol == 'osc' and type(port) is str and port[0] == '/':
@@ -91,26 +91,17 @@ class Module(Sequencer):
         self.aliases = {}
 
         self.module_path = [name]
+        parent = self.parent_module
+        while parent is not None:
+            self.module_path.insert(0, parent.name)
+            parent = parent.parent_module
 
         self.states = {}
         self.states_folder = ''
-
-    def initialize(self):
-        """
-        initialize()
-
-        Called by the engine when started.
-        """
-        for name in self.submodules:
-            self.submodules[name].module_path = self.module_path + self.submodules[name].module_path
-            self.submodules[name].initialize()
-
         self.states_folder = '%s/states/%s' % (self.engine.folder, '/'.join(self.module_path))
         for file in glob.glob('%s/*.json' % self.states_folder):
             name = file.split('/')[-1].split('.')[0]
             self.load(name, preload=True)
-
-        self.initialized = True
 
     @public_method
     def add_submodule(self, module):
@@ -119,20 +110,22 @@ class Module(Sequencer):
 
         Add a submodule.
         Submodule's protocol and port can be omitted, in which case
-        they will be inherited from their parent.
+        they will be inherited from their parent. The submodule's parent
+        instance must be provided in its constructor function (`parent` argument).
 
         **Parameters**
 
         - module: Module object
         """
+        if module.parent_module != self:
+            self.logger.error('incorrect value for argument "parent" of submodule "%s".' % module.name)
+            raise Exception
         self.submodules[module.name] = module
         if module.protocol is None:
             module.protocol = self.protocol
         if module.port is None:
             module.port = self.port
         module.parent_module = self
-        if self.initialized:
-            module.initialize()
 
     @public_method
     def set_aliases(self, aliases):

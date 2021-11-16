@@ -50,7 +50,7 @@ class Engine():
 
         if Engine.INSTANCE is not None:
             self.logger.error('only one instance Engine can be created')
-            raise
+            raise Exception
         else:
             Engine.INSTANCE = self
 
@@ -100,8 +100,6 @@ class Engine():
         signal(SIGINT, lambda a,b: self.stop())
         signal(SIGTERM, lambda a,b: self.stop())
 
-        for name in self.modules:
-            self.modules[name].initialize()
         if self.active_route:
             self.active_route.activate()
 

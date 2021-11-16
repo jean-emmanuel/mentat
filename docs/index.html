@@ -313,19 +313,20 @@ python3 setup.py install</code></pre>
 </ul>
 <h3 id="module-1">Module()</h3>
 <div class="content">
-<p><i>Module(engine, name, protocol, port)</i><br/> <i>Module(engine, name, protocol)</i><br/> <i>Module(engine, name)</i><br/></p>
+<p><i>Module(engine, name, protocol=None, port=None, parent=None)</i><br/></p>
 <p>Base Module constructor. Arguments protocol and port should be omitted only when the module is a submodule.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li>name: module name</li>
 <li>protocol: ‘osc’ or ‘midi’</li>
 <li>port: udp port number or unix socket path if protocol is ‘osc’ can be None if the module has no fixed input port</li>
+<li>parent: if the module is a submodule, this must be set to the parent module’s instance</li>
 </ul>
 </div>
 <h3 id="module.add_submodule">Module.add_submodule()</h3>
 <div class="content">
 <p><i>add_submodule(module)</i><br/></p>
-<p>Add a submodule. Submodule’s protocol and port can be omitted, in which case they will be inherited from their parent.</p>
+<p>Add a submodule. Submodule’s protocol and port can be omitted, in which case they will be inherited from their parent. The submodule’s parent instance must be provided in its constructor function (<code>parent</code> argument).</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li>module: Module object</li>

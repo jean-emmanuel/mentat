@@ -32,7 +32,7 @@ class Route(Sequencer):
 
         if Engine.INSTANCE is None:
             self.logger.error('the engine must created before any module')
-            raise
+            raise Exception
         else:
             self.engine = Engine.INSTANCE
 
