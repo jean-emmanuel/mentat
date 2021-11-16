@@ -181,7 +181,7 @@ class Module(Logger, Sequencer):
         - static_args: list of static values before the ones that can be modified
         - default: value or list of values
         """
-        self.parameters[name] = Parameter(name, address, types, static_args)
+        self.parameters[name] = Parameter(name, address, types, static_args, default)
         if self.engine is not None:
             # if module is already initialized, initialize parameter
             self.reset_parameter(name)
