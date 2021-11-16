@@ -64,6 +64,7 @@ class Engine(Logger):
         self.scenes_timers = {}
 
         self.is_running = False
+        self.is_restarting = False
 
         self.current_time = time.monotonic_ns()
         self.cycle_start_time = self.current_time
@@ -125,6 +126,10 @@ class Engine(Logger):
             # send pending messages
             self.flush()
 
+            # restart ?
+            if self.is_restarting:
+                self._restart()
+
             # take some rest
             time.sleep(MAINLOOP_PERIOD)
 
@@ -159,11 +164,14 @@ class Engine(Logger):
 
         Stop the engine and restart once the process is terminated.
         """
+        self.is_restarting = True
+        self.info('restarting...')
+
+    def _restart(self):
         def restart_python():
             os.environ['MENTAT_RESTART'] = '1'
             os.execl(sys.executable, sys.executable, *sys.argv)
         atexit.register(restart_python)
-        self.info('restarting...')
         self.stop()
 
     @public_method
