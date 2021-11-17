@@ -42,6 +42,7 @@ class Module(Sequencer):
 
     - `engine`: Engine instance
     - `logger`: python logger
+    - `parent_module`: parent module instance, `None` if the module is not a submodule
     - `module_path`: list of module names, from topmost parent to submodule
     """
 
@@ -213,7 +214,7 @@ class Module(Sequencer):
                 parameter.stop_animation()
             if parameter.set(*args[1:]) or force_send:
                 self.send(parameter.address, *parameter.args)
-                self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
+                self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
                 self.check_conditions(name)
         else:
             self.logger.error('set: parameter "%s" not found' % name)
@@ -319,7 +320,7 @@ class Module(Sequencer):
             if parameter.animate_running:
                 if parameter.update_animation(self.engine.current_time):
                     self.send(parameter.address, *parameter.args)
-                    self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
+                    self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
                     self.check_conditions(name)
             else:
                 self.animations.remove(name)
@@ -453,7 +454,7 @@ class Module(Sequencer):
         state = condition['getter'](*values)
         if state != condition['state']:
             condition['state'] = state
-            self.engine.dispatch_event('condition_changed', self.module_path, name, state)
+            self.engine.dispatch_event('condition_changed', self, name, state)
 
 
     def get_state(self):
@@ -470,7 +471,11 @@ class Module(Sequencer):
 
         for name in self.parameters:
 
-            state.append([name, *self.parameters[name].get()])
+            val = self.parameters[name].get()
+            if type(val) is list:
+                state.append([name, *val])
+            else:
+                state.append([name, val])
 
         for name in self.submodules:
 
@@ -603,9 +608,13 @@ class Module(Sequencer):
         - `engine_stopping`: emitted before the engine stops
         - `engine_stopped`: emitted when the engine is stopped
         - `parameter_changed`: emitted when a module's parameter changes. Arguments:
-            - module_path: list of module names (from parent to submodule)
+            - module: instance of module that emitted the event
             - name: name of parameter
-            - values: list of values
+            - value: value of parameter or list of values
+        - `condition_changed`: emitted when a module's condition changes. Arguments:
+            - module: instance of module that emitted the event
+            - name: name of condition
+            - value: value
 
         """
 

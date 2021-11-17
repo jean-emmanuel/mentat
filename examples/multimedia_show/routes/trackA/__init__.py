@@ -37,6 +37,13 @@ class TrackA(Light, Video, Audio, GlobalRoute):
             if args[0] in self.engine.modules:
                 self.engine.modules[args[0]].set_condition(*args[1:])
 
+        if address == '/save' and len(args) == 2:
+            if args[0] in self.engine.modules:
+                self.engine.modules[args[0]].save(args[1])
+
+        if address == '/load' and len(args) == 2:
+            if args[0] in self.engine.modules:
+                self.engine.modules[args[0]].load(args[1])
 
         if address =='/pedalboard/button':
             if args[0] == 1:

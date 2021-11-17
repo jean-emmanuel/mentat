@@ -4,7 +4,9 @@ from .klick import Klick
 from .pedalboard import Pedalboard
 from .nonmixer import NonMixer
 
-engine = Engine('JoeLeTaxi', 5555, '/home/bordun/Dev/Mentat/example')
+from os.path import dirname
+
+engine = Engine('JoeLeMentat', 5555, dirname(__file__) + '/../')
 
 nonmixer = NonMixer('non', 'osc', 11143)
 

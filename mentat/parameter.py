@@ -51,7 +51,8 @@ class Parameter():
         values specified in constructor's types option
         """
 
-        return self.args[-self.n_args:]
+        val = self.args[-self.n_args:]
+        return val[0] if len(val) == 1 else val
 
     @public_method
     def set(self, *args):
