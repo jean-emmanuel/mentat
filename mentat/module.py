@@ -42,6 +42,7 @@ class Module(Sequencer):
 
     - `engine`: Engine instance
     - `logger`: python logger
+    - `module_path`: list of module names, from topmost parent to submodule
     """
 
     @public_method
@@ -86,6 +87,7 @@ class Module(Sequencer):
 
         self.parameters = {}
         self.animations = []
+        self.conditions = {}
 
         self.submodules = {}
         self.aliases = {}
@@ -154,26 +156,10 @@ class Module(Sequencer):
         - address: osc address of parameter
         - types: osc typetags string, one letter per value, including static values
         - static_args: list of static values before the ones that can be modified
-        - default: value or list of values
+        - default: value or list of values if the parameter has multiple dynamic values
         """
         self.parameters[name] = Parameter(name, address, types, static_args, default)
-        self.reset_parameter(name)
-
-    def reset_parameter(self, name):
-        """
-        reset_parameter(name)
-
-        Apply parameter's default value and send it.
-
-        **Parameters**
-
-        - name: name of parameter
-        """
-        if default := self.parameters[name].default is not None:
-            if type(default) == list:
-                self.set(name, *default)
-            else:
-                self.set(name, default)
+        self.reset(name)
 
     @public_method
     @submodule_method
@@ -228,20 +214,34 @@ class Module(Sequencer):
             if parameter.set(*args[1:]) or force_send:
                 self.send(parameter.address, *parameter.args)
                 self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
+                self.check_conditions(name)
         else:
             self.logger.error('set: parameter "%s" not found' % name)
 
     @public_method
-    def reset(self):
+    def reset(self, name=None):
         """
-        reset()
+        reset(name=None)
 
-        Reset all parameters to their default values (including submodules')
+        Reset parameter to its default values.
+
+        **Parameters**
+
+        - name: name of parameter. If omitted, affects all parameters including submodules'
         """
-        for sname in self.submodules:
-            self.submodules[sname].reset()
-        for name in self.parameters:
-            self.reset_parameter(name)
+        if name is None:
+            for sname in self.submodules:
+                self.submodules[sname].reset()
+            for name in self.parameters:
+                self.reset(name)
+
+        elif name in self.parameters:
+            if (default := self.parameters[name].default) is not None:
+                if type(default) == list:
+                    self.set(name, *default)
+                else:
+                    self.set(name, default)
+
 
     @public_method
     @submodule_method
@@ -320,8 +320,141 @@ class Module(Sequencer):
                 if parameter.update_animation(self.engine.current_time):
                     self.send(parameter.address, *parameter.args)
                     self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
+                    self.check_conditions(name)
             else:
                 self.animations.remove(name)
+
+
+    @public_method
+    def add_condition(self, name, parameters, getter, setter=None):
+        """
+        add_condition(name, parameters, callback)
+
+        Add a condition property whose value depends on the state of one
+        or several parameters owned by the module or its submodules.
+
+        **Parameters**
+
+        - name: name of condition
+        - parameters:
+            list of parameter names involved in the condition.
+            Items may be lists if the parameters are owned by a submodule (`['submodule_name', 'parameter_name']`)
+        - getter:
+            callback function that will be called with the values of involved parameters
+            as arguments. Each argument will be passed as a list as they may contain multiple values.
+            Its return value will define the condition's state.
+        - setter:
+            callback function used to set the value of the parameters involved in the condition when `set_condition()` is called.
+            It receives as argument the condition's state and must set involved parameters accordingly.
+        """
+        self.conditions[name] = {
+            'parameters': [[x] if type(x) is not list else x for x in parameters],
+            'getter': getter,
+            'setter': setter,
+            'state': None
+        }
+
+        self.update_condition(name)
+
+    @public_method
+    @submodule_method
+    def get_condition(self, *args):
+        """
+        get_condition(condition_name)
+        get_condition(submodule_name, condition_name)
+
+        Get value of condition
+
+        **Parameters**
+
+        - condition_name: name of condition
+        - submodule_name: name of submodule
+
+        **Return**
+
+        State of condition, depends on the callback function provided in `add_condition(`).
+        """
+        name = args[0]
+
+        if name in self.conditions:
+
+            return self.conditions[name]['state']
+
+        else:
+            self.logger.error('get_condition: condition "%s" not found' % name)
+
+    @public_method
+    @submodule_method
+    def set_condition(self, *args):
+        """
+        set_condition(condition_name, state)
+        set_condition(submodule_name, condition_name, state)
+
+        Set value of condition
+
+        **Parameters**
+
+        - condition_name: name of condition
+        - submodule_name: name of submodule
+        - state: state of the condition passed to the condition's setter function
+        """
+        name = args[0]
+
+        if name in self.conditions:
+
+            condition = self.conditions[name]
+            if condition['setter'] is not None:
+                condition['setter'](args[1])
+            else:
+                self.logger.error('set_condition: no setter defined for condition "%s"' % name)
+
+            return self.conditions[name]['state']
+
+        else:
+            self.logger.error('set_condition: condition "%s" not found' % name)
+
+
+    def check_conditions(self, updated_parameter):
+        """
+        check_conditions(updated_parameter)
+
+        Update conditions in which updated parameter is involved.
+
+        **Parameters**
+
+        - updated_parameter: parameter name, may be a list if owned by a submodule.
+        """
+        if self.conditions:
+            if type(updated_parameter) is not list:
+                updated_parameter = [updated_parameter]
+            for name in self.conditions:
+                if updated_parameter in self.conditions[name]['parameters']:
+                    self.update_condition(name)
+
+        # pass condition update to parent module
+        if self.parent_module is not None and self.parent_module.conditions:
+            if type(updated_parameter) is not list:
+                updated_parameter = [updated_parameter]
+            updated_parameter.insert(0, self.name)
+            self.parent_module.check_conditions(updated_parameter)
+
+    def update_condition(self, name):
+        """
+        update_condition(name)
+
+        Update condition state and emit appropriate event if it changed.
+
+        **Parameters**
+
+        - name: name of condition
+        """
+        condition = self.conditions[name]
+        values = [self.get(*x) for x in condition['parameters']]
+        state = condition['getter'](*values)
+        if state != condition['state']:
+            condition['state'] = state
+            self.engine.dispatch_event('condition_changed', self.module_path, name, state)
+
 
     def get_state(self):
         """
@@ -430,7 +563,7 @@ class Module(Sequencer):
 
         **Return**
 
-        `False` the message should not be passed to the engine's
+        `False` if the message should not be passed to the engine's
         active route after being processed by the module.
         """
         pass

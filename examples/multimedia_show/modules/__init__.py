@@ -7,6 +7,7 @@ from .nonmixer import NonMixer
 engine = Engine('JoeLeTaxi', 5555, '/home/bordun/Dev/Mentat/example')
 
 nonmixer = NonMixer('non', 'osc', 11143)
+
 klick1 = Klick('klick-1', 'osc', 12000)
 klick2 = Klick('klick-2', 'osc', 13000)
 

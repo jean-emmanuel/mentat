@@ -18,7 +18,7 @@ class Parameter():
         - address: osc address of parameter
         - types: osc typetags string, one letter per value, including static values
         - static_args: list of static values before the ones that can be modified
-        - default: list of values
+        - default: default value
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name

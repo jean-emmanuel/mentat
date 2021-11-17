@@ -144,6 +144,9 @@
                         <li><a href="#module.reset">Module.reset()</a></li>
                         <li><a href="#module.animate">Module.animate()</a></li>
                         <li><a href="#module.stop_animate">Module.stop_animate()</a></li>
+                        <li><a href="#module.add_condition">Module.add_condition()</a></li>
+                        <li><a href="#module.get_condition">Module.get_condition()</a></li>
+                        <li><a href="#module.set_condition">Module.set_condition()</a></li>
                         <li><a href="#module.send_state">Module.send_state()</a></li>
                         <li><a href="#module.save">Module.save()</a></li>
                         <li><a href="#module.load">Module.load()</a></li>
@@ -310,6 +313,7 @@ python3 setup.py install</code></pre>
 <ul>
 <li><code>engine</code>: Engine instance</li>
 <li><code>logger</code>: python logger</li>
+<li><code>module_path</code>: list of module names, from topmost parent to submodule</li>
 </ul>
 <h3 id="module-1">Module()</h3>
 <div class="content">
@@ -351,7 +355,7 @@ python3 setup.py install</code></pre>
 <li>address: osc address of parameter</li>
 <li>types: osc typetags string, one letter per value, including static values</li>
 <li>static_args: list of static values before the ones that can be modified</li>
-<li>default: value or list of values</li>
+<li>default: value or list of values if the parameter has multiple dynamic values</li>
 </ul>
 </div>
 <h3 id="module.get">Module.get()</h3>
@@ -379,8 +383,12 @@ python3 setup.py install</code></pre>
 </div>
 <h3 id="module.reset">Module.reset()</h3>
 <div class="content">
-<p><i>reset()</i><br/></p>
-<p>Reset all parameters to their default values (including submodules’)</p>
+<p><i>reset(name=None)</i><br/></p>
+<p>Reset parameter to its default values.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: name of parameter. If omitted, affects all parameters including submodules’</li>
+</ul>
 </div>
 <h3 id="module.animate">Module.animate()</h3>
 <div class="content">
@@ -405,6 +413,41 @@ python3 setup.py install</code></pre>
 <ul>
 <li>parameter_name: name of parameter, can be ’*’ to stop all animations.</li>
 <li>submodule_name: name of submodule, name of parameter</li>
+</ul>
+</div>
+<h3 id="module.add_condition">Module.add_condition()</h3>
+<div class="content">
+<p><i>add_condition(name, parameters, callback)</i><br/></p>
+<p>Add a condition property whose value depends on the state of one or several parameters owned by the module or its submodules.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>name: name of condition</li>
+<li>parameters: list of parameter names involved in the condition. Items may be lists if the parameters are owned by a submodule (<code>['submodule_name', 'parameter_name']</code>)</li>
+<li>getter: callback function that will be called with the values of involved parameters as arguments. Each argument will be passed as a list as they may contain multiple values. Its return value will define the condition’s state.</li>
+<li>setter: callback function used to set the value of the parameters involved in the condition when <code>set_condition()</code> is called. It receives as argument the condition’s state and must set involved parameters accordingly.</li>
+</ul>
+</div>
+<h3 id="module.get_condition">Module.get_condition()</h3>
+<div class="content">
+<p><i>get_condition(condition_name)</i><br/> <i>get_condition(submodule_name, condition_name)</i><br/></p>
+<p>Get value of condition</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>condition_name: name of condition</li>
+<li>submodule_name: name of submodule</li>
+</ul>
+<p><strong>Return</strong></p>
+<p>State of condition, depends on the callback function provided in <code>add_condition(</code>).</p>
+</div>
+<h3 id="module.set_condition">Module.set_condition()</h3>
+<div class="content">
+<p><i>set_condition(condition_name, state)</i><br/> <i>set_condition(submodule_name, condition_name, state)</i><br/></p>
+<p>Set value of condition</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li>condition_name: name of condition</li>
+<li>submodule_name: name of submodule</li>
+<li>state: state of the condition passed to the condition’s setter function</li>
 </ul>
 </div>
 <h3 id="module.send_state">Module.send_state()</h3>
@@ -440,7 +483,7 @@ python3 setup.py install</code></pre>
 <li>args: list of values</li>
 </ul>
 <p><strong>Return</strong></p>
-<p><code>False</code> the message should not be passed to the engine’s active route after being processed by the module.</p>
+<p><code>False</code> if the message should not be passed to the engine’s active route after being processed by the module.</p>
 </div>
 <h3 id="module.send">Module.send()</h3>
 <div class="content">

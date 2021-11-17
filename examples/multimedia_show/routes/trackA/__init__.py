@@ -29,6 +29,15 @@ class TrackA(Light, Video, Audio, GlobalRoute):
 
         print('trackA main route:', args)
 
+        if address == '/set' and len(args) > 2:
+            if args[0] in self.engine.modules:
+                self.engine.modules[args[0]].set(*args[1:])
+
+        if address == '/set_condition' and len(args) > 2:
+            if args[0] in self.engine.modules:
+                self.engine.modules[args[0]].set_condition(*args[1:])
+
+
         if address =='/pedalboard/button':
             if args[0] == 1:
                 self.part("verse", 1)
