@@ -21,10 +21,10 @@ class Sequencer():
 
         **Parameters**
 
-        - name: scene name
-        - scene: function or method
-        - *args: arguments for the scene function
-        - **kwargs: keyword arguments for the scene function
+        - `name`: scene name
+        - `scene`: function or method
+        - `*args`: arguments for the scene function
+        - `**kwargs`: keyword arguments for the scene function
         """
         self.stop_scene('/%s/%s/%s' % (self.scene_namespace, self.name, name))
         self.engine.start_scene('/%s/%s/%s' % (self.scene_namespace, self.name, name), scene, *args, **kwargs)
@@ -38,7 +38,7 @@ class Sequencer():
 
         **Parameters**
 
-        - name: scene name, with wildcard support
+        - `name`: scene name, with wildcard support
         """
         self.engine.stop_scene('/%s/%s/%s' % (self.scene_namespace, self.name, name))
 
@@ -62,8 +62,8 @@ class Sequencer():
 
         **Parameters**
 
-        - duration: amount of time to wait
-        - mode: 'beats' or 'seconds' (only the first letter matters)
+        - `duration`: amount of time to wait
+        - `mode`: 'beats' or 'seconds' (only the first letter matters)
         """
         timer = self.engine.get_scene_timer()
         if timer:

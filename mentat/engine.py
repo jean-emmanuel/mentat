@@ -40,10 +40,10 @@ class Engine():
 
         **Parameters**
 
-        - name: client name
-        - port: osc input port, can be an udp port number or a unix socket path
-        - folder: path to config folder where state files will be saved to and loaded from
-        - debug: set to True to enable debug messages
+        - `name`: client name
+        - `port`: osc input port, can be an udp port number or a unix socket path
+        - `folder`: path to config folder where state files will be saved to and loaded from
+        - `debug`: set to True to enable debug messages
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
@@ -213,7 +213,7 @@ class Engine():
 
         **Parameters**
 
-        - module: Module object
+        - `module`: Module object
         """
         self.modules[module.name] = module
 
@@ -245,11 +245,11 @@ class Engine():
 
         **Parameters**
 
-        - protocol: 'osc' or 'midi'
-        - port:
+        - `protocol`: 'osc' or 'midi'
+        - `port`:
             module name or udp port number or unix socket path if protocol is 'osc'
-        - address: osc address
-        - args: values
+        - `address`: osc address
+        - `args`: values
         """
         if protocol == 'osc':
 
@@ -277,7 +277,7 @@ class Engine():
 
         **Parameters**
 
-        - route: Route object
+        - `route`: Route object
         """
         self.routes[route.name] = route
 
@@ -290,7 +290,7 @@ class Engine():
 
         **Parameters**
 
-        - name: route name
+        - `name`: route name
         """
         if name in self.routes:
             if self.active_route and self.is_running:
@@ -310,10 +310,10 @@ class Engine():
 
         **Parameters**
 
-        - protocol: 'osc' or 'midi'
-        - port: name of module or port number if unknown
-        - address: osc address
-        - args: list of values
+        - `protocol`: 'osc' or 'midi'
+        - `port`: name of module or port number if unknown
+        - `address`: osc address
+        - `args`: list of values
         """
         if port in self.modules:
             if self.modules[port].route(address, args) == False:
@@ -350,10 +350,10 @@ class Engine():
 
         **Parameters**
 
-        - name: scene name
-        - scene: function or method
-        - *args: arguments for the scene function
-        - *kwargs: keyword arguments for the scene function
+        - `name`: scene name
+        - `scene`: function or method
+        - `*args`: arguments for the scene function
+        - `*kwargs`: keyword arguments for the scene function
         """
         self.stop_scene(name)
         self.scenes_timers[name] = Timer(self)
@@ -369,8 +369,8 @@ class Engine():
 
         **Parameters**
 
-        - name: scene name
-        - scene: function or method
+        - `name`: scene name
+        - `scene`: function or method
         """
         if '*' in name:
             for n in fnmatch.filter(self.scenes.keys(), name):
@@ -408,7 +408,7 @@ class Engine():
 
         **Parameters**
 
-        - bpm: beats per minute
+        - `bpm`: beats per minute
         """
         self.tempo = max(float(bpm), 0.001)
 
@@ -421,7 +421,7 @@ class Engine():
 
         **Parameters**
 
-        - eighth_notes: eighth notes per cycle
+        - `eighth_notes`: eighth notes per cycle
         """
         self.cycle_length = float(eighth_notes)
 
@@ -456,8 +456,8 @@ class Engine():
 
         **Parameters**
 
-        - event: name of event
-        - *args: arguments for the callback function
+        - `event`: name of event
+        - `*args`: arguments for the callback function
         """
         if event in self.event_callbacks:
             for callback in self.event_callbacks[event]:

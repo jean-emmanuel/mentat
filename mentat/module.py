@@ -53,16 +53,15 @@ class Module(Sequencer):
         Module(engine, name, protocol=None, port=None, parent=None)
 
         Base Module constructor.
-        Arguments protocol and port should be omitted only when the module is a submodule.
 
         **Parameters**
 
-        - name: module name
-        - protocol: 'osc' or 'midi'
-        - port:
+        - `name`: module name
+        - `protocol`: 'osc' or 'midi'
+        - `port`:
             udp port number or unix socket path if protocol is 'osc'
             can be None if the module has no fixed input port
-        - parent:
+        - `parent`:
             if the module is a submodule, this must be set
             to the parent module's instance
         """
@@ -119,7 +118,7 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - module: Module object
+        - `module`: Module object
         """
         if module.parent_module != self:
             self.logger.error('incorrect value for argument "parent" of submodule "%s".' % module.name)
@@ -141,7 +140,7 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - aliases: {alias: name} dictionary
+        - `aliases`: {alias: name} dictionary
         """
         self.aliases = aliases
 
@@ -154,11 +153,11 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - name: name of parameter
-        - address: osc address of parameter
-        - types: osc typetags string, one letter per value, including static values
-        - static_args: list of static values before the ones that can be modified
-        - default: value or list of values if the parameter has multiple dynamic values
+        - `name`: name of parameter
+        - `address`: osc address of parameter
+        - `types`: osc typetags string, one letter per value, including static values
+        - `static_args`: list of static values before the ones that can be modified
+        - `default`: value or list of values if the parameter has multiple dynamic values
         """
         self.parameters[name] = Parameter(name, address, types, static_args, default)
         self.reset(name)
@@ -174,8 +173,8 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - parameter_name: name of parameter
-        - submodule_name: name of submodule
+        - `parameter_name`: name of parameter
+        - `submodule_name`: name of submodule
 
         **Return**
 
@@ -202,9 +201,9 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - parameter_name: name of parameter
-        - submodule_name: name of submodule
-        - *args: value(s)
+        - `parameter_name`: name of parameter
+        - `submodule_name`: name of submodule
+        - `*args`: value(s)
         """
         name = args[0]
 
@@ -229,7 +228,7 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - name: name of parameter. If omitted, affects all parameters including submodules'
+        - `name`: name of parameter. If omitted, affects all parameters including submodules'
         """
         if name is None:
             for sname in self.submodules:
@@ -256,13 +255,13 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - parameter_name: name of parameter
-        - submodule_name: name of submodule
-        - start: starting value(s), can be None to use currnet value
-        - end: ending value(s)
-        - duration: animation duration
-        - mode: 'seconds' or 'beats'
-        - easing: easing function name
+        - `parameter_name`: name of parameter
+        - `submodule_name`: name of submodule
+        - `start`: starting value(s), can be None to use currnet value
+        - `end`: ending value(s)
+        - `duration`: animation duration
+        - `mode`: 'seconds' or 'beats'
+        - `easing`: easing function name
         """
         name = args[0]
 
@@ -286,8 +285,8 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - parameter_name: name of parameter, can be '*' to stop all animations.
-        - submodule_name: name of submodule, name of parameter
+        - `parameter_name`: name of parameter, can be '*' to stop all animations.
+        - `submodule_name`: name of submodule, name of parameter
         """
         name = args[0]
 
@@ -337,14 +336,14 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - name: name of condition
-        - parameters:
+        - `name`: name of condition
+        - `parameters`:
             list of parameter names involved in the condition.
             Items may be lists if the parameters are owned by a submodule (`['submodule_name', 'parameter_name']`)
-        - getter:
+        - `getter`:
             callback function that will be called with the values of involved parameters
             as arguments. Its return value will define the condition's state.
-        - setter:
+        - `setter`:
             callback function used to set the value of the parameters involved in the condition when `set_condition()` is called.
             It receives as argument the condition's state and must set involved parameters accordingly.
         """
@@ -368,8 +367,8 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - condition_name: name of condition
-        - submodule_name: name of submodule
+        - `condition_name`: name of condition
+        - `submodule_name`: name of submodule
 
         **Return**
 
@@ -395,9 +394,9 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - condition_name: name of condition
-        - submodule_name: name of submodule
-        - state: state of the condition passed to the condition's setter function
+        - `condition_name`: name of condition
+        - `submodule_name`: name of submodule
+        - `state`: state of the condition passed to the condition's setter function
         """
         name = args[0]
 
@@ -423,7 +422,7 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - updated_parameter: parameter name, may be a list if owned by a submodule.
+        - `updated_parameter`: parameter name, may be a list if owned by a submodule.
         """
         if self.conditions:
             if type(updated_parameter) is not list:
@@ -447,7 +446,7 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - name: name of condition
+        - `name`: name of condition
         """
         condition = self.conditions[name]
         values = [self.get(*x) for x in condition['parameters']]
@@ -511,7 +510,7 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - name: name of state save (without file extension)
+        - `name`: name of state save (without file extension)
         """
         file = '%s/%s.json' % (self.states_folder, name)
         self.states[name] = self.get_state()
@@ -534,7 +533,7 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - name: name of state save (without file extension)
+        - `name`: name of state save (without file extension)
         """
         if name not in self.states and preload:
 
@@ -563,8 +562,8 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - address: osc address
-        - args: list of values
+        - `address`: osc address
+        - `args`: list of values
 
         **Return**
 
@@ -582,8 +581,8 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - address: osc address
-        - *args: values
+        - `address`: osc address
+        - `*args`: values
         """
         if self.port:
             message = Message(self.protocol, self.port, address, *args)
@@ -598,8 +597,8 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - event: name of event
-        - callback: function or method.
+        - `event`: name of event
+        - `callback`: function or method.
         The callback's signature must match the event's arguments.
 
         **Events**
@@ -608,13 +607,13 @@ class Module(Sequencer):
         - `engine_stopping`: emitted before the engine stops
         - `engine_stopped`: emitted when the engine is stopped
         - `parameter_changed`: emitted when a module's parameter changes. Arguments:
-            - module: instance of module that emitted the event
-            - name: name of parameter
-            - value: value of parameter or list of values
+            - `module`: instance of module that emitted the event
+            - `name`: name of parameter
+            - `value`: value of parameter or list of values
         - `condition_changed`: emitted when a module's condition changes. Arguments:
-            - module: instance of module that emitted the event
-            - name: name of condition
-            - value: value
+            - `module`: instance of module that emitted the event
+            - `name`: name of condition
+            - `value`: value
 
         """
 

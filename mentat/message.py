@@ -9,11 +9,11 @@ class Message():
 
         **Parameters**
 
-        - protocol: 'osc' or 'midi'
-        - module: module name
-        - port: udp port number or osc.unix:// socket path if protocol is 'osc'
-        - address: osc address
-        - *args: values
+        - `protocol`: 'osc' or 'midi'
+        - `module`: module name
+        - `port`: udp port number or osc.unix:// socket path if protocol is 'osc'
+        - `address`: osc address
+        - `*args`: values
         """
         self.protocol = protocol
         self.port = port

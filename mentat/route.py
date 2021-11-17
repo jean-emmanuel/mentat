@@ -23,7 +23,7 @@ class Route(Sequencer):
 
         **Parameters**
 
-        - name: roustart_scte name
+        - `name`: roustart_scte name
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
@@ -63,9 +63,9 @@ class Route(Sequencer):
 
         **Parameters**
 
-        - protocol: 'osc' or 'midi'
-        - port: name of module or port number if unknown
-        - address: osc address
-        - args: list of values
+        - `protocol`: 'osc' or 'midi'
+        - `port`: name of module or port number if unknown
+        - `address`: osc address
+        - `args`: list of values
         """
         pass

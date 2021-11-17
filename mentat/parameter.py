@@ -14,11 +14,11 @@ class Parameter():
 
         **Parameters**
 
-        - name: name of parameter
-        - address: osc address of parameter
-        - types: osc typetags string, one letter per value, including static values
-        - static_args: list of static values before the ones that can be modified
-        - default: default value
+        - `name`: name of parameter
+        - `address`: osc address of parameter
+        - `types`: osc typetags string, one letter per value, including static values
+        - `static_args`: list of static values before the ones that can be modified
+        - `default`: default value
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
@@ -63,7 +63,7 @@ class Parameter():
 
         **Parameters**
 
-        - *args:
+        - `*args`:
             n values, where n is the number of
             values specified in constructor's types option
 
@@ -93,8 +93,8 @@ class Parameter():
 
         **Parameters**
 
-        - arg: input value
-        - type: osc typetag letter (supported: 'ifsTF')
+        - `arg`: input value
+        - `type`: osc typetag letter (supported: 'ifsTF')
 
         **Return**
         Casted value
