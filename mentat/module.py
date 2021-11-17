@@ -225,11 +225,9 @@ class Module(Sequencer):
             parameter = self.parameters[name]
             if parameter.animate_running:
                 parameter.stop_animation()
-            if self.port:
-                if change := parameter.set(*args[1:]) or force_send:
-                    self.send(parameter.address, *parameter.args)
-                    if change:
-                        self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
+            if parameter.set(*args[1:]) or force_send:
+                self.send(parameter.address, *parameter.args)
+                self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
         else:
             self.logger.error('set: parameter "%s" not found' % name)
 
@@ -319,7 +317,7 @@ class Module(Sequencer):
 
             parameter = self.parameters[name]
             if parameter.animate_running:
-                if parameter.update_animation(self.engine.current_time) and self.port:
+                if parameter.update_animation(self.engine.current_time):
                     self.send(parameter.address, *parameter.args)
                     self.engine.dispatch_event('parameter_changed', self.module_path, name, parameter.get())
             else:
