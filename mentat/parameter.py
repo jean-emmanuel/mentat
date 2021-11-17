@@ -70,17 +70,19 @@ class Parameter():
 
         `True` is the new value differs from the old one, `False` otherwise
         """
+
         if len(args) != self.n_args:
             self.logger.error('wrong number of arguments for %s (%s). %i expected, %i provided' % (name, address, self.n_args, len(args)))
             return False
 
+        changed = False
         for i in range(self.n_args):
             value = self.cast(args[i], self.types[i - self.n_args])
             if value != self.args[i - self.n_args]:
                 self.args[i - self.n_args] = value
-                return True
-            else:
-                return False
+                changed = True
+
+        return changed
 
     def cast(self, arg, type):
         """
