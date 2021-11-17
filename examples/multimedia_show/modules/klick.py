@@ -29,10 +29,10 @@ class Klick(Module):
         )
 
         self.add_event_callback('condition_changed', self.condition_changed)
-        print('res:', self.get('some_array'))
-    def condition_changed(self, module_path, name, value):
 
-        if module_path == self.module_path:
+    def condition_changed(self, module, name, value):
+
+        if module == self:
             self.logger.info('condition %s changed to %s' % (name, value))
 
     def start(self):

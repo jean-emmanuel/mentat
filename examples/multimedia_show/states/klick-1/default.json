@@ -1,5 +1,6 @@
 [
-  ["pattern", 0],
-  ["tempo", 0],
-  ["test", "thing", 0]
+  ["pattern", "Xxxx"],
+  ["tempo", 120.0],
+  ["some_array", 0.0, 1.0],
+  ["test", "thing", 0.0]
 ]

@@ -15,8 +15,5 @@ klick2 = Klick('klick-2', 'osc', 13000)
 
 pedalboard = Pedalboard('pedalboard', 'osc', None)
 
-pedalboard2 = Pedalboard('pedalboard-2', 'osc', None)
-pedalboard3 = Pedalboard('pedalboard-3', 'osc', None)
-
 kbd = Module('kbd', 'midi')
 mon = Module('mon', 'midi')

@@ -42,6 +42,7 @@ class Module(Sequencer):
 
     - `engine`: Engine instance
     - `logger`: python logger
+    - `name`: module name
     - `parent_module`: parent module instance, `None` if the module is not a submodule
     - `module_path`: list of module names, from topmost parent to submodule
     """
@@ -490,7 +491,7 @@ class Module(Sequencer):
 
         Set state of any number of parameters and submodules' parameters.
         """
-        for data in self.states[name]:
+        for data in state:
             self.set(*data, force_send=force_send)
 
     @public_method
