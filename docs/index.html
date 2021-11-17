@@ -313,6 +313,8 @@ python3 setup.py install</code></pre>
 <ul>
 <li><code>engine</code>: Engine instance</li>
 <li><code>logger</code>: python logger</li>
+<li><code>name</code>: module name</li>
+<li><code>parent_module</code>: parent module instance, <code>None</code> if the module is not a submodule</li>
 <li><code>module_path</code>: list of module names, from topmost parent to submodule</li>
 </ul>
 <h3 id="module-1">Module()</h3>
@@ -423,7 +425,7 @@ python3 setup.py install</code></pre>
 <ul>
 <li>name: name of condition</li>
 <li>parameters: list of parameter names involved in the condition. Items may be lists if the parameters are owned by a submodule (<code>['submodule_name', 'parameter_name']</code>)</li>
-<li>getter: callback function that will be called with the values of involved parameters as arguments. Each argument will be passed as a list as they may contain multiple values. Its return value will define the condition’s state.</li>
+<li>getter: callback function that will be called with the values of involved parameters as arguments. Its return value will define the condition’s state.</li>
 <li>setter: callback function used to set the value of the parameters involved in the condition when <code>set_condition()</code> is called. It receives as argument the condition’s state and must set involved parameters accordingly.</li>
 </ul>
 </div>
@@ -511,9 +513,15 @@ python3 setup.py install</code></pre>
 <li><code>engine_stopped</code>: emitted when the engine is stopped</li>
 <li><code>parameter_changed</code>: emitted when a module’s parameter changes. Arguments:
 <ul>
-<li>module_path: list of module names (from parent to submodule)</li>
+<li>module: instance of module that emitted the event</li>
 <li>name: name of parameter</li>
-<li>values: list of values</li>
+<li>value: value of parameter or list of values</li>
+</ul></li>
+<li><code>condition_changed</code>: emitted when a module’s condition changes. Arguments:
+<ul>
+<li>module: instance of module that emitted the event</li>
+<li>name: name of condition</li>
+<li>value: value</li>
 </ul></li>
 </ul>
 </div>

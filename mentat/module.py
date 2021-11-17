@@ -343,8 +343,7 @@ class Module(Sequencer):
             Items may be lists if the parameters are owned by a submodule (`['submodule_name', 'parameter_name']`)
         - getter:
             callback function that will be called with the values of involved parameters
-            as arguments. Each argument will be passed as a list as they may contain multiple values.
-            Its return value will define the condition's state.
+            as arguments. Its return value will define the condition's state.
         - setter:
             callback function used to set the value of the parameters involved in the condition when `set_condition()` is called.
             It receives as argument the condition's state and must set involved parameters accordingly.
