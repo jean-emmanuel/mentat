@@ -147,9 +147,7 @@
                         <li><a href="#module.reset">Module.reset()</a></li>
                         <li><a href="#module.animate">Module.animate()</a></li>
                         <li><a href="#module.stop_animate">Module.stop_animate()</a></li>
-                        <li><a href="#module.add_condition">Module.add_condition()</a></li>
-                        <li><a href="#module.get_condition">Module.get_condition()</a></li>
-                        <li><a href="#module.set_condition">Module.set_condition()</a></li>
+                        <li><a href="#module.add_mapping">Module.add_mapping()</a></li>
                         <li><a href="#module.send_state">Module.send_state()</a></li>
                         <li><a href="#module.save">Module.save()</a></li>
                         <li><a href="#module.load">Module.load()</a></li>
@@ -420,39 +418,17 @@ python3 setup.py install</code></pre>
 <li><code>submodule_name</code>: name of submodule, name of parameter</li>
 </ul>
 </div>
-<h3 id="module.add_condition">Module.add_condition()</h3>
+<h3 id="module.add_mapping">Module.add_mapping()</h3>
 <div class="content">
-<p><i>add_condition(name, parameters, callback)</i><br/></p>
-<p>Add a condition property whose value depends on the state of one or several parameters owned by the module or its submodules.</p>
+<p><i>add_mapping(name, parameters, getter, setter=None)</i><br/></p>
+<p>Add a special parameter whose value depends on the state of one or several parameters owned by the module or its submodules.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>name</code>: name of condition</li>
-<li><code>parameters</code>: list of parameter names involved in the condition. Items may be lists if the parameters are owned by a submodule (<code>['submodule_name', 'parameter_name']</code>)</li>
-<li><code>getter</code>: callback function that will be called with the values of involved parameters as arguments. Its return value will define the condition’s state.</li>
-<li><code>setter</code>: callback function used to set the value of the parameters involved in the condition when <code>set_condition()</code> is called. It receives as argument the condition’s state and must set involved parameters accordingly.</li>
-</ul>
-</div>
-<h3 id="module.get_condition">Module.get_condition()</h3>
-<div class="content">
-<p><i>get_condition(condition_name)</i><br/> <i>get_condition(submodule_name, condition_name)</i><br/></p>
-<p>Get value of condition</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>condition_name</code>: name of condition</li>
-<li><code>submodule_name</code>: name of submodule</li>
-</ul>
-<p><strong>Return</strong></p>
-<p>State of condition, depends on the callback function provided in <code>add_condition(</code>).</p>
-</div>
-<h3 id="module.set_condition">Module.set_condition()</h3>
-<div class="content">
-<p><i>set_condition(condition_name, state)</i><br/> <i>set_condition(submodule_name, condition_name, state)</i><br/></p>
-<p>Set value of condition</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>condition_name</code>: name of condition</li>
-<li><code>submodule_name</code>: name of submodule</li>
-<li><code>state</code>: state of the condition passed to the condition’s setter function</li>
+<li><code>name</code>: name of mapping</li>
+<li><code>parameters</code>: list of parameter names involved in the mapping. Items may be lists if the parameters are owned by a submodule (<code>['submodule_name', 'parameter_name']</code>)</li>
+<li><code>types</code>: osc typetags string for the mapping’s</li>
+<li><code>getter</code>: callback function that will be called with the values of involved parameters as arguments whenever one these parameters changes. Its return value will define the mapping’s value.</li>
+<li><code>setter</code>: callback function used to set the value of the parameters involved in the mapping when <code>set()</code> is called.</li>
 </ul>
 </div>
 <h3 id="module.send_state">Module.send_state()</h3>
@@ -519,12 +495,6 @@ python3 setup.py install</code></pre>
 <li><code>module</code>: instance of module that emitted the event</li>
 <li><code>name</code>: name of parameter</li>
 <li><code>value</code>: value of parameter or list of values</li>
-</ul></li>
-<li><code>condition_changed</code>: emitted when a module’s condition changes. Arguments:
-<ul>
-<li><code>module</code>: instance of module that emitted the event</li>
-<li><code>name</code>: name of condition</li>
-<li><code>value</code>: value</li>
 </ul></li>
 </ul>
 </div>
