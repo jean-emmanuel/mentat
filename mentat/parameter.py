@@ -131,7 +131,7 @@ class Parameter():
             self.animate_to = [self.animate_to]
 
         if mode[0] == 'b':
-            self.animate_duration = self.animate_duration * 60. / engine.bpm
+            self.animate_duration = self.animate_duration * 60. / engine.tempo
         elif mode[0] != 's':
             self.logger.error('start_animation: unrecognized mode "%s"' % mode)
             return
@@ -188,7 +188,7 @@ class MetaParameter(Parameter):
             return False
 
         value = self.get()
-        
+
         self.lock = True
         self.setter(*args)
         self.lock = False
