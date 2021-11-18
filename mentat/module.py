@@ -50,7 +50,7 @@ class Module(Sequencer):
     @public_method
     def __init__(self, name, protocol=None, port=None, parent=None):
         """
-        Module(engine, name, protocol=None, port=None, parent=None)
+        Module(name, protocol=None, port=None, parent=None)
 
         Base Module constructor.
 
@@ -213,9 +213,7 @@ class Module(Sequencer):
             if parameter.animate_running:
                 parameter.stop_animation()
             if parameter.set(*args[1:]) or force_send:
-                if isinstance(parameter, MetaParameter):
-                    self.update_meta_parameter(name)
-                else:
+                if parameter.address:
                     self.send(parameter.address, *parameter.args)
                 self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
                 self.check_meta_parameters(name)
@@ -323,9 +321,7 @@ class Module(Sequencer):
             parameter = self.parameters[name]
             if parameter.animate_running:
                 if parameter.update_animation(self.engine.current_time):
-                    if isinstance(parameter, MetaParameter):
-                        self.update_meta_parameter(name)
-                    else:
+                    if parameter.address:
                         self.send(parameter.address, *parameter.args)
                     self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
                     self.check_meta_parameters(name)

@@ -193,21 +193,17 @@ class MetaParameter(Parameter):
         self.setter(*args)
         self.lock = False
 
-        if value != self.get():
-            return True
+        return self.update()
 
     def update(self):
+
+        if self.lock:
+            return False
 
         values = [self.module.get(*x) for x in self.parameters]
         value = self.getter(*values)
 
-        changed = False
         if type(value) is list:
-            changed = Parameter.set(self, *value)
+            return Parameter.set(self, *value)
         else:
-            changed = Parameter.set(self, value)
-
-        if self.lock:
-            return False
-        else:
-            return changed
+            return Parameter.set(self, value)
