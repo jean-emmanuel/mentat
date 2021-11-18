@@ -21,7 +21,7 @@ class Klick(Module):
         self.add_parameter('tempo', '/klick/simple/set_tempo', 'f', default=120)
         self.add_parameter('some_array', '/klick/simple/xy', 'ff', default=[0,0])
 
-        self.add_condition('tempat', ['tempo', 'pattern', ['test', 'thing']],
+        self.add_mapping('tempo_and_pattern', types='i', parameters=['tempo', 'pattern', ['test', 'thing']],
             getter = lambda t,p,tt: t > 150 and p != "Xxxx" and tt < 0,
             setter = lambda s: [self.set('tempo', 160 if s else 140),
                                self.set('pattern', 'Xxx' if s else 'Xxxx'),

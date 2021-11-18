@@ -7,6 +7,7 @@ import logging
 from .utils import *
 from .message import Message
 from .parameter import Parameter
+from .mapping import Mapping
 from .sequencer import Sequencer
 from .engine import Engine
 
@@ -88,7 +89,7 @@ class Module(Sequencer):
 
         self.parameters = {}
         self.animations = []
-        self.conditions = {}
+        self.mappings = {}
 
         self.submodules = {}
         self.aliases = {}
@@ -214,8 +215,11 @@ class Module(Sequencer):
                 parameter.stop_animation()
             if parameter.set(*args[1:]) or force_send:
                 self.send(parameter.address, *parameter.args)
-                self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
-                self.check_conditions(name)
+                if not isinstance(parameter, Mapping):
+                    # event alreay emitted in check_mappings()
+                    self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
+                self.check_mappings(name)
+
         else:
             self.logger.error('set: parameter "%s" not found' % name)
 
@@ -321,139 +325,73 @@ class Module(Sequencer):
                 if parameter.update_animation(self.engine.current_time):
                     self.send(parameter.address, *parameter.args)
                     self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
-                    self.check_conditions(name)
+                    self.check_mappings(name)
             else:
                 self.animations.remove(name)
 
-
     @public_method
-    def add_condition(self, name, parameters, getter, setter=None):
+    def add_mapping(self, name, parameters, types, getter, setter=None):
         """
-        add_condition(name, parameters, callback)
+        add_mapping(name, parameters, getter, setter=None)
 
-        Add a condition property whose value depends on the state of one
+        Add a special parameter whose value depends on the state of one
         or several parameters owned by the module or its submodules.
 
         **Parameters**
 
-        - `name`: name of condition
+        - `name`: name of mapping
         - `parameters`:
-            list of parameter names involved in the condition.
+            list of parameter names involved in the mapping.
             Items may be lists if the parameters are owned by a submodule (`['submodule_name', 'parameter_name']`)
+        - `types`: osc typetags string for the mapping's
         - `getter`:
-            callback function that will be called with the values of involved parameters
-            as arguments. Its return value will define the condition's state.
+            callback function that will be called with the values of involved
+            parameters as arguments whenever one these parameters changes.
+            Its return value will define the mapping's value.
         - `setter`:
-            callback function used to set the value of the parameters involved in the condition when `set_condition()` is called.
-            It receives as argument the condition's state and must set involved parameters accordingly.
+            callback function used to set the value of the parameters involved in the mapping when `set()` is called.
         """
-        self.conditions[name] = {
-            'parameters': [[x] if type(x) is not list else x for x in parameters],
-            'getter': getter,
-            'setter': setter,
-            'state': None
-        }
+        mapping = Mapping(name, parameters, types, getter, setter, module=self)
+        self.mappings[name] = mapping
+        self.parameters[name] = mapping
+        self.update_mapping(name)
 
-        self.update_condition(name)
-
-    @public_method
-    @submodule_method
-    def get_condition(self, *args):
+    def check_mappings(self, updated_parameter):
         """
-        get_condition(condition_name)
-        get_condition(submodule_name, condition_name)
+        check_mappings(updated_parameter)
 
-        Get value of condition
-
-        **Parameters**
-
-        - `condition_name`: name of condition
-        - `submodule_name`: name of submodule
-
-        **Return**
-
-        State of condition, depends on the callback function provided in `add_condition(`).
-        """
-        name = args[0]
-
-        if name in self.conditions:
-
-            return self.conditions[name]['state']
-
-        else:
-            self.logger.error('get_condition: condition "%s" not found' % name)
-
-    @public_method
-    @submodule_method
-    def set_condition(self, *args):
-        """
-        set_condition(condition_name, state)
-        set_condition(submodule_name, condition_name, state)
-
-        Set value of condition
-
-        **Parameters**
-
-        - `condition_name`: name of condition
-        - `submodule_name`: name of submodule
-        - `state`: state of the condition passed to the condition's setter function
-        """
-        name = args[0]
-
-        if name in self.conditions:
-
-            condition = self.conditions[name]
-            if condition['setter'] is not None:
-                condition['setter'](args[1])
-            else:
-                self.logger.error('set_condition: no setter defined for condition "%s"' % name)
-
-            return self.conditions[name]['state']
-
-        else:
-            self.logger.error('set_condition: condition "%s" not found' % name)
-
-
-    def check_conditions(self, updated_parameter):
-        """
-        check_conditions(updated_parameter)
-
-        Update conditions in which updated parameter is involved.
+        Update mappings in which updated parameter is involved.
 
         **Parameters**
 
         - `updated_parameter`: parameter name, may be a list if owned by a submodule.
         """
-        if self.conditions:
+        if self.mappings:
             if type(updated_parameter) is not list:
                 updated_parameter = [updated_parameter]
-            for name in self.conditions:
-                if updated_parameter in self.conditions[name]['parameters']:
-                    self.update_condition(name)
+            for name in self.mappings:
+                if updated_parameter in self.mappings[name].parameters:
+                    self.update_mapping(name)
 
-        # pass condition update to parent module
-        if self.parent_module is not None and self.parent_module.conditions:
+        # pass mapping update to parent module
+        if self.parent_module is not None and self.parent_module.mappings:
             if type(updated_parameter) is not list:
                 updated_parameter = [updated_parameter]
             updated_parameter.insert(0, self.name)
-            self.parent_module.check_conditions(updated_parameter)
+            self.parent_module.check_mappings(updated_parameter)
 
-    def update_condition(self, name):
+    def update_mapping(self, name):
         """
-        update_condition(name)
+        update_mapping(name)
 
-        Update condition state and emit appropriate event if it changed.
+        Update mapping state and emit appropriate event if it changed.
 
         **Parameters**
 
-        - `name`: name of condition
+        - `name`: name of mapping
         """
-        condition = self.conditions[name]
-        values = [self.get(*x) for x in condition['parameters']]
-        state = condition['getter'](*values)
-        if state != condition['state']:
-            condition['state'] = state
-            self.engine.dispatch_event('condition_changed', self, name, state)
+        if self.mappings[name].update():
+            self.engine.dispatch_event('parameter_changed', self, name, self.mappings[name].get())
 
 
     def get_state(self):
@@ -610,10 +548,6 @@ class Module(Sequencer):
             - `module`: instance of module that emitted the event
             - `name`: name of parameter
             - `value`: value of parameter or list of values
-        - `condition_changed`: emitted when a module's condition changes. Arguments:
-            - `module`: instance of module that emitted the event
-            - `name`: name of condition
-            - `value`: value
 
         """
 
