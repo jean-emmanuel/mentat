@@ -332,7 +332,7 @@ class Module(Sequencer):
     @public_method
     def add_mapping(self, name, parameters, types, getter, setter=None):
         """
-        add_mapping(name, parameters, getter, setter=None)
+        add_mapping(name, parameters, type, getter, setter=None)
 
         Add a special parameter whose value depends on the state of one
         or several parameters owned by the module or its submodules.
