@@ -6,8 +6,7 @@ import logging
 
 from .utils import *
 from .message import Message
-from .parameter import Parameter
-from .mapping import Mapping
+from .parameter import Parameter, MetaParameter
 from .sequencer import Sequencer
 from .engine import Engine
 
@@ -89,7 +88,7 @@ class Module(Sequencer):
 
         self.parameters = {}
         self.animations = []
-        self.mappings = {}
+        self.meta_parameters = {}
 
         self.submodules = {}
         self.aliases = {}
@@ -214,11 +213,12 @@ class Module(Sequencer):
             if parameter.animate_running:
                 parameter.stop_animation()
             if parameter.set(*args[1:]) or force_send:
-                self.send(parameter.address, *parameter.args)
-                if not isinstance(parameter, Mapping):
-                    # event alreay emitted in check_mappings()
-                    self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
-                self.check_mappings(name)
+                if isinstance(parameter, MetaParameter):
+                    self.update_meta_parameter(name)
+                else:
+                    self.send(parameter.address, *parameter.args)
+                self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
+                self.check_meta_parameters(name)
 
         else:
             self.logger.error('set: parameter "%s" not found' % name)
@@ -323,75 +323,78 @@ class Module(Sequencer):
             parameter = self.parameters[name]
             if parameter.animate_running:
                 if parameter.update_animation(self.engine.current_time):
-                    self.send(parameter.address, *parameter.args)
+                    if isinstance(parameter, MetaParameter):
+                        self.update_meta_parameter(name)
+                    else:
+                        self.send(parameter.address, *parameter.args)
                     self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
-                    self.check_mappings(name)
+                    self.check_meta_parameters(name)
             else:
                 self.animations.remove(name)
 
     @public_method
-    def add_mapping(self, name, parameters, types, getter, setter=None):
+    def add_meta_parameter(self, name, parameters, getter, setter):
         """
-        add_mapping(name, parameters, type, getter, setter=None)
+        add_meta_parameter(name, parameters, getter, setter)
 
         Add a special parameter whose value depends on the state of one
         or several parameters owned by the module or its submodules.
 
         **Parameters**
 
-        - `name`: name of mapping
+        - `name`: name of meta parameter
         - `parameters`:
-            list of parameter names involved in the mapping.
+            list of parameter names involved in the meta parameter.
             Items may be lists if the parameters are owned by a submodule (`['submodule_name', 'parameter_name']`)
-        - `types`: osc typetags string for the mapping's
         - `getter`:
             callback function that will be called with the values of involved
             parameters as arguments whenever one these parameters changes.
-            Its return value will define the mapping's value.
+            Its return value will define the meta parameter's value.
         - `setter`:
-            callback function used to set the value of the parameters involved in the mapping when `set()` is called.
+            callback function used to set the value of the parameters involved in the meta parameter when `set()` is called.
+            The function's signature must not use *args or **kwargs arguments.
         """
-        mapping = Mapping(name, parameters, types, getter, setter, module=self)
-        self.mappings[name] = mapping
-        self.parameters[name] = mapping
-        self.update_mapping(name)
+        meta_parameter = MetaParameter(name, parameters, getter, setter, module=self)
+        self.meta_parameters[name] = meta_parameter
+        self.parameters[name] = meta_parameter
+        self.update_meta_parameter(name)
 
-    def check_mappings(self, updated_parameter):
+    def check_meta_parameters(self, updated_parameter):
         """
-        check_mappings(updated_parameter)
+        check_meta_parameters(updated_parameter)
 
-        Update mappings in which updated parameter is involved.
+        Update meta parameters in which updated parameter is involved.
 
         **Parameters**
 
         - `updated_parameter`: parameter name, may be a list if owned by a submodule.
         """
-        if self.mappings:
+        if self.meta_parameters:
             if type(updated_parameter) is not list:
                 updated_parameter = [updated_parameter]
-            for name in self.mappings:
-                if updated_parameter in self.mappings[name].parameters:
-                    self.update_mapping(name)
+            for name in self.meta_parameters:
+                if updated_parameter in self.meta_parameters[name].parameters:
+                    self.update_meta_parameter(name)
 
-        # pass mapping update to parent module
-        if self.parent_module is not None and self.parent_module.mappings:
+        # pass meta_parameter update to parent module
+        if self.parent_module is not None and self.parent_module.meta_parameters:
             if type(updated_parameter) is not list:
                 updated_parameter = [updated_parameter]
             updated_parameter.insert(0, self.name)
-            self.parent_module.check_mappings(updated_parameter)
+            self.parent_module.check_meta_parameters(updated_parameter)
 
-    def update_mapping(self, name):
+    def update_meta_parameter(self, name):
         """
-        update_mapping(name)
+        update_meta_parameter(name)
 
-        Update mapping state and emit appropriate event if it changed.
+        Update meta parameter state and emit appropriate event if it changed.
 
         **Parameters**
 
-        - `name`: name of mapping
+        - `name`: name of meta parameter
         """
-        if self.mappings[name].update():
-            self.engine.dispatch_event('parameter_changed', self, name, self.mappings[name].get())
+        if self.meta_parameters[name].update():
+            self.engine.dispatch_event('parameter_changed', self, name, self.meta_parameters[name].get())
 
 
     def get_state(self):

@@ -147,7 +147,7 @@
                         <li><a href="#module.reset">Module.reset()</a></li>
                         <li><a href="#module.animate">Module.animate()</a></li>
                         <li><a href="#module.stop_animate">Module.stop_animate()</a></li>
-                        <li><a href="#module.add_mapping">Module.add_mapping()</a></li>
+                        <li><a href="#module.add_meta_parameter">Module.add_meta_parameter()</a></li>
                         <li><a href="#module.send_state">Module.send_state()</a></li>
                         <li><a href="#module.save">Module.save()</a></li>
                         <li><a href="#module.load">Module.load()</a></li>
@@ -418,17 +418,16 @@ python3 setup.py install</code></pre>
 <li><code>submodule_name</code>: name of submodule, name of parameter</li>
 </ul>
 </div>
-<h3 id="module.add_mapping">Module.add_mapping()</h3>
+<h3 id="module.add_meta_parameter">Module.add_meta_parameter()</h3>
 <div class="content">
-<p><i>add_mapping(name, parameters, type, getter, setter=None)</i><br/></p>
+<p><i>add_meta_parameter(name, parameters, getter, setter)</i><br/></p>
 <p>Add a special parameter whose value depends on the state of one or several parameters owned by the module or its submodules.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>name</code>: name of mapping</li>
-<li><code>parameters</code>: list of parameter names involved in the mapping. Items may be lists if the parameters are owned by a submodule (<code>['submodule_name', 'parameter_name']</code>)</li>
-<li><code>types</code>: osc typetags string for the mapping’s</li>
-<li><code>getter</code>: callback function that will be called with the values of involved parameters as arguments whenever one these parameters changes. Its return value will define the mapping’s value.</li>
-<li><code>setter</code>: callback function used to set the value of the parameters involved in the mapping when <code>set()</code> is called.</li>
+<li><code>name</code>: name of meta parameter</li>
+<li><code>parameters</code>: list of parameter names involved in the meta parameter. Items may be lists if the parameters are owned by a submodule (<code>['submodule_name', 'parameter_name']</code>)</li>
+<li><code>getter</code>: callback function that will be called with the values of involved parameters as arguments whenever one these parameters changes. Its return value will define the meta parameter’s value.</li>
+<li><code>setter</code>: callback function used to set the value of the parameters involved in the meta parameter when <code>set()</code> is called. The function’s signature must not use *args or **kwargs arguments.</li>
 </ul>
 </div>
 <h3 id="module.send_state">Module.send_state()</h3>

@@ -1,4 +1,5 @@
 import logging
+from inspect import signature
 
 from .utils import *
 from .easing import EASING_FUNCTIONS
@@ -73,7 +74,7 @@ class Parameter():
         """
 
         if len(args) != self.n_args:
-            self.logger.error('wrong number of arguments for %s (%s). %i expected, %i provided' % (name, address, self.n_args, len(args)))
+            self.logger.error('wrong number of arguments for %s (%s). %i expected, %i provided' % (self.name, self.address, self.n_args, len(args)))
             return False
 
         changed = False
@@ -164,3 +165,49 @@ class Parameter():
         value = [self.animate_easing[i].ease(t) for i in range(self.n_args)]
 
         return self.set(*value)
+
+
+class MetaParameter(Parameter):
+
+    def __init__(self, name, parameters, getter, setter, module):
+
+        self.module = module
+        self.parameters = [[x] if type(x) is not list else x for x in parameters]
+        self.getter = getter
+        self.setter = setter
+        self.lock = False
+
+        types = '*' * len(signature(setter).parameters)
+
+        super().__init__(name, address='', types=types)
+
+    def set(self, *args):
+
+        if len(args) != self.n_args:
+            self.logger.error('wrong number of arguments for %s. %i expected, %i provided' % (self.name, self.n_args, len(args)))
+            return False
+
+        value = self.get()
+        
+        self.lock = True
+        self.setter(*args)
+        self.lock = False
+
+        if value != self.get():
+            return True
+
+    def update(self):
+
+        values = [self.module.get(*x) for x in self.parameters]
+        value = self.getter(*values)
+
+        changed = False
+        if type(value) is list:
+            changed = Parameter.set(self, *value)
+        else:
+            changed = Parameter.set(self, value)
+
+        if self.lock:
+            return False
+        else:
+            return changed

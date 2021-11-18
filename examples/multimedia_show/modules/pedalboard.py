@@ -10,4 +10,4 @@ class Pedalboard(Module):
 
     def parameter_changed(self, module, name, values):
 
-        self.logger.info('parameter changed: %s %s %s' % (module.name, name, values))
+        self.logger.info('parameter changed: %s %s %s' % (module.module_path, name, values))
