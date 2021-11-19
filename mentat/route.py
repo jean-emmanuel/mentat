@@ -28,7 +28,7 @@ class Route(Sequencer):
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
 
-        Sequencer.__init__(self, __name__)
+        Sequencer.__init__(self, 'route/' + self.name)
 
         if Engine.INSTANCE is None:
             self.logger.error('the engine must created before any module')

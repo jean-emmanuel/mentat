@@ -68,8 +68,6 @@ class Module(Sequencer):
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
 
-        Sequencer.__init__(self, __name__)
-
         if Engine.INSTANCE is None:
             self.logger.error('the engine must created before any module')
             raise Exception
@@ -105,6 +103,8 @@ class Module(Sequencer):
         for file in glob.glob('%s/*.json' % self.states_folder):
             name = file.split('/')[-1].split('.')[0]
             self.load(name, preload=True)
+
+        Sequencer.__init__(self, 'module/' + '/'.join(self.module_path))
 
     @public_method
     def add_submodule(self, module):

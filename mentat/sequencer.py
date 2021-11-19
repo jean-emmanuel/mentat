@@ -5,8 +5,8 @@ class Sequencer():
     Mixin class, defines methods for starting/stopping scenes.
     """
 
-    def __init__(self, modname):
-        self.scene_namespace = modname
+    def __init__(self, namespace):
+        self.scene_namespace = namespace
 
     @public_method
     def start_scene(self, name, scene, *args, **kwargs):
@@ -26,8 +26,8 @@ class Sequencer():
         - `*args`: arguments for the scene function
         - `**kwargs`: keyword arguments for the scene function
         """
-        self.stop_scene('/%s/%s/%s' % (self.scene_namespace, self.name, name))
-        self.engine.start_scene('/%s/%s/%s' % (self.scene_namespace, self.name, name), scene, *args, **kwargs)
+        self.stop_scene('/%s/%s' % (self.scene_namespace, name))
+        self.engine.start_scene('/%s/%s' % (self.scene_namespace, name), scene, *args, **kwargs)
 
     @public_method
     def stop_scene(self, name):
@@ -40,7 +40,7 @@ class Sequencer():
 
         - `name`: scene name, with wildcard support
         """
-        self.engine.stop_scene('/%s/%s/%s' % (self.scene_namespace, self.name, name))
+        self.engine.stop_scene('/%s/%s' % (self.scene_namespace, name))
 
     @public_method
     def wait(self, duration, mode='beats'):
