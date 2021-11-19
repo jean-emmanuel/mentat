@@ -39,7 +39,7 @@ class Sequencer():
 
         **Parameters**
 
-        - `name`: scene name, with wildcar support
+        - `name`: scene name, with wildcard support
         """
         self.engine.restart_scene('/%s/%s' % (self.scene_namespace, name))
 
