@@ -17,7 +17,6 @@ from .midi import osc_to_midi, midi_to_osc
 from .thread import KillableThread as Thread
 from .timer import Timer
 
-
 class Engine():
     """
     Main object
@@ -27,6 +26,7 @@ class Engine():
     - `modules`: `dict` containing modules added to the engine with names as keys
     - `restarted`: `True` if the engine was restarted using `autorestart()`
     - `logger`: python logger
+    - `root_module`: module instance that exposes all modules added to the engine.
     """
 
     INSTANCE = None
@@ -53,7 +53,7 @@ class Engine():
             raise Exception
         else:
             Engine.INSTANCE = self
-
+            from .module import Module
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
@@ -80,13 +80,13 @@ class Engine():
         self.tempo = 120
 
         self.folder = folder
-        self.modules = {}
-        self.queue = Queue()
-        self.event_callbacks = {}
 
+        self.root_module = Module(self.name)
+        self.modules = {}
+        self.event_callbacks = {}
+        self.queue = Queue()
 
         self.notifier = None
-
         self.restarted = os.getenv('MENTAT_RESTART') is not None
 
     @public_method
@@ -209,13 +209,16 @@ class Engine():
         """
         add_module(module)
 
-        Add a module.
+        Add a module. This method will create midi ports if the module's protocol is 'midi'.
+        Modules added with this method will be children of the engine's root module instance.
 
         **Parameters**
 
         - `module`: Module object
         """
         self.modules[module.name] = module
+        module.parent_module = self.root_module
+        self.root_module.add_submodule(module)
 
         if module.port is not None:
             if module.protocol == 'osc':

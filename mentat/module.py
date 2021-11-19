@@ -44,7 +44,7 @@ class Module(Sequencer):
     - `logger`: python logger
     - `name`: module name
     - `parent_module`: parent module instance, `None` if the module is not a submodule
-    - `module_path`: list of module names, from topmost parent to submodule
+    - `module_path`: list of module names, from topmost parent (excluding the engine's `root_module`) to submodule
     """
 
     @public_method
@@ -95,7 +95,7 @@ class Module(Sequencer):
 
         self.module_path = [name]
         parent = self.parent_module
-        while parent is not None:
+        while parent is not None and parent is not self.engine.root_module:
             self.module_path.insert(0, parent.name)
             parent = parent.parent_module
 

@@ -29,6 +29,9 @@ class TrackA(Light, Video, Audio, GlobalRoute):
 
         print('trackA main route:', args)
 
+        if address == '/test':
+            self.engine.root_module.save('globalstate')
+
         if address == '/set' and len(args) > 2:
             if args[0] in self.engine.modules:
                 self.engine.modules[args[0]].set(*args[1:])

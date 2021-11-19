@@ -202,6 +202,7 @@ python3 setup.py install</code></pre>
 <li><code>modules</code>: <code>dict</code> containing modules added to the engine with names as keys</li>
 <li><code>restarted</code>: <code>True</code> if the engine was restarted using <code>autorestart()</code></li>
 <li><code>logger</code>: python logger</li>
+<li><code>root_module</code>: module instance that exposes all modules added to the engine.</li>
 </ul>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
@@ -238,7 +239,7 @@ python3 setup.py install</code></pre>
 <h3 id="engine.add_module">Engine.add_module()</h3>
 <div class="content">
 <p><i>add_module(module)</i><br/></p>
-<p>Add a module.</p>
+<p>Add a module. This method will create midi ports if the module’s protocol is ‘midi’. Modules added with this method will be children of the engine’s root module instance.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>module</code>: Module object</li>
@@ -316,11 +317,11 @@ python3 setup.py install</code></pre>
 <li><code>logger</code>: python logger</li>
 <li><code>name</code>: module name</li>
 <li><code>parent_module</code>: parent module instance, <code>None</code> if the module is not a submodule</li>
-<li><code>module_path</code>: list of module names, from topmost parent to submodule</li>
+<li><code>module_path</code>: list of module names, from topmost parent (excluding the engine’s <code>root_module</code>) to submodule</li>
 </ul>
 <h3 id="module-1">Module()</h3>
 <div class="content">
-<p><i>Module(engine, name, protocol=None, port=None, parent=None)</i><br/></p>
+<p><i>Module(name, protocol=None, port=None, parent=None)</i><br/></p>
 <p>Base Module constructor.</p>
 <p><strong>Parameters</strong></p>
 <ul>
