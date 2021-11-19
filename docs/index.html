@@ -155,6 +155,7 @@
                         <li><a href="#module.send">Module.send()</a></li>
                         <li><a href="#module.add_event_callback">Module.add_event_callback()</a></li>
                         <li><a href="#module.start_scene">Module.start_scene()</a></li>
+                        <li><a href="#module.restart_scene">Module.restart_scene()</a></li>
                         <li><a href="#module.stop_scene">Module.stop_scene()</a></li>
                         <li><a href="#module.wait">Module.wait()</a></li>
                         <li><a href="#module.wait_next_cycle">Module.wait_next_cycle()</a></li>
@@ -166,6 +167,7 @@
                         <li><a href="#route.deactivate">Route.deactivate()</a></li>
                         <li><a href="#route.route">Route.route()</a></li>
                         <li><a href="#route.start_scene">Route.start_scene()</a></li>
+                        <li><a href="#route.restart_scene">Route.restart_scene()</a></li>
                         <li><a href="#route.stop_scene">Route.stop_scene()</a></li>
                         <li><a href="#route.wait">Route.wait()</a></li>
                         <li><a href="#route.wait_next_cycle">Route.wait_next_cycle()</a></li>
@@ -510,6 +512,15 @@ python3 setup.py install</code></pre>
 <li><code>**kwargs</code>: keyword arguments for the scene function</li>
 </ul>
 </div>
+<h3 id="module.restart_scene">Module.restart_scene()</h3>
+<div class="content">
+<p><i>restart_scene(name)</i><br/></p>
+<p>Restart a scene that’s already running. Does nothing if the scene is not running.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>name</code>: scene name, with wildcar support</li>
+</ul>
+</div>
 <h3 id="module.stop_scene">Module.stop_scene()</h3>
 <div class="content">
 <p><i>stop_scene(name)</i><br/></p>
@@ -588,6 +599,15 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <li><code>scene</code>: function or method</li>
 <li><code>*args</code>: arguments for the scene function</li>
 <li><code>**kwargs</code>: keyword arguments for the scene function</li>
+</ul>
+</div>
+<h3 id="route.restart_scene">Route.restart_scene()</h3>
+<div class="content">
+<p><i>restart_scene(name)</i><br/></p>
+<p>Restart a scene that’s already running. Does nothing if the scene is not running.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>name</code>: scene name, with wildcar support</li>
 </ul>
 </div>
 <h3 id="route.stop_scene">Route.stop_scene()</h3>

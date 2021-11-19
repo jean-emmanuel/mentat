@@ -30,6 +30,20 @@ class Sequencer():
         self.engine.start_scene('/%s/%s' % (self.scene_namespace, name), scene, *args, **kwargs)
 
     @public_method
+    def restart_scene(self, name):
+        """
+        restart_scene(name)
+
+        Restart a scene that's already running.
+        Does nothing if the scene is not running.
+
+        **Parameters**
+
+        - `name`: scene name, with wildcar support
+        """
+        self.engine.restart_scene('/%s/%s' % (self.scene_namespace, name))
+
+    @public_method
     def stop_scene(self, name):
         """
         stop_scene(name)

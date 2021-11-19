@@ -364,6 +364,26 @@ class Engine():
         self.scenes[name].start()
         self.logger.info('starting scene %s' % name)
 
+    def restart_scene(self, name):
+        """
+        restart_scene(name)
+
+        Restart a scene that's already running.
+        Does nothing if the scene is not running.
+
+        **Parameters**
+
+        - `name`: scene name, with wildcard support
+        """
+        if '*' in name:
+            for n in fnmatch.filter(self.scenes.keys(), name):
+                self.restart_scene(n)
+        elif name in self.scenes and self.scenes[name].is_alive():
+            self.scenes[name].kill()
+            self.scenes_timers[name].reset()
+            self.scenes[name].start()
+            self.logger.info('restarting scene %s' % name)
+            
     def stop_scene(self, name):
         """
         scene(scene)
