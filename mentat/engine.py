@@ -19,14 +19,19 @@ from .timer import Timer
 
 class Engine():
     """
-    Main object
+    Main object. Singleton that must be instanciated before any Module or Route object.
+    The global engine instance is always accessigne via `Engine.INSTANCE`.
 
     **Instance properties**
 
     - `modules`: `dict` containing modules added to the engine with names as keys
     - `restarted`: `True` if the engine was restarted using `autorestart()`
     - `logger`: python logger
-    - `root_module`: module instance that exposes all modules added to the engine.
+    - `root_module`:
+            module instance that exposes all modules added to the engine
+            Allows reaching toplevel module's parameters by name with `set()`, `animate()`,
+            and creating meta parameters that with multiple modules.
+
     """
 
     INSTANCE = None
@@ -383,7 +388,7 @@ class Engine():
             self.scenes_timers[name].reset()
             self.scenes[name].start()
             self.logger.info('restarting scene %s' % name)
-            
+
     def stop_scene(self, name):
         """
         scene(scene)
