@@ -19,8 +19,8 @@ from .timer import Timer
 
 class Engine():
     """
-    Main object. Singleton that must be instanciated before any Module or Route object.
-    The global engine instance is always accessigne via `Engine.INSTANCE`.
+    Main object. Singleton that must be instanciated before any `Module` or `Route` object.
+    The global engine instance is always accessible via `Engine.INSTANCE`.
 
     **Instance properties**
 

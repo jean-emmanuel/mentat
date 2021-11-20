@@ -198,7 +198,7 @@ python3 setup.py install</code></pre>
 <p>Each track should be a dedicated class derived from the <code>Route</code> class. The <a href="#route.route"><code>route()</code></a> method definition will allow writing the actual routing that should occur during that track.</p>
 <hr />
 <h2 id="engine">Engine</h2>
-<p>Main object. Singleton that must be instanciated before any Module or Route object. The global engine instance is always accessigne via <code>Engine.INSTANCE</code>.</p>
+<p>Main object. Singleton that must be instanciated before any <code>Module</code> or <code>Route</code> object. The global engine instance is always accessible via <code>Engine.INSTANCE</code>.</p>
 <p><strong>Instance properties</strong></p>
 <ul>
 <li><code>modules</code>: <code>dict</code> containing modules added to the engine with names as keys</li>
