@@ -28,9 +28,9 @@ class Engine():
     - `restarted`: `True` if the engine was restarted using `autorestart()`
     - `logger`: python logger
     - `root_module`:
-            module instance that exposes all modules added to the engine
+            module instance that exposes all modules added to the engine.
             Allows reaching toplevel module's parameters by name with `set()`, `animate()`,
-            and creating meta parameters that with multiple modules.
+            and creating meta parameters with multiple modules.
 
     """
 
