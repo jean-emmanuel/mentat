@@ -26,6 +26,10 @@ class Sequencer():
         - `*args`: arguments for the scene function
         - `**kwargs`: keyword arguments for the scene function
         """
+        if '*' in name or '[' in name:
+            self.logger.error('characters "*" and "[" are forbidden in scene name')
+            raise Exception
+
         self.stop_scene('/%s/%s' % (self.scene_namespace, name))
         self.engine.start_scene('/%s/%s' % (self.scene_namespace, name), scene, *args, **kwargs)
 
@@ -39,7 +43,7 @@ class Sequencer():
 
         **Parameters**
 
-        - `name`: scene name, with wildcard support
+        - `name`: scene name, with wildcard ('*') and range ('[]') support
         """
         self.engine.restart_scene('/%s/%s' % (self.scene_namespace, name))
 

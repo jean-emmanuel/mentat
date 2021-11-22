@@ -380,7 +380,7 @@ class Engine():
 
         - `name`: scene name, with wildcard support
         """
-        if '*' in name:
+        if '*' in name or '[' in name:
             for n in fnmatch.filter(self.scenes.keys(), name):
                 self.restart_scene(n)
         elif name in self.scenes and self.scenes[name].is_alive():
@@ -400,7 +400,7 @@ class Engine():
         - `name`: scene name
         - `scene`: function or method
         """
-        if '*' in name:
+        if '*' in name or '[' in name:
             for n in fnmatch.filter(self.scenes.keys(), name):
                 self.stop_scene(n)
         elif name in self.scenes:

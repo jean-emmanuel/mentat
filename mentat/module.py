@@ -3,6 +3,7 @@ import json
 import pathlib
 import re
 import logging
+import fnmatch
 
 from .utils import *
 from .message import Message
@@ -11,28 +12,34 @@ from .sequencer import Sequencer
 from .engine import Engine
 
 from functools import wraps
-def submodule_method(method):
+def submodule_method(pattern_matching):
     """
     Decorator for Module methods that can be passed to submodules
     by passing the submodule's name as first argument instead
     of the usual first argument (ie parameter_name)
     """
-    @wraps(method)
-    def decorated(self, *args, **kwargs):
-        name = args[0]
+    def decorate(method):
+        @wraps(method)
+        def decorated(self, *args, **kwargs):
+            name = args[0]
+            if pattern_matching and ('*' in name or '[' in name):
+                for n in fnmatch.filter(self.submodules.keys(), name):
+                    return [getattr(self.submodules[n], method.__name__)(*args[1:], **kwargs) for n in fnmatch.filter(self.submodules.keys(), name)]\
+                         + [getattr(self.submodules[self.aliases[n]], method.__name__)(*args[1:], **kwargs) for n in fnmatch.filter(self.aliases.keys(), name)]
 
-        if name in self.submodules or name in self.aliases:
+            elif name in self.submodules or name in self.aliases:
 
-            if name in self.aliases:
-                name = self.aliases[name]
+                if name in self.aliases:
+                    name = self.aliases[name]
 
-            return getattr(self.submodules[name], method.__name__)(*args[1:], **kwargs)
+                return getattr(self.submodules[name], method.__name__)(*args[1:], **kwargs)
 
-        else:
+            else:
 
-            return method(self, *args, **kwargs)
+                return method(self, *args, **kwargs)
 
-    return decorated
+        return decorated
+    return decorate
 
 class Module(Sequencer):
     """
@@ -67,6 +74,10 @@ class Module(Sequencer):
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
+
+        if '*' in name or '[' in name:
+            self.logger.error('characters "*" and "[" are forbidden in module name')
+            raise Exception
 
         if Engine.INSTANCE is None:
             self.logger.error('the engine must created before any module')
@@ -163,7 +174,7 @@ class Module(Sequencer):
         self.reset(name)
 
     @public_method
-    @submodule_method
+    @submodule_method(pattern_matching=False)
     def get(self, *args):
         """
         get(parameter_name)
@@ -190,7 +201,7 @@ class Module(Sequencer):
             self.logger.error('get: parameter "%s" not found' % name)
 
     @public_method
-    @submodule_method
+    @submodule_method(pattern_matching=True)
     def set(self, *args, force_send=False):
         """
         set(parameter_name, *args)
@@ -202,7 +213,7 @@ class Module(Sequencer):
         **Parameters**
 
         - `parameter_name`: name of parameter
-        - `submodule_name`: name of submodule
+        - `submodule_name`: name of submodule, with wildcard ('*') and range ('[]') support
         - `*args`: value(s)
         """
         name = args[0]
@@ -247,7 +258,7 @@ class Module(Sequencer):
 
 
     @public_method
-    @submodule_method
+    @submodule_method(pattern_matching=True)
     def animate(self, *args, **kwargs):
         """
         animate(parameter_name, start, end, duration, mode='seconds', easing='linear')
@@ -258,7 +269,7 @@ class Module(Sequencer):
         **Parameters**
 
         - `parameter_name`: name of parameter
-        - `submodule_name`: name of submodule
+        - `submodule_name`: name of submodule, with wildcard ('*') and range ('[]') support
         - `start`: starting value(s), can be None to use currnet value
         - `end`: ending value(s)
         - `duration`: animation duration
@@ -277,7 +288,7 @@ class Module(Sequencer):
             self.logger.error('animate: parameter "%s" not found' % name)
 
     @public_method
-    @submodule_method
+    @submodule_method(pattern_matching=False)
     def stop_animate(self, *args):
         """
         stop_animate(parameter_name)
@@ -287,8 +298,8 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - `parameter_name`: name of parameter, can be '*' to stop all animations.
-        - `submodule_name`: name of submodule, name of parameter
+        - `parameter_name`: name of parameter, can be '*' to stop all animations including submodules'.
+        - `submodule_name`: name of submodule
         """
         name = args[0]
 

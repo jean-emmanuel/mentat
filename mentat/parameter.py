@@ -21,6 +21,10 @@ class Parameter():
         - `static_args`: list of static values before the ones that can be modified
         - `default`: default value
         """
+        if '*' in name or '[' in name:
+            self.logger.error('characters "*" and "[" are forbidden in parameter name')
+            raise Exception
+
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
         self.address = address

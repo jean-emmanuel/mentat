@@ -383,7 +383,7 @@ python3 setup.py install</code></pre>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>parameter_name</code>: name of parameter</li>
-<li><code>submodule_name</code>: name of submodule</li>
+<li><code>submodule_name</code>: name of submodule, with wildcard (’*‘) and range (’[]’) support</li>
 <li><code>*args</code>: value(s)</li>
 </ul>
 </div>
@@ -403,7 +403,7 @@ python3 setup.py install</code></pre>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>parameter_name</code>: name of parameter</li>
-<li><code>submodule_name</code>: name of submodule</li>
+<li><code>submodule_name</code>: name of submodule, with wildcard (’*‘) and range (’[]’) support</li>
 <li><code>start</code>: starting value(s), can be None to use currnet value</li>
 <li><code>end</code>: ending value(s)</li>
 <li><code>duration</code>: animation duration</li>
@@ -417,8 +417,8 @@ python3 setup.py install</code></pre>
 <p>Stop parameter animation.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>parameter_name</code>: name of parameter, can be ’*’ to stop all animations.</li>
-<li><code>submodule_name</code>: name of submodule, name of parameter</li>
+<li><code>parameter_name</code>: name of parameter, can be ’*’ to stop all animations including submodules’.</li>
+<li><code>submodule_name</code>: name of submodule</li>
 </ul>
 </div>
 <h3 id="module.add_meta_parameter">Module.add_meta_parameter()</h3>
@@ -518,7 +518,7 @@ python3 setup.py install</code></pre>
 <p>Restart a scene that’s already running. Does nothing if the scene is not running.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>name</code>: scene name, with wildcard support</li>
+<li><code>name</code>: scene name, with wildcard (’*‘) and range (’[]’) support</li>
 </ul>
 </div>
 <h3 id="module.stop_scene">Module.stop_scene()</h3>
@@ -607,7 +607,7 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <p>Restart a scene that’s already running. Does nothing if the scene is not running.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>name</code>: scene name, with wildcard support</li>
+<li><code>name</code>: scene name, with wildcard (’*‘) and range (’[]’) support</li>
 </ul>
 </div>
 <h3 id="route.stop_scene">Route.stop_scene()</h3>
