@@ -223,12 +223,12 @@ python3 setup.py install</code></pre>
 <h3 id="engine.start">Engine.start()</h3>
 <div class="content">
 <p><i>start()</i><br/></p>
-<p>Start engine.</p>
+<p>Start engine. This is usually the last statement in the script as it starts the processing loop that keeps the engine running.</p>
 </div>
 <h3 id="engine.stop">Engine.stop()</h3>
 <div class="content">
 <p><i>stop()</i><br/></p>
-<p>Stop engine.</p>
+<p>Stop engine. This is called automatically when the process is terminated or when the engine restarts.</p>
 </div>
 <h3 id="engine.restart">Engine.restart()</h3>
 <div class="content">
@@ -238,7 +238,7 @@ python3 setup.py install</code></pre>
 <h3 id="engine.autorestart">Engine.autorestart()</h3>
 <div class="content">
 <p><i>autorestart()</i><br/></p>
-<p>Watch main script and imported modules and call restart when they change.</p>
+<p>Enable engine autorestart. This watches the main python script and all imported modules that are located in the same directoty. Whenever a file is modified, the engine is restarted.</p>
 </div>
 <h3 id="engine.add_module">Engine.add_module()</h3>
 <div class="content">

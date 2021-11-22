@@ -101,7 +101,8 @@ class Engine():
         """
         start()
 
-        Start engine.
+        Start engine. This is usually the last statement in the script as
+        it starts the processing loop that keeps the engine running.
         """
 
         signal(SIGINT, lambda a,b: self.stop())
@@ -156,7 +157,8 @@ class Engine():
         """
         stop()
 
-        Stop engine.
+        Stop engine. This is called automatically when the process
+        is terminated or when the engine restarts.
         """
 
         self.logger.info('stopping...')
@@ -195,7 +197,9 @@ class Engine():
         """
         autorestart()
 
-        Watch main script and imported modules and call restart when they change.
+        Enable engine autorestart. This watches the main python script
+        and all imported modules that are located in the same directoty.
+        Whenever a file is modified, the engine is restarted.
         """
         wm = pyinotify.WatchManager()
         self.notifier = pyinotify.ThreadedNotifier(wm)
