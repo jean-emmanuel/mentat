@@ -49,6 +49,8 @@ class Engine():
         - `port`: osc input port, can be an udp port number or a unix socket path
         - `folder`: path to config folder where state files will be saved to and loaded from
         - `debug`: set to True to enable debug messages
+        - `tempo`: beats per minute
+        - `cycle_length`: eighth per cycle
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
