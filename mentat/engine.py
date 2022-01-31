@@ -317,11 +317,13 @@ class Engine():
         else:
             self.logger.error('route "%s" not found' % name)
 
+    @public_method
     def route(self, protocol, port, address, args):
         """
         route(protocol, port, address, args)
 
-        Unified route for osc and midi messages.
+        Unified route for osc and midi messages, called when the engine
+        receives a midi or osc message.
 
         **Parameters**
 
