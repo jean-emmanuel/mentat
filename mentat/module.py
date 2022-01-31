@@ -537,12 +537,12 @@ class Module(Sequencer):
         proto = self.protocol
         port = self.port
 
-        if not port and self.parent:
-            proto = self.parent.protocol
-            port = self.parent.port
+        if not port and self.parent_module:
+            proto = self.parent_module.protocol
+            port = self.parent_module.port
 
         if port:
-            message = Message(self.protocol, self.port, address, *args)
+            message = Message(proto, port, address, *args)
             self.engine.queue.put(message)
 
     @public_method
