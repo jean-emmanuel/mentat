@@ -52,6 +52,7 @@ class Module(Sequencer):
     - `name`: module name
     - `parent_module`: parent module instance, `None` if the module is not a submodule
     - `module_path`: list of module names, from topmost parent (excluding the engine's `root_module`) to submodule
+    - `submodules`: `dict` containing submodules added to the module with names as keys
     """
 
     @public_method
@@ -118,9 +119,9 @@ class Module(Sequencer):
         Sequencer.__init__(self, 'module/' + '/'.join(self.module_path))
 
     @public_method
-    def add_submodule(self, module):
+    def add_submodule(self, *modules):
         """
-        add_submodule(module)
+        add_submodule(*modules)
 
         Add a submodule.
         Submodule's protocol and port can be omitted, in which case
@@ -129,17 +130,18 @@ class Module(Sequencer):
 
         **Parameters**
 
-        - `module`: Module object
+        - `modules`: Module objects (one module per argument)
         """
-        if module.parent_module != self:
-            self.logger.error('incorrect value for argument "parent" of submodule "%s".' % module.name)
-            raise Exception
-        self.submodules[module.name] = module
-        if module.protocol is None:
-            module.protocol = self.protocol
-        if module.port is None:
-            module.port = self.port
-        module.parent_module = self
+        for module in modules:
+            if module.parent_module != self:
+                self.logger.error('incorrect value for argument "parent" of submodule "%s".' % module.name)
+                raise Exception
+            self.submodules[module.name] = module
+            if module.protocol is None:
+                module.protocol = self.protocol
+            if module.port is None:
+                module.port = self.port
+            module.parent_module = self
 
     @public_method
     def set_aliases(self, aliases):
