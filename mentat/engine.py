@@ -65,8 +65,7 @@ class Engine():
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
-        self.osc_server = liblo.Server(port)
-        self.osc_server.add_method(None, None, self.route_osc)
+        self.osc_server = None
         self.osc_inputs = {}
         self.osc_outputs = {}
 
@@ -108,6 +107,9 @@ class Engine():
 
         signal(SIGINT, lambda a,b: self.stop())
         signal(SIGTERM, lambda a,b: self.stop())
+
+        self.osc_server = liblo.Server(port)
+        self.osc_server.add_method(None, None, self.route_osc)
 
         if self.active_route:
             self.active_route.activate()
