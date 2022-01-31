@@ -54,6 +54,7 @@ class Engine():
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
+        self.port = port
 
         if Engine.INSTANCE is not None:
             self.logger.error('only one instance Engine can be created')
