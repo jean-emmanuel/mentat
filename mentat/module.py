@@ -472,7 +472,7 @@ class Module(Sequencer):
         s = re.sub(r'\s\s\[\s', '  [', s)
         f.write(s)
         f.close()
-        self.logger.info('%s: state "%s" saved to %s' % (self.name, name, file))
+        self.logger.info('state "%s" saved to %s' % (name, file))
 
     @public_method
     def load(self, name, preload=False):
@@ -491,15 +491,15 @@ class Module(Sequencer):
             f = open(file)
             self.states[name] = json.loads(f.read())
             f.close()
-            self.logger.info('%s: state "%s" preloaded from %s' % (self.name, name, file))
+            self.logger.info('state "%s" preloaded from %s' % (name, file))
 
         if not preload:
 
             if name in self.states:
                 self.set_state(self.states[name])
-                self.logger.info('%s: state "%s" loaded' % (self.name, name))
+                self.logger.info('state "%s" loaded' % name)
             else:
-                self.logger.error('%s: state "%s" not found' % (self.name, name))
+                self.logger.error('state "%s" not found' % name)
 
     @public_method
     def route(self, address, args):
