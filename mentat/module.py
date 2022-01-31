@@ -534,7 +534,14 @@ class Module(Sequencer):
         - `address`: osc address
         - `*args`: values
         """
-        if self.port:
+        proto = self.protocol
+        port = self.port
+
+        if not port and self.parent:
+            proto = self.parent.protocol
+            port = self.parent.port
+
+        if port:
             message = Message(self.protocol, self.port, address, *args)
             self.engine.queue.put(message)
 
