@@ -131,6 +131,7 @@
                         <li><a href="#engine.send">Engine.send()</a></li>
                         <li><a href="#engine.add_route">Engine.add_route()</a></li>
                         <li><a href="#engine.set_route">Engine.set_route()</a></li>
+                        <li><a href="#engine.route">Engine.route()</a></li>
                         <li><a href="#engine.set_tempo">Engine.set_tempo()</a></li>
                         <li><a href="#engine.set_cycle_length">Engine.set_cycle_length()</a></li>
                         <li><a href="#engine.start_cycle">Engine.start_cycle()</a></li>
@@ -279,6 +280,18 @@ python3 setup.py install</code></pre>
 <li><code>name</code>: route name</li>
 </ul>
 </div>
+<h3 id="engine.route">Engine.route()</h3>
+<div class="content">
+<p><i>route(protocol, port, address, args)</i><br/></p>
+<p>Unified route for osc and midi messages, called when the engine receives a midi or osc message.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>protocol</code>: ‘osc’ or ‘midi’</li>
+<li><code>port</code>: name of module or port number if unknown</li>
+<li><code>address</code>: osc address</li>
+<li><code>args</code>: list of values</li>
+</ul>
+</div>
 <h3 id="engine.set_tempo">Engine.set_tempo()</h3>
 <div class="content">
 <p><i>set_tempo(bpm)</i><br/></p>
@@ -322,6 +335,7 @@ python3 setup.py install</code></pre>
 <li><code>name</code>: module name</li>
 <li><code>parent_module</code>: parent module instance, <code>None</code> if the module is not a submodule</li>
 <li><code>module_path</code>: list of module names, from topmost parent (excluding the engine’s <code>root_module</code>) to submodule</li>
+<li><code>submodules</code>: <code>dict</code> containing submodules added to the module with names as keys</li>
 </ul>
 <h3 id="module-1">Module()</h3>
 <div class="content">
@@ -337,11 +351,11 @@ python3 setup.py install</code></pre>
 </div>
 <h3 id="module.add_submodule">Module.add_submodule()</h3>
 <div class="content">
-<p><i>add_submodule(module)</i><br/></p>
+<p><i>add_submodule(*modules)</i><br/></p>
 <p>Add a submodule. Submodule’s protocol and port can be omitted, in which case they will be inherited from their parent. The submodule’s parent instance must be provided in its constructor function (<code>parent</code> argument).</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>module</code>: Module object</li>
+<li><code>modules</code>: Module objects (one module per argument)</li>
 </ul>
 </div>
 <h3 id="module.set_aliases">Module.set_aliases()</h3>
