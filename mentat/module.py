@@ -65,10 +65,10 @@ class Module(Sequencer):
         **Parameters**
 
         - `name`: module name
-        - `protocol`: 'osc' or 'midi'
+        - `protocol`: 'osc', 'osc.tcp' or 'midi'
         - `port`:
-            udp port number or unix socket path if protocol is 'osc'
-            can be None if the module has no fixed input port
+            port number if protocol is 'osc' or 'osc.tcp'
+            None if protocol is 'midi' or if no osc input port is needed
         - `parent`:
             if the module is a submodule, this must be set
             to the parent module's instance
@@ -89,9 +89,7 @@ class Module(Sequencer):
         self.parent_module = parent
 
         self.protocol = protocol
-        if protocol == 'osc' and type(port) is str and port[0] == '/':
-            self.port = 'osc.unix://' + port
-        elif protocol == 'midi':
+        if protocol == 'midi':
             self.port = name
         else:
             self.port = port

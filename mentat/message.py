@@ -9,9 +9,9 @@ class Message():
 
         **Parameters**
 
-        - `protocol`: 'osc' or 'midi'
+        - `protocol`: 'osc', 'osc.tcp' or 'midi'
         - `module`: module name
-        - `port`: udp port number or osc.unix:// socket path if protocol is 'osc'
+        - `port`: port number if protocol is 'osc' or 'osc.tcp'
         - `address`: osc address
         - `*args`: values
         """

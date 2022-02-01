@@ -31,13 +31,14 @@ class Engine():
             module instance that exposes all modules added to the engine.
             Allows reaching toplevel module's parameters by name with `set()`, `animate()`,
             and creating meta parameters with multiple modules.
-
+    - `tempo`: beats per minute
+    - `cycle_length`: eighth per cycle
     """
 
     INSTANCE = None
 
     @public_method
-    def __init__(self, name, port, folder, debug=False):
+    def __init__(self, name, port, folder, debug=False, tcp_port=None):
         """
         Engine(name, port, folder)
 
@@ -46,15 +47,16 @@ class Engine():
         **Parameters**
 
         - `name`: client name
-        - `port`: osc input port, can be an udp port number or a unix socket path
+        - `port`: osc (udp) input port number
         - `folder`: path to config folder where state files will be saved to and loaded from
         - `debug`: set to True to enable debug messages
-        - `tempo`: beats per minute
-        - `cycle_length`: eighth per cycle
+        - `tcp_port`: osc (tcp) input port number
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
+
         self.port = port
+        self.tcp_port = tcp_port
 
         if Engine.INSTANCE is not None:
             self.logger.error('only one instance Engine can be created')
@@ -66,6 +68,8 @@ class Engine():
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
         self.osc_server = None
+        self.osc_tcp_server = None
+
         self.osc_inputs = {}
         self.osc_outputs = {}
 
@@ -96,6 +100,24 @@ class Engine():
         self.notifier = None
         self.restarted = os.getenv('MENTAT_RESTART') is not None
 
+    def start_osc_servers(self):
+
+        self.osc_server = liblo.Server(self.port, proto=liblo.UDP)
+        self.osc_server.add_method(None, None, self.route_osc)
+
+        self.osc_tcp_server = liblo.Server(self.tcp_port, proto=liblo.TCP)
+        self.osc_tcp_server.add_method(None, None, self.route_osc)
+
+    def stop_osc_servers(self):
+
+        if self.osc_server:
+            self.osc_server.free()
+            self.osc_server = None
+
+        if self.osc_tcp_server:
+            self.osc_tcp_server.free()
+            self.osc_tcp_server = None
+
     @public_method
     def start(self):
         """
@@ -108,8 +130,7 @@ class Engine():
         signal(SIGINT, lambda a,b: self.stop())
         signal(SIGTERM, lambda a,b: self.stop())
 
-        self.osc_server = liblo.Server(self.port)
-        self.osc_server.add_method(None, None, self.route_osc)
+        self.start_osc_servers()
 
         if self.active_route:
             self.active_route.activate()
@@ -128,6 +149,8 @@ class Engine():
 
             # process osc messages
             while self.osc_server and self.osc_server.recv(0):
+                pass
+            while self.osc_tcp_server and self.osc_tcp_server.recv(0):
                 pass
 
             # process midi messages
@@ -168,9 +191,7 @@ class Engine():
         self.dispatch_event('engine_stopping')
         self.is_running = False
         self.stop_scene('*')
-        if self.osc_server:
-            self.osc_server.free()
-            self.osc_server = None
+        self.stop_osc_servers()
         if self.notifier:
             try:
                 self.notifier.stop()
@@ -235,7 +256,7 @@ class Engine():
         self.root_module.add_submodule(module)
 
         if module.port is not None:
-            if module.protocol == 'osc':
+            if module.protocol == 'osc' or module.protocol == 'osc.tcp':
                 self.osc_inputs[module.port] = module.name
                 self.osc_outputs[module.name] = module.port
             elif module.protocol == 'midi':
@@ -262,18 +283,21 @@ class Engine():
 
         **Parameters**
 
-        - `protocol`: 'osc' or 'midi'
+        - `protocol`: 'osc', 'osc.tcp' or 'midi'
         - `port`:
-            module name or udp port number or unix socket path if protocol is 'osc'
+            module name or port number
         - `address`: osc address
         - `args`: values
         """
         if protocol == 'osc':
-
             if port in self.osc_outputs:
                 port = self.osc_outputs[port]
-
             self.osc_server.send(port, address, *args)
+
+        elif protocol == 'osc.tcp':
+            if port in self.osc_outputs:
+                port = self.osc_outputs[port]
+            self.osc_tcp_server.send(port, address, *args)
 
         elif protocol == 'midi':
 
@@ -329,7 +353,7 @@ class Engine():
 
         **Parameters**
 
-        - `protocol`: 'osc' or 'midi'
+        - `protocol`: 'osc', 'osc.tcp' or 'midi'
         - `port`: name of module or port number if unknown
         - `address`: osc address
         - `args`: list of values
@@ -345,10 +369,13 @@ class Engine():
         """
         Route incoming raw osc events.
         """
+        proto = 'osc'
         port = src.port
+        if src.protocol == liblo.TCP:
+            proto = 'osc.tcp'
         if src.port in self.osc_inputs:
             port = self.osc_inputs[src.port]
-        self.route('osc', port, address, args)
+        self.route(proto, port, address, args)
 
     def route_midi(self, event):
         """
