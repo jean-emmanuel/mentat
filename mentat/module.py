@@ -6,7 +6,6 @@ import logging
 import fnmatch
 
 from .utils import *
-from .message import Message
 from .parameter import Parameter, MetaParameter
 from .sequencer import Sequencer
 from .engine import Engine
@@ -65,9 +64,10 @@ class Module(Sequencer):
         **Parameters**
 
         - `name`: module name
-        - `protocol`: 'osc', 'osc.tcp' or 'midi'
+        - `protocol`: 'osc', 'osc.tcp', 'osc.unix' or 'midi'
         - `port`:
             port number if protocol is 'osc' or 'osc.tcp'
+            unix socket path if protocol is 'osc.unix'
             None if protocol is 'midi' or if no osc input port is needed
         - `parent`:
             if the module is a submodule, this must be set
@@ -540,7 +540,7 @@ class Module(Sequencer):
             port = self.parent_module.port
 
         if port:
-            message = Message(proto, port, address, *args)
+            message = [proto, port, address, *args]
             self.engine.queue.put(message)
 
     @public_method

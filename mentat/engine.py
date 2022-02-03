@@ -38,7 +38,7 @@ class Engine():
     INSTANCE = None
 
     @public_method
-    def __init__(self, name, port, folder, debug=False, tcp_port=None):
+    def __init__(self, name, port, folder, debug=False, tcp_port=None, unix_port=None):
         """
         Engine(name, port, folder)
 
@@ -57,6 +57,7 @@ class Engine():
 
         self.port = port
         self.tcp_port = tcp_port
+        self.unix_port = unix_port
 
         if Engine.INSTANCE is not None:
             self.logger.error('only one instance Engine can be created')
@@ -69,11 +70,12 @@ class Engine():
 
         self.osc_server = None
         self.osc_tcp_server = None
+        self.osc_unix_server = None
 
         self.osc_inputs = {}
         self.osc_outputs = {}
 
-        self.midi_server = alsaseq.Sequencer(clientname=self.name)
+        self.midi_server = None
         self.midi_ports = {}
 
         self.routes = {}
@@ -100,15 +102,34 @@ class Engine():
         self.notifier = None
         self.restarted = os.getenv('MENTAT_RESTART') is not None
 
-    def start_osc_servers(self):
+    def start_servers(self):
+        """
+        start_servers()
+
+        Starts osc servers and open midi ports
+        """
 
         self.osc_server = liblo.Server(self.port, proto=liblo.UDP)
         self.osc_server.add_method(None, None, self.route_osc)
 
-        self.osc_tcp_server = liblo.Server(self.tcp_port, proto=liblo.TCP)
-        self.osc_tcp_server.add_method(None, None, self.route_osc)
+        if self.tcp_port:
+            self.osc_tcp_server = liblo.Server(self.tcp_port, proto=liblo.TCP)
+            self.osc_tcp_server.add_method(None, None, self.route_osc)
 
-    def stop_osc_servers(self):
+        if self.unix_port:
+            self.osc_unix_server = liblo.Server(self.unix_port, proto=liblo.UNIX)
+            self.osc_unix_server.add_method(None, None, self.route_osc)
+
+        self.midi_server = alsaseq.Sequencer(clientname=self.name)
+        for module_name in self.midi_ports:
+            self.midi_server.create_simple_port(module_name, alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC | alsaseq.SEQ_PORT_TYPE_APPLICATION, alsaseq.SEQ_PORT_CAP_WRITE | alsaseq.SEQ_PORT_CAP_SUBS_WRITE | alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
+
+    def stop_servers(self):
+        """
+        stop_servers()
+
+        Stop osc servers and close midi ports
+        """
 
         if self.osc_server:
             self.osc_server.free()
@@ -117,6 +138,31 @@ class Engine():
         if self.osc_tcp_server:
             self.osc_tcp_server.free()
             self.osc_tcp_server = None
+
+        if self.osc_unix_server:
+            self.osc_unix_server.free()
+            self.osc_unix_server = None
+
+        self.midi_server = None
+
+    def poll_servers(self):
+        """
+        poll_servers()
+
+        Process incoming osc and midi messages
+        """
+        # process osc messages
+        while self.osc_server and self.osc_server.recv(0):
+            pass
+        while self.osc_tcp_server and self.osc_tcp_server.recv(0):
+            pass
+        while self.osc_unix_server and self.osc_unix_server.recv(0):
+            pass
+
+        # process midi messages
+        midi_events = self.midi_server.receive_events()
+        for e in midi_events:
+            self.route_midi(e)
 
     @public_method
     def start(self):
@@ -130,7 +176,7 @@ class Engine():
         signal(SIGINT, lambda a,b: self.stop())
         signal(SIGTERM, lambda a,b: self.stop())
 
-        self.start_osc_servers()
+        self.start_servers()
 
         if self.active_route:
             self.active_route.activate()
@@ -147,16 +193,7 @@ class Engine():
 
             self.current_time = time.monotonic_ns()
 
-            # process osc messages
-            while self.osc_server and self.osc_server.recv(0):
-                pass
-            while self.osc_tcp_server and self.osc_tcp_server.recv(0):
-                pass
-
-            # process midi messages
-            midi_events = self.midi_server.receive_events()
-            for e in midi_events:
-                self.route_midi(e)
+            self.poll_servers()
 
             # update animations
             if self.current_time - last_animation >= ANIMATION_PERIOD:
@@ -191,7 +228,7 @@ class Engine():
         self.dispatch_event('engine_stopping')
         self.is_running = False
         self.stop_scene('*')
-        self.stop_osc_servers()
+        self.stop_servers()
         if self.notifier:
             try:
                 self.notifier.stop()
@@ -256,11 +293,11 @@ class Engine():
         self.root_module.add_submodule(module)
 
         if module.port is not None:
-            if module.protocol == 'osc' or module.protocol == 'osc.tcp':
+            if module.protocol in ['osc' 'osc.tcp', 'osc.unix']:
                 self.osc_inputs[module.port] = module.name
                 self.osc_outputs[module.name] = module.port
             elif module.protocol == 'midi':
-                self.midi_ports[module.name] = self.midi_server.create_simple_port(module.name, alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC | alsaseq.SEQ_PORT_TYPE_APPLICATION, alsaseq.SEQ_PORT_CAP_WRITE | alsaseq.SEQ_PORT_CAP_SUBS_WRITE | alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
+                self.midi_ports[module.name] = None
 
     def flush(self):
         """
@@ -268,11 +305,13 @@ class Engine():
 
         Send messages in queue.
         """
-        while not self.queue.empty():
-            message = self.queue.get()
-            self.send(message.protocol, message.port, message.address, *message.args)
+        if self.is_running:
 
-        self.midi_server.sync_output_queue()
+            while not self.queue.empty():
+                message = self.queue.get()
+                self.send(*message)
+
+            self.midi_server.sync_output_queue()
 
     @public_method
     def send(self, protocol, port, address, *args):
@@ -283,12 +322,19 @@ class Engine():
 
         **Parameters**
 
-        - `protocol`: 'osc', 'osc.tcp' or 'midi'
+        - `protocol`: 'osc', 'osc.tcp', 'osc.unix' or 'midi'
         - `port`:
-            module name or port number
+            module name, port number ('osc' protocol only) or unix socket path ('osc.unix' protocol only)
         - `address`: osc address
         - `args`: values
         """
+        if not self.is_running:
+            # in case a module calls this method directly
+            # before the server is started
+            message = [proto, port, address, *args]
+            self.queue.put(message)
+            return
+
         if protocol == 'osc':
             if port in self.osc_outputs:
                 port = self.osc_outputs[port]
@@ -298,6 +344,11 @@ class Engine():
             if port in self.osc_outputs:
                 port = self.osc_outputs[port]
             self.osc_tcp_server.send(port, address, *args)
+
+        elif protocol == 'osc.unix':
+            if port in self.osc_outputs:
+                port = self.osc_outputs[port]
+            self.osc_unix_server.send(port, address, *args)
 
         elif protocol == 'midi':
 
