@@ -35,9 +35,9 @@ class Module(Sequencer):
         - `name`: module name
         - `protocol`: 'osc', 'osc.tcp', 'osc.unix' or 'midi'
         - `port`:
-            port number if protocol is 'osc' or 'osc.tcp'
-            unix socket path if protocol is 'osc.unix'
-            None if protocol is 'midi' or if no osc input port is needed
+            - port number if protocol is 'osc' or 'osc.tcp'
+            - unix socket path if protocol is 'osc.unix'
+            - `None` if protocol is 'midi' or if no osc input port is needed
         - `parent`:
             if the module is a submodule, this must be set
             to the parent module's instance

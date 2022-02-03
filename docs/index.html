@@ -346,7 +346,12 @@ python3 setup.py install</code></pre>
 <ul>
 <li><code>name</code>: module name</li>
 <li><code>protocol</code>: ‘osc’, ‘osc.tcp’, ‘osc.unix’ or ‘midi’</li>
-<li><code>port</code>: port number if protocol is ‘osc’ or ‘osc.tcp’ unix socket path if protocol is ‘osc.unix’ None if protocol is ‘midi’ or if no osc input port is needed</li>
+<li><code>port</code>:
+<ul>
+<li>port number if protocol is ‘osc’ or ‘osc.tcp’</li>
+<li>unix socket path if protocol is ‘osc.unix’</li>
+<li><code>None</code> if protocol is ‘midi’ or if no osc input port is needed</li>
+</ul></li>
 <li><code>parent</code>: if the module is a submodule, this must be set to the parent module’s instance</li>
 </ul>
 </div>
