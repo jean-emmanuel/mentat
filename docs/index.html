@@ -206,6 +206,8 @@ python3 setup.py install</code></pre>
 <li><code>restarted</code>: <code>True</code> if the engine was restarted using <code>autorestart()</code></li>
 <li><code>logger</code>: python logger</li>
 <li><code>root_module</code>: module instance that exposes all modules added to the engine. Allows reaching toplevel module’s parameters by name with <code>set()</code>, <code>animate()</code>, and creating meta parameters with multiple modules.</li>
+<li><code>tempo</code>: beats per minute</li>
+<li><code>cycle_length</code>: eighth per cycle</li>
 </ul>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
@@ -214,11 +216,10 @@ python3 setup.py install</code></pre>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: client name</li>
-<li><code>port</code>: osc input port, can be an udp port number or a unix socket path</li>
+<li><code>port</code>: osc (udp) input port number</li>
 <li><code>folder</code>: path to config folder where state files will be saved to and loaded from</li>
 <li><code>debug</code>: set to True to enable debug messages</li>
-<li><code>tempo</code>: beats per minute</li>
-<li><code>cycle_length</code>: eighth per cycle</li>
+<li><code>tcp_port</code>: osc (tcp) input port number</li>
 </ul>
 </div>
 <h3 id="engine.start">Engine.start()</h3>
@@ -256,8 +257,8 @@ python3 setup.py install</code></pre>
 <p>Send OSC / MIDI message.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>protocol</code>: ‘osc’ or ‘midi’</li>
-<li><code>port</code>: module name or udp port number or unix socket path if protocol is ‘osc’</li>
+<li><code>protocol</code>: ‘osc’, ‘osc.tcp’, ‘osc.unix’ or ‘midi’</li>
+<li><code>port</code>: module name, port number (‘osc’ protocol only) or unix socket path (‘osc.unix’ protocol only)</li>
 <li><code>address</code>: osc address</li>
 <li><code>args</code>: values</li>
 </ul>
@@ -286,7 +287,7 @@ python3 setup.py install</code></pre>
 <p>Unified route for osc and midi messages, called when the engine receives a midi or osc message.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>protocol</code>: ‘osc’ or ‘midi’</li>
+<li><code>protocol</code>: ‘osc’, ‘osc.tcp’ or ‘midi’</li>
 <li><code>port</code>: name of module or port number if unknown</li>
 <li><code>address</code>: osc address</li>
 <li><code>args</code>: list of values</li>
@@ -344,8 +345,8 @@ python3 setup.py install</code></pre>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: module name</li>
-<li><code>protocol</code>: ‘osc’ or ‘midi’</li>
-<li><code>port</code>: udp port number or unix socket path if protocol is ‘osc’ can be None if the module has no fixed input port</li>
+<li><code>protocol</code>: ‘osc’, ‘osc.tcp’, ‘osc.unix’ or ‘midi’</li>
+<li><code>port</code>: port number if protocol is ‘osc’ or ‘osc.tcp’ unix socket path if protocol is ‘osc.unix’ None if protocol is ‘midi’ or if no osc input port is needed</li>
 <li><code>parent</code>: if the module is a submodule, this must be set to the parent module’s instance</li>
 </ul>
 </div>
@@ -599,7 +600,7 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <p>Process messages received by the engine.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>protocol</code>: ‘osc’ or ‘midi’</li>
+<li><code>protocol</code>: ‘osc’, ‘osc.tcp’ or ‘midi’</li>
 <li><code>port</code>: name of module or port number if unknown</li>
 <li><code>address</code>: osc address</li>
 <li><code>args</code>: list of values</li>
