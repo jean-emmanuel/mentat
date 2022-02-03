@@ -23,7 +23,7 @@ class Route(Sequencer):
 
         **Parameters**
 
-        - `name`: roustart_scte name
+        - `name`: route name
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
