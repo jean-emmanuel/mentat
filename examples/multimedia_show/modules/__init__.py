@@ -6,7 +6,7 @@ from .nonmixer import NonMixer
 
 from os.path import dirname
 
-engine = Engine('JoeLeMentat', 5555, dirname(__file__) + '/../')
+engine = Engine('JoeLeMentat', 5555, dirname(__file__) + '/../',debug=1)
 
 nonmixer = NonMixer('non', 'osc', 11143)
 

@@ -221,7 +221,7 @@ class Engine():
                 if self.current_time - self.statistics_time >= 1000000:
                     for stat in self.statistics:
                         if self.statistics[stat] != 0:
-                            self.logger.info('statistic: %s: %i in 1s')
+                            self.logger.info('statistic: %s: %i in 1s' % (stat, self.statistics[stat]))
                             self.statistics[stat] = 0
 
             # restart ?
