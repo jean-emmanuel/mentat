@@ -40,7 +40,7 @@ class Engine():
     @public_method
     def __init__(self, name, port, folder, debug=False, tcp_port=None, unix_port=None):
         """
-        Engine(name, port, folder)
+        Engine(name, port, folder, debug=False, tcp_port=None, unix_port=None)
 
         Engine constructor.
 
@@ -49,8 +49,9 @@ class Engine():
         - `name`: client name
         - `port`: osc (udp) input port number
         - `folder`: path to config folder where state files will be saved to and loaded from
-        - `debug`: set to True to enable debug messages
+        - `debug`: set to True to enable debug messages and i/o statistics
         - `tcp_port`: osc (tcp) input port number
+        - `unix_port`: osc (unix) input socket path
         """
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
@@ -101,6 +102,15 @@ class Engine():
 
         self.notifier = None
         self.restarted = os.getenv('MENTAT_RESTART') is not None
+
+        self.log_statistics = debug
+        self.statistics_time = 0
+        self.statistics = {
+            'midi_in': 0,
+            'midi_out': 0,
+            'osc_in': 0,
+            'osc_out': 0
+        }
 
     def start_servers(self):
         """
@@ -203,6 +213,16 @@ class Engine():
 
             # send pending messages
             self.flush()
+
+            # statistics
+            if self.log_statistics:
+                if self.statistics_time == 0:
+                    self.statistics_time = self.current_time
+                if self.current_time - self.statistics_time >= 1000000:
+                    for stat in self.statistics:
+                        if self.statistics[stat] != 0:
+                            self.logger.info('statistic: %s: %i in 1s')
+                            self.statistics[stat] = 0
 
             # restart ?
             if self.is_restarting:
@@ -335,20 +355,21 @@ class Engine():
             self.queue.put(message)
             return
 
-        if protocol == 'osc':
-            if port in self.osc_outputs:
-                port = self.osc_outputs[port]
-            self.osc_server.send(port, address, *args)
+        if 'osc' in protocol:
 
-        elif protocol == 'osc.tcp':
             if port in self.osc_outputs:
                 port = self.osc_outputs[port]
-            self.osc_tcp_server.send(port, address, *args)
+            if protocol == 'osc':
+                self.osc_server.send(port, address, *args)
+            elif protocol == 'osc.tcp':
+                self.osc_tcp_server.send(port, address, *args)
+            elif protocol == 'osc.unix':
+                self.osc_unix_server.send(port, address, *args)
+            else:
+                return
 
-        elif protocol == 'osc.unix':
-            if port in self.osc_outputs:
-                port = self.osc_outputs[port]
-            self.osc_unix_server.send(port, address, *args)
+            if self.log_statistics:
+                self.statistics['osc_out'] += 1
 
         elif protocol == 'midi':
 
@@ -359,6 +380,8 @@ class Engine():
                     midi_event.source = (self.midi_server.client_id, self.midi_ports[port])
                     self.midi_server.output_event(midi_event)
                     self.midi_server.drain_output()
+                    if self.log_statistics:
+                        self.statistics['midi_out'] += 1
 
     @public_method
     def add_route(self, route):
@@ -424,9 +447,13 @@ class Engine():
         port = src.port
         if src.protocol == liblo.TCP:
             proto = 'osc.tcp'
+        elif src.protocol == liblo.UNIX:
+            proto = 'osc.unix'
         if src.port in self.osc_inputs:
             port = self.osc_inputs[src.port]
         self.route(proto, port, address, args)
+        if self.log_statistics:
+            self.statistics['osc_in'] += 1
 
     def route_midi(self, event):
         """
@@ -437,6 +464,8 @@ class Engine():
         if osc_message:
             osc_message['port'] = port
             self.route('midi', port, osc_message['address'], osc_message['args'])
+            if self.log_statistics:
+                self.statistics['midi_in'] += 1
 
     def start_scene(self, name, scene, *args, **kwargs):
         """
