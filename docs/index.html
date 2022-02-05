@@ -211,15 +211,16 @@ python3 setup.py install</code></pre>
 </ul>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
-<p><i>Engine(name, port, folder)</i><br/></p>
+<p><i>Engine(name, port, folder, debug=False, tcp_port=None, unix_port=None)</i><br/></p>
 <p>Engine constructor.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: client name</li>
 <li><code>port</code>: osc (udp) input port number</li>
 <li><code>folder</code>: path to config folder where state files will be saved to and loaded from</li>
-<li><code>debug</code>: set to True to enable debug messages</li>
+<li><code>debug</code>: set to True to enable debug messages and i/o statistics</li>
 <li><code>tcp_port</code>: osc (tcp) input port number</li>
+<li><code>unix_port</code>: osc (unix) input socket path</li>
 </ul>
 </div>
 <h3 id="engine.start">Engine.start()</h3>
