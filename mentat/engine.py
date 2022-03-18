@@ -313,7 +313,7 @@ class Engine():
         self.root_module.add_submodule(module)
 
         if module.port is not None:
-            if module.protocol in ['osc' 'osc.tcp', 'osc.unix']:
+            if module.protocol in ['osc', 'osc.tcp', 'osc.unix']:
                 self.osc_inputs[module.port] = module.name
                 self.osc_outputs[module.name] = module.port
             elif module.protocol == 'midi':
