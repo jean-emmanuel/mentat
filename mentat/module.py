@@ -372,6 +372,27 @@ class Module(Sequencer):
         if self.meta_parameters[name].update():
             self.engine.dispatch_event('parameter_changed', self, name, self.meta_parameters[name].get())
 
+    @public_method
+    def add_alias_parameter(self, name, parameter):
+        """
+        add_alias_parameter(name, parameter)
+
+        Add a special parameter that just mirrors another parameter owned by the module or its submodules.
+        Under the hood, this creates a meta parameter with the simplest getter and setters possible.
+
+        **Parameters**
+
+        - `name`: name of alias parameter
+        - `parameter`:
+            name of parameter to mirror, may a be list if the parameter are owned by a submodule (`['submodule_name', 'parameter_name']`)
+        """
+        getter = lambda val: val
+        if type(parameter) is list:
+            setter = lambda val: self.set(*parameter, val)
+        else:
+            setter = lambda val: self.set(parameter, val)
+
+        self.add_meta_parameter(name, parameter, getter, setter)
 
     def get_state(self):
         """

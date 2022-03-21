@@ -149,6 +149,7 @@
                         <li><a href="#module.animate">Module.animate()</a></li>
                         <li><a href="#module.stop_animate">Module.stop_animate()</a></li>
                         <li><a href="#module.add_meta_parameter">Module.add_meta_parameter()</a></li>
+                        <li><a href="#module.add_alias_parameter">Module.add_alias_parameter()</a></li>
                         <li><a href="#module.send_state">Module.send_state()</a></li>
                         <li><a href="#module.save">Module.save()</a></li>
                         <li><a href="#module.load">Module.load()</a></li>
@@ -454,6 +455,16 @@ python3 setup.py install</code></pre>
 <li><code>parameters</code>: list of parameter names involved in the meta parameter. Items may be lists if the parameters are owned by a submodule (<code>['submodule_name', 'parameter_name']</code>)</li>
 <li><code>getter</code>: callback function that will be called with the values of involved parameters as arguments whenever one these parameters changes. Its return value will define the meta parameter’s value.</li>
 <li><code>setter</code>: callback function used to set the value of the parameters involved in the meta parameter when <code>set()</code> is called. The function’s signature must not use *args or **kwargs arguments.</li>
+</ul>
+</div>
+<h3 id="module.add_alias_parameter">Module.add_alias_parameter()</h3>
+<div class="content">
+<p><i>add_alias_parameter(name, parameter)</i><br/></p>
+<p>Add a special parameter that just mirrors another parameter owned by the module or its submodules. Under the hood, this creates a meta parameter with the simplest getter and setters possible.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>name</code>: name of alias parameter</li>
+<li><code>parameter</code>: name of parameter to mirror, may a be list if the parameter are owned by a submodule (<code>['submodule_name', 'parameter_name']</code>)</li>
 </ul>
 </div>
 <h3 id="module.send_state">Module.send_state()</h3>
