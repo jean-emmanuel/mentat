@@ -73,8 +73,8 @@ class Engine():
         self.osc_tcp_server = None
         self.osc_unix_server = None
 
-        self.osc_inputs = {}
-        self.osc_outputs = {}
+        self.osc_inputs = {'osc':{}, 'osc.tcp': {}, 'osc.unix': {}}
+        self.osc_outputs = {'osc': {}, 'osc.tcp': {}, 'osc.unix': {}}
 
         self.midi_server = None
         self.midi_ports = {}
@@ -314,8 +314,8 @@ class Engine():
 
         if module.port is not None:
             if module.protocol in ['osc', 'osc.tcp', 'osc.unix']:
-                self.osc_inputs[module.port] = module.name
-                self.osc_outputs[module.name] = module.port
+                self.osc_inputs[module.protocol][module.port] = module.name
+                self.osc_outputs[module.protocol][module.name] = module.port
             elif module.protocol == 'midi':
                 self.midi_ports[module.name] = None
 
@@ -355,10 +355,10 @@ class Engine():
             self.queue.put(message)
             return
 
-        if 'osc' in protocol:
+        if protocol in ['osc', 'osc.tcp', 'osc.unix']:
 
-            if port in self.osc_outputs:
-                port = self.osc_outputs[port]
+            if port in self.osc_outputs[protocol]:
+                port = self.osc_outputs[protocol][port]
             if protocol == 'osc':
                 self.osc_server.send(port, address, *args)
             elif protocol == 'osc.tcp':
@@ -382,6 +382,10 @@ class Engine():
                     self.midi_server.drain_output()
                     if self.log_statistics:
                         self.statistics['midi_out'] += 1
+
+        else:
+
+            self.logger.error('unknown protocol %s' % protocol)
 
     @public_method
     def add_route(self, route):
@@ -449,8 +453,8 @@ class Engine():
             proto = 'osc.tcp'
         elif src.protocol == liblo.UNIX:
             proto = 'osc.unix'
-        if src.port in self.osc_inputs:
-            port = self.osc_inputs[src.port]
+        if src.port in self.osc_inputs[proto]:
+            port = self.osc_inputs[proto][src.port]
         self.route(proto, port, address, args)
         if self.log_statistics:
             self.statistics['osc_in'] += 1
