@@ -21,6 +21,8 @@ class Module(Sequencer):
     - `parent_module`: parent module instance, `None` if the module is not a submodule
     - `module_path`: list of module names, from topmost parent (excluding the engine's `root_module`) to submodule
     - `submodules`: `dict` containing submodules added to the module with names as keys
+    - `parameters`: `dict` containing parameters (including meta parameters) added to the module with names as keys
+    - `meta_parameters`: `dict` containing meta paramaters added to the module with names as keys
     """
 
     @public_method
@@ -167,7 +169,7 @@ class Module(Sequencer):
             return self.parameters[name].get()
 
         else:
-            self.logger.error('get: parameter "%s" not found' % name)
+            self.logger.error('get: parameter or submodule "%s" not found' % name)
 
     @public_method
     @submodule_method(pattern_matching=True)
@@ -199,7 +201,7 @@ class Module(Sequencer):
                 self.check_meta_parameters(name)
 
         else:
-            self.logger.error('set: parameter "%s" not found' % name)
+            self.logger.error('set: parameter or submodule "%s" not found' % name)
 
     @public_method
     def reset(self, name=None):
@@ -254,7 +256,7 @@ class Module(Sequencer):
             if name not in self.animations and parameter.animate_running:
                 self.animations.append(name)
         else:
-            self.logger.error('animate: parameter "%s" not found' % name)
+            self.logger.error('animate: parameter or submodule "%s" not found' % name)
 
     @public_method
     @submodule_method(pattern_matching=False)

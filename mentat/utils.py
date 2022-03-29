@@ -36,3 +36,15 @@ def submodule_method(pattern_matching):
 
         return decorated
     return decorate
+
+import logging
+import traceback
+
+class TraceLogger(logging.Logger):
+
+    def error(self, msg, *args, **kwargs):
+
+        msg += '\nTraceback:\n%s' % ''.join(traceback.format_stack()[-5:-2])
+        return super().error(msg, *args, **kwargs)
+
+logging.setLoggerClass(TraceLogger)
