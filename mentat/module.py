@@ -22,7 +22,7 @@ class Module(Sequencer):
     - `module_path`: list of module names, from topmost parent (excluding the engine's `root_module`) to submodule
     - `submodules`: `dict` containing submodules added to the module with names as keys
     - `parameters`: `dict` containing parameters (including meta parameters) added to the module with names as keys
-    - `meta_parameters`: `dict` containing meta paramaters added to the module with names as keys
+    - `meta_parameters`: `dict` containing meta parameters added to the module with names as keys
     """
 
     @public_method
@@ -232,7 +232,7 @@ class Module(Sequencer):
     @submodule_method(pattern_matching=True)
     def animate(self, *args, **kwargs):
         """
-        animate(parameter_name, start, end, duration, mode='seconds', easing='linear')
+        animate(parameter_name, start, end, duration, mode='beats', easing='linear')
         animate(submodule_name, parameter_name, start, end, duration, mode='beats', easing='linear')
 
         Animate parameter.
