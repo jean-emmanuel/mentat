@@ -25,6 +25,8 @@ class Engine():
     **Instance properties**
 
     - `modules`: `dict` containing modules added to the engine with names as keys
+    - `routes`: `dict` containing routes added to the engine with names as keys
+    - `active_route`: active route object (`None` by default)
     - `restarted`: `True` if the engine was restarted using `autorestart()`
     - `logger`: python logger
     - `root_module`:
