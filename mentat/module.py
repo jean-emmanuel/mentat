@@ -245,11 +245,9 @@ class Module(Sequencer):
         - `end`: ending value(s)
         - `duration`: animation duration
         - `mode`: 'seconds' or 'beats'
-        - `easing`: easing function name (https://github.com/semitable/easing-functions). Available easings:
-            linear, quad, quadin, quadout, cubic, cubicin, cubicout, quartic, quarticin,
-            quarticout, quintic, quinticin, quinticout, sine, sinein, sineout, circular,
-            circularin, circularout, exponential, exponentialin, exponentialout, elastic,
-            elasticin, elasticout, back, backin, backout, bounce, bouncein, bounceout
+        - `easing`: easing function name.
+            - available easings: linear, quadratic, cubic, exponential
+            - easing name can be suffixed with `-out` (inverted and flipped easing) or `-inout` (linear interpolation between default and `-out`)
         """
         name = args[0]
 

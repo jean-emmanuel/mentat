@@ -39,7 +39,9 @@ class Parameter():
         self.animate_duration = 0
         self.animate_from = 0
         self.animate_to = 0
-        self.animate_easing = None
+
+        self.easing_function = None
+        self.easing_mode = 'in'
 
         self.default = default
 
@@ -120,7 +122,9 @@ class Parameter():
 
     def start_animation(self, engine, start, end, duration, mode='beats', easing='linear'):
 
-        if not easing in EASING_FUNCTIONS:
+        easing_name, _, easing_mode = easing.partition('-')
+
+        if not easing_name in EASING_FUNCTIONS:
             self.logger.error('unknown easing "%s", falling back to "linear"' % easing)
             easing = 'linear'
 
@@ -128,6 +132,9 @@ class Parameter():
         self.animate_to = end
         self.animate_start = engine.current_time
         self.animate_duration = duration * 1000000000
+
+        self.easing_function = EASING_FUNCTIONS[easing_name]
+        self.easing_mode = easing_mode if easing_mode in ['out', 'inout'] else 'in'
 
         if type(self.animate_from) is not list:
             self.animate_from = [self.animate_from]
@@ -139,15 +146,6 @@ class Parameter():
         elif mode[0] != 's':
             self.logger.error('start_animation: unrecognized mode "%s"' % mode)
             return
-
-        self.animate_easing = [
-            EASING_FUNCTIONS[easing](
-                start=self.animate_from[i],
-                end=self.animate_to[i],
-                duration=self.animate_duration
-            )
-            for i in range(self.n_args)
-        ]
 
         if len(self.animate_from) != self.n_args:
             self.logger.error('start_animation: wrong number of values for argument "from" (%i expected, %i provided)' % (self.n_args, len(self.animate_from)))
@@ -166,7 +164,8 @@ class Parameter():
             t = self.animate_duration
             self.stop_animation()
 
-        value = [self.animate_easing[i].ease(t) for i in range(self.n_args)]
+
+        value = [self.easing_function(self.animate_from[i], self.animate_to[i], t / self.animate_duration) for i in range(self.n_args)]
 
         return self.set(*value)
 
