@@ -11,6 +11,9 @@ def lerp(start, end, p):
     """
     return (start + (end - start) * p)
 
+def flip(p):
+    return 1 - p
+
 def create_easing(ease_in):
     """
     Generate easing functions (in, out & inout) from a single easing function
@@ -22,10 +25,23 @@ def create_easing(ease_in):
     """
 
     def ease_out(p):
-        return 1 - ease_in(1 - p)
+        return flip(ease_in(flip(p)))
 
     def ease_in_out(p):
         return lerp(ease_in(p), ease_out(p), p)
+
+    # def mirror_in(p):
+    #     if p <= 0.5:
+    #         return ease_in(p)
+    #     else:
+    #         return ease_in(flip(p))
+    #
+    # def mirror_out(p):
+    #     if p <= 0.5:
+    #         return ease_out(xp)
+    #     else:
+    #         return ease_out(flip(p))
+
 
     e = {'in': ease_in, 'out': ease_out, 'inout': ease_in_out}
 
@@ -39,8 +55,11 @@ def create_easing(ease_in):
 
 EASING_FUNCTIONS = {
     'linear':      create_easing(lambda p: p),
+    'sine':        create_easing(lambda p: math.sin((p - 1) * math.pi / 2) + 1),
     'quadratic':   create_easing(lambda p: p * p),
     'cubic':       create_easing(lambda p: p * p * p),
+    'quartic':     create_easing(lambda p: p * p * p * p),
+    'quintic':     create_easing(lambda p: p * p * p * p * p),
     'exponential': create_easing(lambda p: 0 if p == 0 else math.pow(2, 10 * (p - 1))),
 }
 
@@ -48,4 +67,4 @@ EASING_FUNCTIONS = {
 if __name__ == '__main__':
     for name, interp in EASING_FUNCTIONS.items():
         for mode in ['in', 'out', 'inout']:
-            print(name, mode, '\n', ',\t'.join(['%.1f' % interp(0, -10, x / 10, mode) for x in range(11)]))
+            print(name, mode, '\n', ',\t'.join(['%.1f' % interp(0, 10, x / 10, mode) for x in range(11)]))
