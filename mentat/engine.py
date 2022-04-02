@@ -290,7 +290,7 @@ class Engine():
         # add watches for imported modules
         for m in sys.modules.values():
             # builtin modules don't have a __file__ attribute
-            if hasattr(m, '__file__'):
+            if hasattr(m, '__file__') and m.__file__ is not None:
                 f = os.path.abspath(m.__file__)
                 # only watch file if it's in the same directory as the main script
                 # + module src files
