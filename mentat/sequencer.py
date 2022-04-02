@@ -111,8 +111,10 @@ class Sequencer():
 
         **Parameters**
 
-        - `sequence`: `dict` with beat numbers (1-indexed) as keys and lambda functions as values.
-        - `length`: number of beats in the sequence
+        - `sequence`:
+            - `dict` with beat numbers (1-indexed) as keys and lambda functions as values
+            - `list` of `dict` sequences (one sequence = one bar)
+        - `length`: number of beats in each sequence
         - `loop`: if `False`, the sequence will play only once, otherwise it will loop until the scene is stopped
 
         **Example**
@@ -129,21 +131,26 @@ class Sequencer():
         ```
         """
         while True:
-            waited = 0
-            for step in sequence:
-                beat = float(step) - 1
 
-                if beat > 0:
-                    delta = beat - waited
-                    waited += delta
-                    self.wait(delta, 'beats')
+            if type(sequence) is dict:
+                sequence = [sequence]
 
-                action = sequence[step]
-                if callable(action):
-                    action()
+            for seq in sequence:
+                waited = 0
+                for step in seq:
+                    beat = float(step) - 1
 
-            if length - waited > 0:
-                self.wait(length - waited)
+                    if beat > 0:
+                        delta = beat - waited
+                        waited += delta
+                        self.wait(delta, 'beats')
+
+                    action = seq[step]
+                    if callable(action):
+                        action()
+
+                if length - waited > 0:
+                    self.wait(length - waited)
 
             if not loop:
                 break

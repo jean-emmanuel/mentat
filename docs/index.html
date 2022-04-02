@@ -600,8 +600,12 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <p>Play a sequence of actions scheduled on arbitrary beats. Can only be called in scenes.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>sequence</code>: <code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values.</li>
-<li><code>length</code>: number of beats in the sequence</li>
+<li><code>sequence</code>:
+<ul>
+<li><code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values</li>
+<li><code>list</code> of <code>dict</code> sequences (one sequence = one bar)</li>
+</ul></li>
+<li><code>length</code>: number of beats in each sequence</li>
 <li><code>loop</code>: if <code>False</code>, the sequence will play only once, otherwise it will loop until the scene is stopped</li>
 </ul>
 <p><strong>Example</strong></p>
@@ -709,8 +713,12 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <p>Play a sequence of actions scheduled on arbitrary beats. Can only be called in scenes.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>sequence</code>: <code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values.</li>
-<li><code>length</code>: number of beats in the sequence</li>
+<li><code>sequence</code>:
+<ul>
+<li><code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values</li>
+<li><code>list</code> of <code>dict</code> sequences (one sequence = one bar)</li>
+</ul></li>
+<li><code>length</code>: number of beats in each sequence</li>
 <li><code>loop</code>: if <code>False</code>, the sequence will play only once, otherwise it will loop until the scene is stopped</li>
 </ul>
 <p><strong>Example</strong></p>
