@@ -110,12 +110,12 @@ class Sequencer():
 
 
         **Parameters**
-        
+
         - `sequence`: `dict` with beat numbers (1-indexed) as keys and lambda functions as values.
         - `length`: number of beats in the sequence
-        - `loop`: if `False`, the sequence will play only once
+        - `loop`: if `False`, the sequence will play only once, otherwise it will loop until the scene is stopped
 
-        ** Example**
+        **Example**
 
         ```
         play_sequence({
