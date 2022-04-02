@@ -577,7 +577,7 @@ python3 setup.py install</code></pre>
 <h3 id="module.wait">Module.wait()</h3>
 <div class="content">
 <p><i>wait(duration, mode=‘beats’)</i><br/></p>
-<p>Wait for given amount of time. Can only called in scenes. Subsequent calls to wait() in a scene do not drift with time and can be safely used to create beat sequences. The engine’s <code>tempo</code> must be set for the <code>beats</code> mode to work.</p>
+<p>Wait for given amount of time. Can only be called in scenes. Subsequent calls to wait() in a scene do not drift with time and can be safely used to create beat sequences. The engine’s <code>tempo</code> must be set for the <code>beats</code> mode to work.</p>
 <pre><code># Example
 beat_1()
 self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1&#39;s exec time
@@ -597,9 +597,17 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <h3 id="module.play_sequence">Module.play_sequence()</h3>
 <div class="content">
 <p><i>play_sequence(sequence, length, loop=True)</i><br/></p>
-<p>Play a sequence of actions.</p>
+<p>Play a sequence of actions scheduled on arbitrary beats. Can only be called in scenes.</p>
 <p><strong>Parameters</strong> - <code>sequence</code>: <code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values. - <code>length</code>: number of beats in the sequence - <code>loop</code>: if <code>False</code>, the sequence will play only once</p>
-<p>** Example** play_sequence({ # beat 1 1: lambda: foo.set(‘bar’, 1), # beat 3 3: lambda: [foo.set(‘bar’, 2), foo.set(‘baz’, 1)], # “and” of beat 4 4.5: lambda: foo.set(‘bar’, 0), }, length=4)</p>
+<p>** Example**</p>
+<pre><code>play_sequence({
+    # beat 1
+    1: lambda: foo.set(&#39;bar&#39;, 1),
+    # beat 3
+    3: lambda: [foo.set(&#39;bar&#39;, 2), foo.set(&#39;baz&#39;, 1)],
+    # &quot;and&quot; of beat 4
+    4.5: lambda: foo.set(&#39;bar&#39;, 0),
+}, length=4)</code></pre>
 </div>
 <hr />
 <h2 id="route">Route</h2>
@@ -673,7 +681,7 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <h3 id="route.wait">Route.wait()</h3>
 <div class="content">
 <p><i>wait(duration, mode=‘beats’)</i><br/></p>
-<p>Wait for given amount of time. Can only called in scenes. Subsequent calls to wait() in a scene do not drift with time and can be safely used to create beat sequences. The engine’s <code>tempo</code> must be set for the <code>beats</code> mode to work.</p>
+<p>Wait for given amount of time. Can only be called in scenes. Subsequent calls to wait() in a scene do not drift with time and can be safely used to create beat sequences. The engine’s <code>tempo</code> must be set for the <code>beats</code> mode to work.</p>
 <pre><code># Example
 beat_1()
 self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1&#39;s exec time
@@ -693,9 +701,17 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <h3 id="route.play_sequence">Route.play_sequence()</h3>
 <div class="content">
 <p><i>play_sequence(sequence, length, loop=True)</i><br/></p>
-<p>Play a sequence of actions.</p>
+<p>Play a sequence of actions scheduled on arbitrary beats. Can only be called in scenes.</p>
 <p><strong>Parameters</strong> - <code>sequence</code>: <code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values. - <code>length</code>: number of beats in the sequence - <code>loop</code>: if <code>False</code>, the sequence will play only once</p>
-<p>** Example** play_sequence({ # beat 1 1: lambda: foo.set(‘bar’, 1), # beat 3 3: lambda: [foo.set(‘bar’, 2), foo.set(‘baz’, 1)], # “and” of beat 4 4.5: lambda: foo.set(‘bar’, 0), }, length=4)</p>
+<p>** Example**</p>
+<pre><code>play_sequence({
+    # beat 1
+    1: lambda: foo.set(&#39;bar&#39;, 1),
+    # beat 3
+    3: lambda: [foo.set(&#39;bar&#39;, 2), foo.set(&#39;baz&#39;, 1)],
+    # &quot;and&quot; of beat 4
+    4.5: lambda: foo.set(&#39;bar&#39;, 0),
+}, length=4)</code></pre>
 </div>
 <hr />
         </main>

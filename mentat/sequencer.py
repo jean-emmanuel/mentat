@@ -65,7 +65,7 @@ class Sequencer():
         """
         wait(duration, mode='beats')
 
-        Wait for given amount of time. Can only called in scenes.
+        Wait for given amount of time. Can only be called in scenes.
         Subsequent calls to wait() in a scene do not drift with time
         and can be safely used to create beat sequences.
         The engine's `tempo` must be set for the `beats` mode to work.
@@ -105,7 +105,9 @@ class Sequencer():
         """
         play_sequence(sequence, length, loop=True)
 
-        Play a sequence of actions.
+        Play a sequence of actions scheduled on arbitrary beats.
+        Can only be called in scenes.
+
 
         **Parameters**
         - `sequence`: `dict` with beat numbers (1-indexed) as keys and lambda functions as values.
@@ -113,6 +115,7 @@ class Sequencer():
         - `loop`: if `False`, the sequence will play only once
 
         ** Example**
+        ```
         play_sequence({
             # beat 1
             1: lambda: foo.set('bar', 1),
@@ -121,6 +124,7 @@ class Sequencer():
             # "and" of beat 4
             4.5: lambda: foo.set('bar', 0),
         }, length=4)
+        ```
         """
         while True:
             waited = 0
