@@ -61,10 +61,10 @@ def osc_to_midi(address, args):
     elif mtype == SEQ_EVENT_PITCHBEND or mtype == SEQ_EVENT_PGMCHANGE:
         event.set_data({'control.channel': args[0], 'control.value': args[1]})
     elif mtype == SEQ_EVENT_SYSEX:
-        event.set_data({'ext': args})
+        event.set_data({'ext': list(args)})
     elif mtype == SEQ_EVENT_CONTROLLER:
         event.set_data({'control.channel': args[0], 'control.param': args[1], 'control.value': args[2]})
     else:
         return None
-        
+
     return event
