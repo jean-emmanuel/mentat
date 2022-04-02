@@ -110,11 +110,13 @@ class Sequencer():
 
 
         **Parameters**
+        
         - `sequence`: `dict` with beat numbers (1-indexed) as keys and lambda functions as values.
         - `length`: number of beats in the sequence
         - `loop`: if `False`, the sequence will play only once
 
         ** Example**
+
         ```
         play_sequence({
             # beat 1
