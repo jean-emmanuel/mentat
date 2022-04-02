@@ -99,3 +99,45 @@ class Sequencer():
         timer = self.engine.get_scene_timer()
         if timer:
             timer.wait_next_cycle()
+
+    @public_method
+    def play_sequence(sequence, length, loop=True):
+        """
+        play_sequence(sequence, length, loop=True)
+
+        Play a sequence of actions.
+
+        **Parameters**
+        - `sequence`: `dict` with beat numbers (1-indexed) as keys and lambda functions as values.
+        - `length`: number of beats in the sequence
+        - `loop`: if `False`, the sequence will play only once
+
+        ** Example**
+        play_sequence({
+            # beat 1
+            1: lambda: foo.set('bar', 1),
+            # beat 3
+            3: lambda: [foo.set('bar', 2), foo.set('baz', 1)],
+            # "and" of beat 4
+            4.5: lambda: foo.set('bar', 0),
+        }, length=4)
+        """
+        while True:
+            waited = 0
+            for step in sequence:
+                beat = float(step) - 1
+
+                if beat > 0:
+                    delta = beat - waited
+                    waited += delta
+                    self.wait(delta, 'beats')
+
+                action = sequence[step]
+                if callable(action):
+                    action()
+
+            if length - waited > 0:
+                self.wait(length - waited)
+
+            if not loop:
+                break

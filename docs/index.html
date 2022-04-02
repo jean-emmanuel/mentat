@@ -161,6 +161,7 @@
                         <li><a href="#module.stop_scene">Module.stop_scene()</a></li>
                         <li><a href="#module.wait">Module.wait()</a></li>
                         <li><a href="#module.wait_next_cycle">Module.wait_next_cycle()</a></li>
+                        <li><a href="#module.play_sequence">Module.play_sequence()</a></li>
                         </ul></li>
                         <li><a href="#route">Route</a>
                         <ul>
@@ -173,6 +174,7 @@
                         <li><a href="#route.stop_scene">Route.stop_scene()</a></li>
                         <li><a href="#route.wait">Route.wait()</a></li>
                         <li><a href="#route.wait_next_cycle">Route.wait_next_cycle()</a></li>
+                        <li><a href="#route.play_sequence">Route.play_sequence()</a></li>
                         </ul></li>
                         </ul>
                     </aside>
@@ -436,7 +438,11 @@ python3 setup.py install</code></pre>
 <li><code>end</code>: ending value(s)</li>
 <li><code>duration</code>: animation duration</li>
 <li><code>mode</code>: ‘seconds’ or ‘beats’</li>
-<li><code>easing</code>: easing function name (https://github.com/semitable/easing-functions). Available easings: linear, quad, quadin, quadout, cubic, cubicin, cubicout, quartic, quarticin, quarticout, quintic, quinticin, quinticout, sine, sinein, sineout, circular, circularin, circularout, exponential, exponentialin, exponentialout, elastic, elasticin, elasticout, back, backin, backout, bounce, bouncein, bounceout</li>
+<li><code>easing</code>: easing function name.
+<ul>
+<li>available easings: linear, sine, quadratic, cubic, quartic, quintic, exponential</li>
+<li>easing name can be suffixed with <code>-out</code> (inverted and flipped easing) or <code>-inout</code> (linear interpolation between default and <code>-out</code>)</li>
+</ul></li>
 </ul>
 </div>
 <h3 id="module.stop_animate">Module.stop_animate()</h3>
@@ -588,6 +594,13 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <p><i>wait_next_cycle()</i><br/></p>
 <p>Wait until next cycle begins. The engine’s <code>tempo</code> and <code>cycle_length</code> must be set and the engine’s <code>start_cycle()</code> method must be called at the beginning of a cycle for this to work.</p>
 </div>
+<h3 id="module.play_sequence">Module.play_sequence()</h3>
+<div class="content">
+<p><i>play_sequence(sequence, length, loop=True)</i><br/></p>
+<p>Play a sequence of actions.</p>
+<p><strong>Parameters</strong> - <code>sequence</code>: <code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values. - <code>length</code>: number of beats in the sequence - <code>loop</code>: if <code>False</code>, the sequence will play only once</p>
+<p>** Example** play_sequence({ # beat 1 1: lambda: foo.set(‘bar’, 1), # beat 3 3: lambda: [foo.set(‘bar’, 2), foo.set(‘baz’, 1)], # “and” of beat 4 4.5: lambda: foo.set(‘bar’, 0), }, length=4)</p>
+</div>
 <hr />
 <h2 id="route">Route</h2>
 <p>Routing object that processes messages received by the engine when active.</p>
@@ -676,6 +689,13 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <div class="content">
 <p><i>wait_next_cycle()</i><br/></p>
 <p>Wait until next cycle begins. The engine’s <code>tempo</code> and <code>cycle_length</code> must be set and the engine’s <code>start_cycle()</code> method must be called at the beginning of a cycle for this to work.</p>
+</div>
+<h3 id="route.play_sequence">Route.play_sequence()</h3>
+<div class="content">
+<p><i>play_sequence(sequence, length, loop=True)</i><br/></p>
+<p>Play a sequence of actions.</p>
+<p><strong>Parameters</strong> - <code>sequence</code>: <code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values. - <code>length</code>: number of beats in the sequence - <code>loop</code>: if <code>False</code>, the sequence will play only once</p>
+<p>** Example** play_sequence({ # beat 1 1: lambda: foo.set(‘bar’, 1), # beat 3 3: lambda: [foo.set(‘bar’, 2), foo.set(‘baz’, 1)], # “and” of beat 4 4.5: lambda: foo.set(‘bar’, 0), }, length=4)</p>
 </div>
 <hr />
         </main>
