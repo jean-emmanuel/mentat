@@ -101,7 +101,7 @@ class Sequencer():
             timer.wait_next_cycle()
 
     @public_method
-    def play_sequence(sequence, loop=True):
+    def play_sequence(self, sequence, loop=True):
         """
         play_sequence(sequence, loop=True)
 
@@ -185,7 +185,7 @@ class Sequencer():
                 if rest > 0:
                     self.wait(rest)
                 elif rest < 0:
-                    self.logger.error('signature length overflow in bar %s (expected %s quarter notes, got %s) from sequence:\n%s' % (seq - 1, length, length + rest, sequence))
+                    self.logger.error('signature length overflow in bar %s (expected %s quarter notes, got %s) from sequence:\n%s' % (sequence.index(seq) + 1, length, length - rest, sequence))
 
             if not loop:
                 break
