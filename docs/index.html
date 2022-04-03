@@ -609,14 +609,31 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <li><code>loop</code>: if <code>False</code>, the sequence will play only once, otherwise it will loop until the scene is stopped</li>
 </ul>
 <p><strong>Example</strong></p>
-<pre><code>play_sequence({
+<pre><code># single-bar sequence
+play_sequence({
     # beat 1
-    1: lambda: foo.set(&#39;bar&#39;, 1),
+    1: lambda: guitar.set(&#39;mute&#39;, 1),
     # beat 3
-    3: lambda: [foo.set(&#39;bar&#39;, 2), foo.set(&#39;baz&#39;, 1)],
+    3: lambda: [guitar.set(&#39;mute&#39;, 0), guitar.set(&#39;disto&#39;, 1)],
     # &quot;and&quot; of beat 4
-    4.5: lambda: foo.set(&#39;bar&#39;, 0),
-}, length=4)</code></pre>
+    4.5: lambda: guitar.set(&#39;disto&#39;, 0),
+}, length=4)
+
+# multi-bar sequence
+play_sequence([
+{   # bar 1
+    # beat 1
+    1: lambda: voice.set(&#39;autotune&#39;, 1),
+},
+{}, # bar 2 (empty)
+{}, # bar 3 (empty)
+{   # bar 4
+    # beat 1
+    1: lambda: foo.set(&#39;autotune&#39;, 0),
+    # beat 4
+    4: lambda: foo.set(&#39;autotune&#39;, 1),
+}
+], length=4)</code></pre>
 </div>
 <hr />
 <h2 id="route">Route</h2>
@@ -722,14 +739,31 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 <li><code>loop</code>: if <code>False</code>, the sequence will play only once, otherwise it will loop until the scene is stopped</li>
 </ul>
 <p><strong>Example</strong></p>
-<pre><code>play_sequence({
+<pre><code># single-bar sequence
+play_sequence({
     # beat 1
-    1: lambda: foo.set(&#39;bar&#39;, 1),
+    1: lambda: guitar.set(&#39;mute&#39;, 1),
     # beat 3
-    3: lambda: [foo.set(&#39;bar&#39;, 2), foo.set(&#39;baz&#39;, 1)],
+    3: lambda: [guitar.set(&#39;mute&#39;, 0), guitar.set(&#39;disto&#39;, 1)],
     # &quot;and&quot; of beat 4
-    4.5: lambda: foo.set(&#39;bar&#39;, 0),
-}, length=4)</code></pre>
+    4.5: lambda: guitar.set(&#39;disto&#39;, 0),
+}, length=4)
+
+# multi-bar sequence
+play_sequence([
+{   # bar 1
+    # beat 1
+    1: lambda: voice.set(&#39;autotune&#39;, 1),
+},
+{}, # bar 2 (empty)
+{}, # bar 3 (empty)
+{   # bar 4
+    # beat 1
+    1: lambda: foo.set(&#39;autotune&#39;, 0),
+    # beat 4
+    4: lambda: foo.set(&#39;autotune&#39;, 1),
+}
+], length=4)</code></pre>
 </div>
 <hr />
         </main>

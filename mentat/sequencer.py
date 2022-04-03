@@ -120,14 +120,31 @@ class Sequencer():
         **Example**
 
         ```
+        # single-bar sequence
         play_sequence({
             # beat 1
-            1: lambda: foo.set('bar', 1),
+            1: lambda: guitar.set('mute', 1),
             # beat 3
-            3: lambda: [foo.set('bar', 2), foo.set('baz', 1)],
+            3: lambda: [guitar.set('mute', 0), guitar.set('disto', 1)],
             # "and" of beat 4
-            4.5: lambda: foo.set('bar', 0),
+            4.5: lambda: guitar.set('disto', 0),
         }, length=4)
+
+        # multi-bar sequence
+        play_sequence([
+        {   # bar 1
+            # beat 1
+            1: lambda: voice.set('autotune', 1),
+        },
+        {}, # bar 2 (empty)
+        {}, # bar 3 (empty)
+        {   # bar 4
+            # beat 1
+            1: lambda: foo.set('autotune', 0),
+            # beat 4
+            4: lambda: foo.set('autotune', 1),
+        }
+        ], length=4)
         ```
         """
         while True:
