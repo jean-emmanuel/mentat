@@ -34,7 +34,7 @@ class Engine():
             Allows reaching toplevel module's parameters by name with `set()`, `animate()`,
             and creating meta parameters with multiple modules.
     - `tempo`: beats per minute
-    - `cycle_length`: eighth per cycle
+    - `cycle_length`: quarter notes per cycle
     """
 
     INSTANCE = None
@@ -565,17 +565,32 @@ class Engine():
         self.tempo = max(float(bpm), 0.001)
 
     @public_method
-    def set_cycle_length(self, eighth_notes):
+    def set_cycle_length(self, quarter_notes):
         """
-        set_cycle_length(eighth_notes)
+        set_cycle_length(quarter_notes)
 
-        Set engine cycle (measure) length.
+        Set engine cycle (measure) length in quarter notes.
 
         **Parameters**
 
-        - `eighth_notes`: eighth notes per cycle
+        - `quarter_notes`: quarter notes per cycle (decimals allowed)
         """
-        self.cycle_length = float(eighth_notes)
+        self.cycle_length = float(quarter_notes)
+
+    @public_method
+    def set_time_signature(self, signature):
+        """
+        set_time_signature(signature)
+
+        Set engine cycle (measure) length from a musical time signature.
+
+        **Parameters**
+
+        - `signature`: `string` like '4/4', '5/4', '7/8'...
+        """
+        beats, _, unit = signature.split('/')
+        mutliplier = 4 / float(unit)
+        self.cycle_length = float(beats) * mutliplier
 
     @public_method
     def start_cycle(self):

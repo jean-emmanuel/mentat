@@ -37,7 +37,7 @@ class Timer():
 
     def wait_next_cycle(self):
 
-        cycle_duration = 1000000000 * self.engine.cycle_length / 2 * 60 / self.engine.tempo
+        cycle_duration = 1000000000 * self.engine.cycle_length * 60 / self.engine.tempo
         elapsed_time = (self.engine.current_time - self.engine.cycle_start_time)
         time_before_next_cycle = cycle_duration - elapsed_time % cycle_duration
 

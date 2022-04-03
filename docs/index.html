@@ -134,6 +134,7 @@
                         <li><a href="#engine.route">Engine.route()</a></li>
                         <li><a href="#engine.set_tempo">Engine.set_tempo()</a></li>
                         <li><a href="#engine.set_cycle_length">Engine.set_cycle_length()</a></li>
+                        <li><a href="#engine.set_time_signature">Engine.set_time_signature()</a></li>
                         <li><a href="#engine.start_cycle">Engine.start_cycle()</a></li>
                         <li><a href="#engine.dispatch_event">Engine.dispatch_event()</a></li>
                         </ul></li>
@@ -212,7 +213,7 @@ python3 setup.py install</code></pre>
 <li><code>logger</code>: python logger</li>
 <li><code>root_module</code>: module instance that exposes all modules added to the engine. Allows reaching toplevel module’s parameters by name with <code>set()</code>, <code>animate()</code>, and creating meta parameters with multiple modules.</li>
 <li><code>tempo</code>: beats per minute</li>
-<li><code>cycle_length</code>: eighth per cycle</li>
+<li><code>cycle_length</code>: quarter notes per cycle</li>
 </ul>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
@@ -310,11 +311,20 @@ python3 setup.py install</code></pre>
 </div>
 <h3 id="engine.set_cycle_length">Engine.set_cycle_length()</h3>
 <div class="content">
-<p><i>set_cycle_length(eighth_notes)</i><br/></p>
-<p>Set engine cycle (measure) length.</p>
+<p><i>set_cycle_length(quarter_notes)</i><br/></p>
+<p>Set engine cycle (measure) length in quarter notes.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>eighth_notes</code>: eighth notes per cycle</li>
+<li><code>quarter_notes</code>: quarter notes per cycle (decimals allowed)</li>
+</ul>
+</div>
+<h3 id="engine.set_time_signature">Engine.set_time_signature()</h3>
+<div class="content">
+<p><i>set_time_signature(signature)</i><br/></p>
+<p>Set engine cycle (measure) length from a musical time signature.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>signature</code>: <code>string</code> like ‘4/4’, ‘5/4’, ‘7/8’…</li>
 </ul>
 </div>
 <h3 id="engine.start_cycle">Engine.start_cycle()</h3>
