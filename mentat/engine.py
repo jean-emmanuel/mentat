@@ -577,6 +577,14 @@ class Engine():
         """
         self.cycle_length = float(quarter_notes)
 
+    def time_signature_to_quarter_notes(signature):
+        """
+        Convert time signature string to quarter notes.
+        """
+        beats, _, unit = signature.split('/')
+        mutliplier = 4 / float(unit)
+        return float(beats) * mutliplier
+
     @public_method
     def set_time_signature(self, signature):
         """
@@ -588,9 +596,7 @@ class Engine():
 
         - `signature`: `string` like '4/4', '5/4', '7/8'...
         """
-        beats, _, unit = signature.split('/')
-        mutliplier = 4 / float(unit)
-        self.cycle_length = float(beats) * mutliplier
+        self.set_cycle_length(self.time_signature_to_quarter_notes(signature))
 
     @public_method
     def start_cycle(self):

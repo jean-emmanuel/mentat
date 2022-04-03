@@ -606,44 +606,48 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 </div>
 <h3 id="module.play_sequence">Module.play_sequence()</h3>
 <div class="content">
-<p><i>play_sequence(sequence, length, loop=True)</i><br/></p>
+<p><i>play_sequence(sequence, loop=True)</i><br/></p>
 <p>Play a sequence of actions scheduled on arbitrary beats. Can only be called in scenes.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>sequence</code>:
 <ul>
-<li><code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values</li>
+<li><code>dict</code> with beat numbers (1-indexed, quarter note based) as keys and lambda functions as values</li>
 <li><code>list</code> of <code>dict</code> sequences (one sequence = one bar)</li>
+<li>sequences may contain an extra ‘signature’ string to change the time signature. If not provided in the first sequence, the signature takes the engine’s cycle length value.</li>
 </ul></li>
-<li><code>length</code>: number of beats in each sequence</li>
 <li><code>loop</code>: if <code>False</code>, the sequence will play only once, otherwise it will loop until the scene is stopped</li>
 </ul>
 <p><strong>Example</strong></p>
 <pre><code># single-bar sequence
 play_sequence({
+    &#39;signature&#39;: &#39;4/4&#39;,
     # beat 1
     1: lambda: guitar.set(&#39;mute&#39;, 1),
     # beat 3
     3: lambda: [guitar.set(&#39;mute&#39;, 0), guitar.set(&#39;disto&#39;, 1)],
     # &quot;and&quot; of beat 4
     4.5: lambda: guitar.set(&#39;disto&#39;, 0),
-}, length=4)
+})
 
 # multi-bar sequence
 play_sequence([
 {   # bar 1
+    &#39;signature&#39;: &#39;4/4&#39;,
     # beat 1
     1: lambda: voice.set(&#39;autotune&#39;, 1),
 },
 {}, # bar 2 (empty)
-{}, # bar 3 (empty)
-{   # bar 4
+{   # bar 3 (empty, but in 3/4)
+    &#39;signature&#39;: &#39;3/4&#39;,
+},
+{   # bar 4 (in 3/4 too)
     # beat 1
     1: lambda: foo.set(&#39;autotune&#39;, 0),
-    # beat 4
-    4: lambda: foo.set(&#39;autotune&#39;, 1),
+    # beat 3
+    3: lambda: foo.set(&#39;autotune&#39;, 1),
 }
-], length=4)</code></pre>
+])</code></pre>
 </div>
 <hr />
 <h2 id="route">Route</h2>
@@ -736,44 +740,48 @@ self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec 
 </div>
 <h3 id="route.play_sequence">Route.play_sequence()</h3>
 <div class="content">
-<p><i>play_sequence(sequence, length, loop=True)</i><br/></p>
+<p><i>play_sequence(sequence, loop=True)</i><br/></p>
 <p>Play a sequence of actions scheduled on arbitrary beats. Can only be called in scenes.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>sequence</code>:
 <ul>
-<li><code>dict</code> with beat numbers (1-indexed) as keys and lambda functions as values</li>
+<li><code>dict</code> with beat numbers (1-indexed, quarter note based) as keys and lambda functions as values</li>
 <li><code>list</code> of <code>dict</code> sequences (one sequence = one bar)</li>
+<li>sequences may contain an extra ‘signature’ string to change the time signature. If not provided in the first sequence, the signature takes the engine’s cycle length value.</li>
 </ul></li>
-<li><code>length</code>: number of beats in each sequence</li>
 <li><code>loop</code>: if <code>False</code>, the sequence will play only once, otherwise it will loop until the scene is stopped</li>
 </ul>
 <p><strong>Example</strong></p>
 <pre><code># single-bar sequence
 play_sequence({
+    &#39;signature&#39;: &#39;4/4&#39;,
     # beat 1
     1: lambda: guitar.set(&#39;mute&#39;, 1),
     # beat 3
     3: lambda: [guitar.set(&#39;mute&#39;, 0), guitar.set(&#39;disto&#39;, 1)],
     # &quot;and&quot; of beat 4
     4.5: lambda: guitar.set(&#39;disto&#39;, 0),
-}, length=4)
+})
 
 # multi-bar sequence
 play_sequence([
 {   # bar 1
+    &#39;signature&#39;: &#39;4/4&#39;,
     # beat 1
     1: lambda: voice.set(&#39;autotune&#39;, 1),
 },
 {}, # bar 2 (empty)
-{}, # bar 3 (empty)
-{   # bar 4
+{   # bar 3 (empty, but in 3/4)
+    &#39;signature&#39;: &#39;3/4&#39;,
+},
+{   # bar 4 (in 3/4 too)
     # beat 1
     1: lambda: foo.set(&#39;autotune&#39;, 0),
-    # beat 4
-    4: lambda: foo.set(&#39;autotune&#39;, 1),
+    # beat 3
+    3: lambda: foo.set(&#39;autotune&#39;, 1),
 }
-], length=4)</code></pre>
+])</code></pre>
 </div>
 <hr />
         </main>

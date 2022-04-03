@@ -101,9 +101,9 @@ class Sequencer():
             timer.wait_next_cycle()
 
     @public_method
-    def play_sequence(sequence, length, loop=True):
+    def play_sequence(sequence, loop=True):
         """
-        play_sequence(sequence, length, loop=True)
+        play_sequence(sequence, loop=True)
 
         Play a sequence of actions scheduled on arbitrary beats.
         Can only be called in scenes.
@@ -112,9 +112,10 @@ class Sequencer():
         **Parameters**
 
         - `sequence`:
-            - `dict` with beat numbers (1-indexed) as keys and lambda functions as values
+            - `dict` with beat numbers (1-indexed, quarter note based) as keys and lambda functions as values
             - `list` of `dict` sequences (one sequence = one bar)
-        - `length`: number of beats in each sequence
+            - sequences may contain an extra 'signature' string to change the time signature.
+                If not provided in the first sequence, the signature takes the engine's cycle length value.
         - `loop`: if `False`, the sequence will play only once, otherwise it will loop until the scene is stopped
 
         **Example**
@@ -122,29 +123,33 @@ class Sequencer():
         ```
         # single-bar sequence
         play_sequence({
+            'signature': '4/4',
             # beat 1
             1: lambda: guitar.set('mute', 1),
             # beat 3
             3: lambda: [guitar.set('mute', 0), guitar.set('disto', 1)],
             # "and" of beat 4
             4.5: lambda: guitar.set('disto', 0),
-        }, length=4)
+        })
 
         # multi-bar sequence
         play_sequence([
         {   # bar 1
+            'signature': '4/4',
             # beat 1
             1: lambda: voice.set('autotune', 1),
         },
         {}, # bar 2 (empty)
-        {}, # bar 3 (empty)
-        {   # bar 4
+        {   # bar 3 (empty, but in 3/4)
+            'signature': '3/4',
+        },
+        {   # bar 4 (in 3/4 too)
             # beat 1
             1: lambda: foo.set('autotune', 0),
-            # beat 4
-            4: lambda: foo.set('autotune', 1),
+            # beat 3
+            3: lambda: foo.set('autotune', 1),
         }
-        ], length=4)
+        ])
         ```
         """
         while True:
@@ -152,9 +157,19 @@ class Sequencer():
             if type(sequence) is dict:
                 sequence = [sequence]
 
+            length = self.engine.cycle_length
+
             for seq in sequence:
                 waited = 0
+
+                if 'signature' in seq:
+                    length = self.engine.time_signature_to_quarter_notes(seq['signature'])
+
                 for step in seq:
+
+                    if step == 'signature':
+                        continue
+
                     beat = float(step) - 1
 
                     if beat > 0:
@@ -166,8 +181,11 @@ class Sequencer():
                     if callable(action):
                         action()
 
-                if length - waited > 0:
-                    self.wait(length - waited)
+                rest = length - waited
+                if rest > 0:
+                    self.wait(rest)
+                elif rest < 0:
+                    self.logger.error('signature length overflow in bar %s (expected %s quarter notes, got %s) from sequence:\n%s' % (seq - 1, length, length + rest, sequence))
 
             if not loop:
                 break
