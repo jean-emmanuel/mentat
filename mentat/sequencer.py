@@ -134,21 +134,21 @@ class Sequencer():
 
         # multi-bar sequence
         play_sequence([
-        {   # bar 1
-            'signature': '4/4',
-            # beat 1
-            1: lambda: voice.set('autotune', 1),
-        },
-        {}, # bar 2 (empty)
-        {   # bar 3 (empty, but in 3/4)
-            'signature': '3/4',
-        },
-        {   # bar 4 (in 3/4 too)
-            # beat 1
-            1: lambda: foo.set('autotune', 0),
-            # beat 3
-            3: lambda: foo.set('autotune', 1),
-        }
+            {   # bar 1
+                'signature': '4/4',
+                # beat 1
+                1: lambda: voice.set('autotune', 1),
+            },
+            {}, # bar 2 (empty)
+            {   # bar 3 (empty, but in 3/4)
+                'signature': '3/4',
+            },
+            {   # bar 4 (in 3/4 too)
+                # beat 1
+                1: lambda: foo.set('autotune', 0),
+                # beat 3
+                3: lambda: foo.set('autotune', 1),
+            }
         ])
         ```
         """

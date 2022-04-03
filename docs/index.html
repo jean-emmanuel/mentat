@@ -632,21 +632,21 @@ play_sequence({
 
 # multi-bar sequence
 play_sequence([
-{   # bar 1
-    &#39;signature&#39;: &#39;4/4&#39;,
-    # beat 1
-    1: lambda: voice.set(&#39;autotune&#39;, 1),
-},
-{}, # bar 2 (empty)
-{   # bar 3 (empty, but in 3/4)
-    &#39;signature&#39;: &#39;3/4&#39;,
-},
-{   # bar 4 (in 3/4 too)
-    # beat 1
-    1: lambda: foo.set(&#39;autotune&#39;, 0),
-    # beat 3
-    3: lambda: foo.set(&#39;autotune&#39;, 1),
-}
+    {   # bar 1
+        &#39;signature&#39;: &#39;4/4&#39;,
+        # beat 1
+        1: lambda: voice.set(&#39;autotune&#39;, 1),
+    },
+    {}, # bar 2 (empty)
+    {   # bar 3 (empty, but in 3/4)
+        &#39;signature&#39;: &#39;3/4&#39;,
+    },
+    {   # bar 4 (in 3/4 too)
+        # beat 1
+        1: lambda: foo.set(&#39;autotune&#39;, 0),
+        # beat 3
+        3: lambda: foo.set(&#39;autotune&#39;, 1),
+    }
 ])</code></pre>
 </div>
 <hr />
@@ -766,21 +766,21 @@ play_sequence({
 
 # multi-bar sequence
 play_sequence([
-{   # bar 1
-    &#39;signature&#39;: &#39;4/4&#39;,
-    # beat 1
-    1: lambda: voice.set(&#39;autotune&#39;, 1),
-},
-{}, # bar 2 (empty)
-{   # bar 3 (empty, but in 3/4)
-    &#39;signature&#39;: &#39;3/4&#39;,
-},
-{   # bar 4 (in 3/4 too)
-    # beat 1
-    1: lambda: foo.set(&#39;autotune&#39;, 0),
-    # beat 3
-    3: lambda: foo.set(&#39;autotune&#39;, 1),
-}
+    {   # bar 1
+        &#39;signature&#39;: &#39;4/4&#39;,
+        # beat 1
+        1: lambda: voice.set(&#39;autotune&#39;, 1),
+    },
+    {}, # bar 2 (empty)
+    {   # bar 3 (empty, but in 3/4)
+        &#39;signature&#39;: &#39;3/4&#39;,
+    },
+    {   # bar 4 (in 3/4 too)
+        # beat 1
+        1: lambda: foo.set(&#39;autotune&#39;, 0),
+        # beat 3
+        3: lambda: foo.set(&#39;autotune&#39;, 1),
+    }
 ])</code></pre>
 </div>
 <hr />
