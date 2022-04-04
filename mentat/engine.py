@@ -92,7 +92,7 @@ class Engine():
 
         self.current_time = time.monotonic_ns()
         self.cycle_start_time = self.current_time
-        self.cycle_length = 8
+        self.cycle_length = 4
         self.tempo = 120
 
         self.folder = folder
@@ -210,8 +210,7 @@ class Engine():
             # update animations
             if self.current_time - last_animation >= ANIMATION_PERIOD:
                 last_animation = self.current_time
-                for name in self.modules:
-                    self.modules[name].update_animations()
+                self.root_module.update_animations()
 
             # send pending messages
             self.flush()

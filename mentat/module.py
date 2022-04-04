@@ -136,7 +136,7 @@ class Module(Sequencer):
         **Parameters**
 
         - `name`: name of parameter
-        - `address`: osc address of parameter
+        - `address`: osc address of parameter. Can be `None` if the parameter should not send any message.
         - `types`: osc typetags string, one letter per value, including static values
         - `static_args`: list of static values before the ones that can be modified
         - `default`: value or list of values if the parameter has multiple dynamic values
