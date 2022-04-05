@@ -2,13 +2,18 @@ from ..global_route import GlobalRoute
 from .audio import Audio
 from .video import Video
 from .light import Light
+from modules import *
 
 class TrackA(Light, Video, Audio, GlobalRoute):
 
     def __init__(self):
 
         super().__init__(name='A')
-
+    def activate(self):
+        klick1.set('tempo',1)
+        klick1.set('tempo',2)
+        klick1.set('tempo',3)
+        klick1.set('tempo',4)
 
     def part(self, *args, **kwargs):
         """

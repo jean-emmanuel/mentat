@@ -69,7 +69,6 @@ class Module(Sequencer):
         self.animations = []
         self.meta_parameters = {}
 
-        self.dirty_submodules = []
         self.dirty_parameters = []
 
         self.submodules = {}
@@ -208,8 +207,7 @@ class Module(Sequencer):
                 parameter.set_next(*args[1:])
                 if parameter not in self.dirty_parameters:
                     self.dirty_parameters.append(parameter)
-                    if self.parent_module is not None and self.parent_module is not self.engine.root_module:
-                        self.parent_module.dirty_submodules.append(self)
+                    self.set_dirty(True)
 
         else:
             self.logger.error('set: parameter or submodule "%s" not found' % name)
@@ -268,6 +266,7 @@ class Module(Sequencer):
             parameter.start_animation(self.engine, *args[1:], **kwargs)
             if name not in self.animations and parameter.animate_running:
                 self.animations.append(name)
+                self.set_animating(True)
         else:
             self.logger.error('animate: parameter or submodule "%s" not found' % name)
 
@@ -295,6 +294,7 @@ class Module(Sequencer):
                 self.parameters[name].stop_animation()
 
             self.animations = []
+            self.set_animating(False)
 
         elif name in self.animations:
 
@@ -318,10 +318,12 @@ class Module(Sequencer):
                 parameter.update_animation(self.engine.current_time)
                 if parameter not in self.dirty_parameters:
                     self.dirty_parameters.append(parameter)
-                    if self.parent_module is not None and self.parent_module is not self.engine.root_module:
-                        self.parent_module.dirty_submodules.append(self)
+                    self.set_dirty(True)
             else:
                 self.animations.remove(name)
+
+        if not self.animations:
+            self.set_animating(False)
 
     @public_method
     def add_meta_parameter(self, name, parameters, getter, setter):
@@ -525,15 +527,32 @@ class Module(Sequencer):
         """
         pass
 
-    def check_dirty_parameters(self):
+
+    def set_animating(self, state):
         """
-        check_dirty_parameters()
+        Tell parent module we have dirty parameters
+        """
+        if self not in self.engine.animating_modules and state:
+            self.engine.animating_modules.append(self)
+        elif self in self.engine.animating_modules and not state:
+            self.engine.animating_modules.remove(self)
+
+
+    def set_dirty(self, state):
+        """
+        Tell parent module we have dirty parameters
+        """
+        if self not in self.engine.dirty_modules and state:
+            self.engine.dirty_modules.append(self)
+        elif self in self.engine.dirty_modules and not state:
+            self.engine.dirty_modules.remove(self)
+
+    def update_dirty_parameters(self):
+        """
+        update_dirty_parameters()
 
         Apply parameters' pending values and send messages if they changed.
         """
-        for submodule in self.dirty_submodules:
-            submodule.check_dirty_parameters()
-
         for parameter in self.dirty_parameters:
             if parameter.set(*parameter.next_value):
                 if parameter.address:
@@ -542,7 +561,7 @@ class Module(Sequencer):
                 self.check_meta_parameters(parameter.name)
 
         self.dirty_parameters = []
-        self.dirty_submodules = []
+        self.set_dirty(False)
 
     @public_method
     def send(self, address, *args):

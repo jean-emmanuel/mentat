@@ -102,6 +102,9 @@ class Engine():
         self.event_callbacks = {}
         self.queue = Queue()
 
+        self.dirty_modules = []
+        self.animating_modules = []
+
         self.notifier = None
         self.restarted = os.getenv('MENTAT_RESTART') is not None
 
@@ -208,11 +211,13 @@ class Engine():
 
             self.poll_servers()
 
-            # update animations
+            # update animations and parameters
             if self.current_time - last_animation >= ANIMATION_PERIOD:
                 last_animation = self.current_time
-                self.root_module.update_animations()
-                self.root_module.check_dirty_parameters()
+                for mod in self.animating_modules:
+                    mod.update_animations()
+                for mod in self.dirty_modules:
+                    mod.update_dirty_parameters()
 
             # send pending messages
             self.flush()
@@ -643,3 +648,14 @@ class Engine():
         if event in self.event_callbacks:
             for callback in self.event_callbacks[event]:
                 callback(*args)
+
+    def check_dirty_modules(self):
+        """
+        check_dirty_modules()
+
+        Apply parameters' pending values and send messages if they changed.
+        """
+        for module in self.dirty_modules:
+            module.check_dirty_parameters()
+
+        self.dirty_modules = []
