@@ -226,7 +226,7 @@ class Engine():
                     for stat in self.statistics:
                         if stat == 'exec_time':
                             exec_time = self.statistics['exec_time'][0] / self.statistics['exec_time'][1] / 1000000
-                            self.logger.info('loop exec time: %.3fms' % exec_time)
+                            self.logger.info('statistic: main loop exec time: %.3fms' % exec_time)
                             self.statistics['exec_time'] = [0, 0]
                         elif self.statistics[stat] != 0:
                             self.logger.info('statistic: %s: %i in 1s' % (stat, self.statistics[stat]))
