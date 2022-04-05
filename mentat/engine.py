@@ -111,7 +111,8 @@ class Engine():
             'midi_in': 0,
             'midi_out': 0,
             'osc_in': 0,
-            'osc_out': 0
+            'osc_out': 0,
+            'exec_time': [0, 0]
         }
 
     def start_servers(self):
@@ -217,13 +218,20 @@ class Engine():
 
             # statistics
             if self.log_statistics:
+                self.statistics['exec_time'][0] += time.monotonic_ns() - self.current_time
+                self.statistics['exec_time'][1] += 1
                 if self.statistics_time == 0:
                     self.statistics_time = self.current_time
                 if self.current_time - self.statistics_time >= 1000000000:
                     for stat in self.statistics:
-                        if self.statistics[stat] != 0:
+                        if stat == 'exec_time':
+                            exec_time = self.statistics['exec_time'][0] / self.statistics['exec_time'][1] / 1000000
+                            self.logger.info('loop exec time: %.3fms' % exec_time)
+                            self.statistics['exec_time'] = [0, 0]
+                        elif self.statistics[stat] != 0:
                             self.logger.info('statistic: %s: %i in 1s' % (stat, self.statistics[stat]))
                             self.statistics[stat] = 0
+                    self.statistics_time = self.current_time
 
             # restart ?
             if self.is_restarting:
