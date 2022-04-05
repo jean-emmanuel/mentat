@@ -212,6 +212,7 @@ class Engine():
             if self.current_time - last_animation >= ANIMATION_PERIOD:
                 last_animation = self.current_time
                 self.root_module.update_animations()
+                self.root_module.check_dirty_parameters()
 
             # send pending messages
             self.flush()

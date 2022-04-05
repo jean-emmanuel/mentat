@@ -69,6 +69,9 @@ class Module(Sequencer):
         self.animations = []
         self.meta_parameters = {}
 
+        self.dirty_submodules = []
+        self.dirty_parameters = []
+
         self.submodules = {}
         self.aliases = {}
 
@@ -179,7 +182,9 @@ class Module(Sequencer):
         set(submodule_name, param_nam, *args)
 
         Set value of parameter.
-        Schedule a message if the new value differs from the one in memory.
+
+        The engine will apply the new value only at the end of current processing cycle
+        and send a message if the new value differs from the one that was previously sent.
 
         **Parameters**
 
@@ -194,11 +199,17 @@ class Module(Sequencer):
             parameter = self.parameters[name]
             if parameter.animate_running:
                 parameter.stop_animation()
-            if parameter.set(*args[1:]) or force_send:
-                if parameter.address:
-                    self.send(parameter.address, *parameter.args)
-                self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
-                self.check_meta_parameters(name)
+
+            if force_send and parameter.address:
+                parameter.set(*args[1:])
+                self.send(parameter.address, *parameter.args)
+
+            else:
+                parameter.set_next(*args[1:])
+                if parameter not in self.dirty_parameters:
+                    self.dirty_parameters.append(parameter)
+                    if self.parent_module is not None and self.parent_module is not self.engine.root_module:
+                        self.parent_module.dirty_submodules.append(self)
 
         else:
             self.logger.error('set: parameter or submodule "%s" not found' % name)
@@ -304,11 +315,11 @@ class Module(Sequencer):
 
             parameter = self.parameters[name]
             if parameter.animate_running:
-                if parameter.update_animation(self.engine.current_time):
-                    if parameter.address:
-                        self.send(parameter.address, *parameter.args)
-                    self.engine.dispatch_event('parameter_changed', self, name, parameter.get())
-                    self.check_meta_parameters(name)
+                parameter.update_animation(self.engine.current_time)
+                if parameter not in self.dirty_parameters:
+                    self.dirty_parameters.append(parameter)
+                    if self.parent_module is not None and self.parent_module is not self.engine.root_module:
+                        self.parent_module.dirty_submodules.append(self)
             else:
                 self.animations.remove(name)
 
@@ -513,6 +524,25 @@ class Module(Sequencer):
         active route after being processed by the module.
         """
         pass
+
+    def check_dirty_parameters(self):
+        """
+        check_dirty_parameters()
+
+        Apply parameters' pending values and send messages if they changed.
+        """
+        for submodule in self.dirty_submodules:
+            submodule.check_dirty_parameters()
+
+        for parameter in self.dirty_parameters:
+            if parameter.set(*parameter.next_value):
+                if parameter.address:
+                    self.send(parameter.address, *parameter.args)
+                self.engine.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
+                self.check_meta_parameters(parameter.name)
+
+        self.dirty_parameters = []
+        self.dirty_submodules = []
 
     @public_method
     def send(self, address, *args):

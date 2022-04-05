@@ -45,6 +45,8 @@ class Parameter():
 
         self.default = default
 
+        self.next_value = None
+
     @public_method
     def get(self):
         """
@@ -58,8 +60,21 @@ class Parameter():
         values specified in constructor's types option
         """
 
-        val = self.args[-self.n_args:]
+        if self.next_value is not None:
+            val = self.next_value
+        else:
+            val = self.args[-self.n_args:]
+
         return val[0] if len(val) == 1 else val
+
+
+    def set_next(self, *args):
+        """
+        set_next(*args)
+
+        Set next value for parameter.
+        """
+        self.next_value = args
 
     @public_method
     def set(self, *args):
@@ -90,6 +105,8 @@ class Parameter():
                 self.args[i - self.n_args] = value
                 changed = True
 
+        self.next_value = None
+        
         return changed
 
     def cast(self, arg, type):
@@ -167,7 +184,7 @@ class Parameter():
 
         value = [self.easing_function(self.animate_from[i], self.animate_to[i], t / self.animate_duration, self.easing_mode) for i in range(self.n_args)]
 
-        return self.set(*value)
+        return self.set_next(*value)
 
 
 class MetaParameter(Parameter):
