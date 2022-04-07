@@ -7,6 +7,7 @@ import sys
 import os
 import pyinotify
 import logging
+import threading
 from pyalsa import alsaseq
 from signal import signal, SIGINT, SIGTERM
 from queue import Queue
@@ -104,6 +105,8 @@ class Engine():
 
         self.dirty_modules = []
         self.animating_modules = []
+
+        self.lock = threading.Lock()
 
         self.notifier = None
         self.restarted = os.getenv('MENTAT_RESTART') is not None
@@ -214,11 +217,13 @@ class Engine():
             # update animations and parameters
             if self.current_time - last_animation >= ANIMATION_PERIOD:
                 last_animation = self.current_time
-                for mod in self.animating_modules:
-                    mod.update_animations()
-                for mod in self.dirty_modules:
-                    mod.update_dirty_parameters()
-
+                with self.lock:
+                    for mod in self.animating_modules:
+                        mod.update_animations()
+                    for mod in self.dirty_modules:
+                        mod.update_dirty_parameters()
+                    self.dirty_modules.clear()
+                    
             # send pending messages
             self.flush()
 

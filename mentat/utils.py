@@ -37,6 +37,19 @@ def submodule_method(pattern_matching):
         return decorated
     return decorate
 
+
+def thread_locked(method):
+    """
+    Decorator for Module methods that shouldn't run concurrently in multiple threads.
+    Wrap method in a simple lock context.
+    """
+    @wraps(method)
+    def decorated(self, *args, **kwargs):
+        with self.lock:
+            return method(self, *args, **kwargs)
+    return decorated
+
+
 import logging
 import traceback
 
