@@ -214,15 +214,17 @@ class Engine():
 
             self.poll_servers()
 
-            # update animations and parameters
+            # update animations
             if self.current_time - last_animation >= ANIMATION_PERIOD:
                 last_animation = self.current_time
                 with self.lock:
                     for mod in self.animating_modules:
                         mod.update_animations()
-                while not self.dirty_modules.empty():
-                    mod = self.dirty_modules.get()
-                    mod.update_dirty_parameters()
+
+            # update parameters and queue messages
+            while not self.dirty_modules.empty():
+                mod = self.dirty_modules.get()
+                mod.update_dirty_parameters()
 
             # send pending messages
             self.flush()

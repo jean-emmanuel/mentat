@@ -75,7 +75,12 @@ class Parameter():
 
         Set next value for parameter.
         """
-        self.next_value = args
+        args = list(args)
+        if args != self.args[-self.n_args:] and args != self.next_value:
+            self.next_value = args
+            return True
+        else:
+            return False
 
     @public_method
     def set(self, *args):

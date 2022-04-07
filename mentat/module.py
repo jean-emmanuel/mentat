@@ -212,8 +212,8 @@ class Module(Sequencer):
                 self.send(parameter.address, *parameter.args)
 
             else:
-                parameter.set_next(*args[1:])
-                if not parameter.dirty:
+
+                if parameter.set_next(*args[1:]) and not parameter.dirty:
                     parameter.dirty = True
                     self.dirty_parameters.put(parameter)
                     self.set_dirty()
@@ -326,8 +326,7 @@ class Module(Sequencer):
 
             parameter = self.parameters[name]
             if parameter.animate_running:
-                parameter.update_animation(self.engine.current_time)
-                if not parameter.dirty:
+                if parameter.update_animation(self.engine.current_time) and not parameter.dirty:
                     parameter.dirty = True
                     self.dirty_parameters.put(parameter)
                     self.set_dirty()
