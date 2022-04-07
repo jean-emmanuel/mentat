@@ -118,7 +118,7 @@ class Engine():
             'midi_out': 0,
             'osc_in': 0,
             'osc_out': 0,
-            'exec_time': [0, 0]
+            'exec_time': [0, 0, 0] # max, total, iterations
         }
 
     def start_servers(self):
@@ -223,22 +223,24 @@ class Engine():
                     for mod in self.dirty_modules:
                         mod.update_dirty_parameters()
                     self.dirty_modules.clear()
-                    
+
             # send pending messages
             self.flush()
 
             # statistics
             if self.log_statistics:
-                self.statistics['exec_time'][0] += time.monotonic_ns() - self.current_time
-                self.statistics['exec_time'][1] += 1
+                self.statistics['exec_time'][0] = max(time.monotonic_ns() - self.current_time, self.statistics['exec_time'][0])
+                self.statistics['exec_time'][1] += time.monotonic_ns() - self.current_time
+                self.statistics['exec_time'][2] += 1
                 if self.statistics_time == 0:
                     self.statistics_time = self.current_time
                 if self.current_time - self.statistics_time >= 1000000000:
                     for stat in self.statistics:
                         if stat == 'exec_time':
-                            exec_time = self.statistics['exec_time'][0] / self.statistics['exec_time'][1] / 1000000
-                            self.logger.info('statistic: main loop exec time: %.3fms' % exec_time)
-                            self.statistics['exec_time'] = [0, 0]
+                            peak_time = self.statistics['exec_time'][0] / 1000000
+                            average_time = self.statistics['exec_time'][1] / self.statistics['exec_time'][2] / 1000000
+                            self.logger.info('statistic: main loop exec time: peak %.3fms, average %.3fms' % (peak_time, average_time))
+                            self.statistics['exec_time'] = [0, 0, 0]
                         elif self.statistics[stat] != 0:
                             self.logger.info('statistic: %s: %i in 1s' % (stat, self.statistics[stat]))
                             self.statistics[stat] = 0
@@ -653,14 +655,3 @@ class Engine():
         if event in self.event_callbacks:
             for callback in self.event_callbacks[event]:
                 callback(*args)
-
-    def check_dirty_modules(self):
-        """
-        check_dirty_modules()
-
-        Apply parameters' pending values and send messages if they changed.
-        """
-        for module in self.dirty_modules:
-            module.check_dirty_parameters()
-
-        self.dirty_modules = []
