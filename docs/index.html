@@ -398,7 +398,7 @@ python3 setup.py install</code></pre>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of parameter</li>
-<li><code>address</code>: osc address of parameter</li>
+<li><code>address</code>: osc address of parameter. Can be <code>None</code> if the parameter should not send any message.</li>
 <li><code>types</code>: osc typetags string, one letter per value, including static values</li>
 <li><code>static_args</code>: list of static values before the ones that can be modified</li>
 <li><code>default</code>: value or list of values if the parameter has multiple dynamic values</li>
@@ -419,7 +419,8 @@ python3 setup.py install</code></pre>
 <h3 id="module.set">Module.set()</h3>
 <div class="content">
 <p><i>set(parameter_name, <em>args)</i><br/> <i>set(submodule_name, param_nam, </em>args)</i><br/></p>
-<p>Set value of parameter. Schedule a message if the new value differs from the one in memory.</p>
+<p>Set value of parameter.</p>
+<p>The engine will apply the new value only at the end of current processing cycle and send a message if the new value differs from the one that was previously sent.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>parameter_name</code>: name of parameter</li>

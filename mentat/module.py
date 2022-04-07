@@ -182,8 +182,8 @@ class Module(Sequencer):
     @submodule_method(pattern_matching=True)
     def set(self, *args, force_send=False):
         """
-        set(parameter_name, *args)
-        set(submodule_name, param_nam, *args)
+        set(parameter_name, *args, force_send=False)
+        set(submodule_name, param_nam, *args, force_send=False)
 
         Set value of parameter.
 
@@ -195,6 +195,7 @@ class Module(Sequencer):
         - `parameter_name`: name of parameter
         - `submodule_name`: name of submodule, with wildcard ('*') and range ('[]') support
         - `*args`: value(s)
+        - `force_send`: send a message regardless of the last sent value
         """
         name = args[0]
 
@@ -450,6 +451,11 @@ class Module(Sequencer):
         set_state(state)
 
         Set state of any number of parameters and submodules' parameters.
+
+        **Parameters**
+
+        - `state`: state object as returned by `get_state()`
+        - `force_send`: see `set()`
         """
         for data in state:
             self.set(*data, force_send=force_send)
@@ -487,7 +493,7 @@ class Module(Sequencer):
         self.logger.info('state "%s" saved to %s' % (name, file))
 
     @public_method
-    def load(self, name, preload=False):
+    def load(self, name, force_send=False, preload=False):
         """
         load(name)
 
@@ -496,6 +502,7 @@ class Module(Sequencer):
         **Parameters**
 
         - `name`: name of state save (without file extension)
+        - `force_send`: see `set()`
         """
         if name not in self.states and preload:
 
@@ -508,7 +515,7 @@ class Module(Sequencer):
         if not preload:
 
             if name in self.states:
-                self.set_state(self.states[name])
+                self.set_state(self.states[name], force_send=force_send)
                 self.logger.info('state "%s" loaded' % name)
             else:
                 self.logger.error('state "%s" not found' % name)
@@ -537,7 +544,7 @@ class Module(Sequencer):
 
     def set_animating(self, state):
         """
-        Tell parent module we have dirty parameters
+        Tell parent module we have animating parameters
         """
         with self.engine.lock:
             if self not in self.engine.animating_modules and state:

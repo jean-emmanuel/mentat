@@ -1,4 +1,7 @@
+import logging
+import traceback
 import fnmatch
+from queue import Queue
 from functools import wraps
 
 def public_method(method):
@@ -54,7 +57,9 @@ import logging
 import traceback
 
 class TraceLogger(logging.Logger):
-
+    """
+    Add backtrace to error logs
+    """
     def error(self, msg, *args, **kwargs):
 
         msg += '\nTraceback:\n%s' % ''.join(traceback.format_stack()[-5:-2])
