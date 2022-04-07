@@ -4,6 +4,7 @@ import pathlib
 import re
 import logging
 import threading
+from queue import Queue
 
 from .utils import *
 from .parameter import Parameter, MetaParameter
@@ -70,7 +71,8 @@ class Module(Sequencer):
         self.animations = []
         self.meta_parameters = {}
 
-        self.dirty_parameters = []
+        self.dirty_parameters = Queue()
+        self.dirty = False
 
         self.submodules = {}
         self.aliases = {}
@@ -211,8 +213,9 @@ class Module(Sequencer):
 
             else:
                 parameter.set_next(*args[1:])
-                if parameter not in self.dirty_parameters:
-                    self.dirty_parameters.append(parameter)
+                if not parameter.dirty:
+                    parameter.dirty = True
+                    self.dirty_parameters.put(parameter)
                     self.set_dirty()
 
         else:
@@ -324,8 +327,9 @@ class Module(Sequencer):
             parameter = self.parameters[name]
             if parameter.animate_running:
                 parameter.update_animation(self.engine.current_time)
-                if parameter not in self.dirty_parameters:
-                    self.dirty_parameters.append(parameter)
+                if not parameter.dirty:
+                    parameter.dirty = True
+                    self.dirty_parameters.put(parameter)
                     self.set_dirty()
             else:
                 self.animations.remove(name)
@@ -378,7 +382,7 @@ class Module(Sequencer):
                     self.update_meta_parameter(name)
 
         # pass meta_parameter update to parent module
-        if self.parent_module is not None and self.parent_module.meta_parameters:
+        if self.parent_module is not None and self.parent_module.meta_parameters: #TODO
             if type(updated_parameter) is not list:
                 updated_parameter = [updated_parameter]
             updated_parameter.insert(0, self.name)
@@ -557,9 +561,9 @@ class Module(Sequencer):
         """
         Tell parent module we have dirty parameters
         """
-        with self.engine.lock:
-            if self not in self.engine.dirty_modules:
-                self.engine.dirty_modules.append(self)
+        if not self.dirty:
+            self.dirty = True
+            self.engine.dirty_modules.put(self)
 
     def update_dirty_parameters(self):
         """
@@ -567,14 +571,16 @@ class Module(Sequencer):
 
         Apply parameters' pending values and send messages if they changed.
         """
-        for parameter in self.dirty_parameters:
+        while not self.dirty_parameters.empty():
+            parameter = self.dirty_parameters.get()
             if parameter.set(*parameter.next_value):
                 if parameter.address:
                     self.send(parameter.address, *parameter.args)
                 self.engine.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
                 self.check_meta_parameters(parameter.name)
+            parameter.dirty = False
 
-        self.dirty_parameters = []
+        self.dirty = False
 
     @public_method
     def send(self, address, *args):

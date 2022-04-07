@@ -103,7 +103,7 @@ class Engine():
         self.event_callbacks = {}
         self.queue = Queue()
 
-        self.dirty_modules = []
+        self.dirty_modules = Queue()
         self.animating_modules = []
 
         self.lock = threading.Lock()
@@ -220,9 +220,9 @@ class Engine():
                 with self.lock:
                     for mod in self.animating_modules:
                         mod.update_animations()
-                    for mod in self.dirty_modules:
-                        mod.update_dirty_parameters()
-                    self.dirty_modules.clear()
+                while not self.dirty_modules.empty():
+                    mod = self.dirty_modules.get()
+                    mod.update_dirty_parameters()
 
             # send pending messages
             self.flush()

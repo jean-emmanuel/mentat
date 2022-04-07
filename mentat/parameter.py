@@ -46,6 +46,7 @@ class Parameter():
         self.default = default
 
         self.next_value = None
+        self.dirty = False
 
     @public_method
     def get(self):
@@ -106,7 +107,7 @@ class Parameter():
                 changed = True
 
         self.next_value = None
-        
+
         return changed
 
     def cast(self, arg, type):
