@@ -382,7 +382,7 @@ class Module(Sequencer):
                     self.update_meta_parameter(name)
 
         # pass meta_parameter update to parent module
-        if self.parent_module is not None and self.parent_module.meta_parameters: #TODO
+        if self.parent_module is not None:
             if type(updated_parameter) is not list:
                 updated_parameter = [updated_parameter]
             updated_parameter.insert(0, self.name)
