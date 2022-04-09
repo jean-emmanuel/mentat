@@ -418,7 +418,7 @@ python3 setup.py install</code></pre>
 </div>
 <h3 id="module.set">Module.set()</h3>
 <div class="content">
-<p><i>set(parameter_name, <em>args)</i><br/> <i>set(submodule_name, param_nam, </em>args)</i><br/></p>
+<p><i>set(parameter_name, <em>args, force_send=False)</i><br/> <i>set(submodule_name, param_nam, </em>args, force_send=False)</i><br/></p>
 <p>Set value of parameter.</p>
 <p>The engine will apply the new value only at the end of current processing cycle and send a message if the new value differs from the one that was previously sent.</p>
 <p><strong>Parameters</strong></p>
@@ -426,6 +426,7 @@ python3 setup.py install</code></pre>
 <li><code>parameter_name</code>: name of parameter</li>
 <li><code>submodule_name</code>: name of submodule, with wildcard (’*‘) and range (’[]’) support</li>
 <li><code>*args</code>: value(s)</li>
+<li><code>force_send</code>: send a message regardless of the last sent value</li>
 </ul>
 </div>
 <h3 id="module.reset">Module.reset()</h3>
@@ -509,6 +510,7 @@ python3 setup.py install</code></pre>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of state save (without file extension)</li>
+<li><code>force_send</code>: see <code>set()</code></li>
 </ul>
 </div>
 <h3 id="module.route">Module.route()</h3>
