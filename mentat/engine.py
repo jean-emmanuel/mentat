@@ -513,7 +513,7 @@ class Engine():
         self.scenes_timers[name] = Timer(self)
         self.scenes[name] = Thread(target=scene, name=name, args=args, kwargs=kwargs)
         self.scenes[name].start()
-        self.logger.info('starting scene %s' % name)
+        self.logger.debug('starting scene %s' % name)
 
     def restart_scene(self, name):
         """
@@ -533,7 +533,7 @@ class Engine():
             self.scenes[name].kill()
             self.scenes_timers[name].reset()
             self.scenes[name].start()
-            self.logger.info('restarting scene %s' % name)
+            self.logger.debug('restarting scene %s' % name)
 
     def stop_scene(self, name):
         """
@@ -551,10 +551,10 @@ class Engine():
                 self.stop_scene(n)
         elif name in self.scenes:
             if self.scenes[name].is_alive():
-                self.logger.info('stopping scene %s' % name)
+                self.logger.debug('stopping scene %s' % name)
                 self.scenes[name].kill()
             else:
-                self.logger.info('cleaning scene %s' % name)
+                self.logger.debug('cleaning scene %s' % name)
             id = self.scenes[name].ident
             del self.scenes[name]
             del self.scenes_timers[name]
