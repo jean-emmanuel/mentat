@@ -45,8 +45,8 @@ class Parameter():
 
         self.default = default
 
-        self.next_value = None
         self.dirty = False
+        self.last_sent = None
 
     @public_method
     def get(self):
@@ -61,26 +61,10 @@ class Parameter():
         values specified in constructor's types option
         """
 
-        if self.next_value is not None:
-            val = self.next_value
-        else:
-            val = self.args[-self.n_args:]
+        val = self.args[-self.n_args:]
 
         return val[0] if len(val) == 1 else val
 
-
-    def set_next(self, *args):
-        """
-        set_next(*args)
-
-        Set next value for parameter.
-        """
-        args = list(args)
-        if args != self.args[-self.n_args:] and args != self.next_value:
-            self.next_value = args
-            return True
-        else:
-            return False
 
     @public_method
     def set(self, *args):
@@ -111,9 +95,20 @@ class Parameter():
                 self.args[i - self.n_args] = value
                 changed = True
 
-        self.next_value = None
-
         return changed
+
+
+    def set_last_sent(self):
+        """
+        Keep a copy of last sent value to check if we should send a message.
+        """
+        self.last_sent = self.get()
+
+    def should_send(self):
+        """
+        Compare last send value ot current value.
+        """
+        return self.last_sent != self.get()
 
     def cast(self, arg, type):
         """
@@ -190,7 +185,7 @@ class Parameter():
 
         value = [self.easing_function(self.animate_from[i], self.animate_to[i], t / self.animate_duration, self.easing_mode) for i in range(self.n_args)]
 
-        return self.set_next(*value)
+        return self.set(*value)
 
 
 class MetaParameter(Parameter):

@@ -180,7 +180,6 @@ class Module(Sequencer):
             self.logger.error('get: parameter or submodule "%s" not found' % name)
 
     @public_method
-    @thread_locked
     @submodule_method(pattern_matching=True)
     def set(self, *args, force_send=False):
         """
@@ -210,10 +209,11 @@ class Module(Sequencer):
             if force_send and parameter.address:
                 parameter.set(*args[1:])
                 self.send(parameter.address, *parameter.args)
+                parameter.set_last_sent()
 
             else:
 
-                if parameter.set_next(*args[1:]) and not parameter.dirty:
+                if parameter.set(*args[1:]) and not parameter.dirty:
                     parameter.dirty = True
                     self.dirty_parameters.put(parameter)
                     self.set_dirty()
@@ -572,9 +572,10 @@ class Module(Sequencer):
         """
         while not self.dirty_parameters.empty():
             parameter = self.dirty_parameters.get()
-            if parameter.set(*parameter.next_value):
+            if parameter.should_send():
                 if parameter.address:
                     self.send(parameter.address, *parameter.args)
+                parameter.set_last_sent()
                 self.engine.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
                 self.check_meta_parameters(parameter.name)
             parameter.dirty = False
