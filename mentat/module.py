@@ -276,7 +276,7 @@ class Module(Sequencer):
             parameter.start_animation(self.engine, *args[1:], **kwargs)
             if name not in self.animations and parameter.animate_running:
                 self.animations.append(name)
-                self.set_animating(True)
+                self.set_animating()
         else:
             self.logger.error('animate: parameter or submodule "%s" not found' % name)
 
@@ -305,7 +305,6 @@ class Module(Sequencer):
                 self.parameters[name].stop_animation()
 
             self.animations = []
-            self.set_animating(False)
 
         elif name in self.animations:
 
@@ -332,9 +331,6 @@ class Module(Sequencer):
                     self.set_dirty()
             else:
                 self.animations.remove(name)
-
-        if not self.animations:
-            self.set_animating(False)
 
     @public_method
     def add_meta_parameter(self, name, parameters, getter, setter):
@@ -545,15 +541,13 @@ class Module(Sequencer):
         pass
 
 
-    def set_animating(self, state):
+    def set_animating(self):
         """
         Tell parent module we have animating parameters
         """
         with self.engine.lock:
-            if self not in self.engine.animating_modules and state:
+            if self not in self.engine.animating_modules:
                 self.engine.animating_modules.append(self)
-            elif self in self.engine.animating_modules and not state:
-                self.engine.animating_modules.remove(self)
 
 
     def set_dirty(self):

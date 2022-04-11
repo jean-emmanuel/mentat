@@ -220,6 +220,8 @@ class Engine():
                 with self.lock:
                     for mod in self.animating_modules:
                         mod.update_animations()
+                        if not mod.animations:
+                            self.animating_modules.remove(mod)
 
             # update parameters and queue messages
             while not self.dirty_modules.empty():
