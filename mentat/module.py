@@ -77,7 +77,7 @@ class Module(Sequencer):
         self.submodules = {}
         self.aliases = {}
 
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
 
         self.module_path = [name]
         parent = self.parent_module
@@ -180,6 +180,7 @@ class Module(Sequencer):
             self.logger.error('get: parameter or submodule "%s" not found' % name)
 
     @public_method
+    @thread_locked
     @submodule_method(pattern_matching=True)
     def set(self, *args, force_send=False):
         """
