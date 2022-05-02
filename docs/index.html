@@ -549,6 +549,10 @@ python3 setup.py install</code></pre>
 <li><code>engine_started</code>: emitted when the engine starts.</li>
 <li><code>engine_stopping</code>: emitted before the engine stops</li>
 <li><code>engine_stopped</code>: emitted when the engine is stopped</li>
+<li><code>engine_route_changed</code>: emitted when the engine’s active route changes
+<ul>
+<li><code>name</code>: name of active route</li>
+</ul></li>
 <li><code>parameter_changed</code>: emitted when a module’s parameter changes. Arguments:
 <ul>
 <li><code>module</code>: instance of module that emitted the event</li>

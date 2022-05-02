@@ -618,6 +618,8 @@ class Module(Sequencer):
         - `engine_started`: emitted when the engine starts.
         - `engine_stopping`: emitted before the engine stops
         - `engine_stopped`: emitted when the engine is stopped
+        - `engine_route_changed`: emitted when the engine's active route changes
+            - `name`: name of active route
         - `parameter_changed`: emitted when a module's parameter changes. Arguments:
             - `module`: instance of module that emitted the event
             - `name`: name of parameter

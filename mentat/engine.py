@@ -93,8 +93,8 @@ class Engine():
 
         self.current_time = time.monotonic_ns()
         self.cycle_start_time = self.current_time
-        self.cycle_length = 4
-        self.tempo = 120
+        self.cycle_length = 4.0
+        self.tempo = 120.0
 
         self.folder = folder
 
@@ -444,6 +444,7 @@ class Engine():
             if self.is_running:
                 self.active_route.activate()
             self.logger.info('active route set to "%s"' % name)
+            self.dispatch_event('engine_route_changed', name)
         else:
             self.logger.error('route "%s" not found' % name)
 
