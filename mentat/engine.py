@@ -401,7 +401,11 @@ class Engine():
 
             if port in self.midi_ports:
 
-                midi_event = osc_to_midi(address, args)
+                try:
+                    midi_event = osc_to_midi(address, args)
+                except Exception as e:
+                    self.logger.error('failed to generate midi event %s %s\n%s' % (address, args, e))
+
                 if midi_event:
                     midi_event.source = (self.midi_server.client_id, self.midi_ports[port])
                     self.midi_server.output_event(midi_event)

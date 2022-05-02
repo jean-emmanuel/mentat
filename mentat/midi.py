@@ -53,6 +53,7 @@ def osc_to_midi(address, args):
 
     mtype = OSC_TO_MIDI[address]
     event = alsaseq.SeqEvent(mtype)
+    args = [int(a) for a in args]
 
     if mtype == SEQ_EVENT_NOTEON:
         event.set_data({'note.channel': args[0], 'note.note': args[1], 'note.velocity': args[2]})
