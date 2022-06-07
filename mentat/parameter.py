@@ -126,7 +126,7 @@ class Parameter():
         """
 
         if type == 'i':
-            return int(arg)
+            return int(round(arg)) if type(arg) == float else int(arg)
         elif type == 'f':
             return float(arg)
         elif type == 's':
