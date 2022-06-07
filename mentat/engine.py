@@ -192,8 +192,11 @@ class Engine():
         it starts the processing loop that keeps the engine running.
         """
 
-        signal(SIGINT, lambda a,b: self.stop())
-        signal(SIGTERM, lambda a,b: self.stop())
+        if threading.main_thread() == threading.current_thread():
+            signal(SIGINT, lambda a,b: self.stop())
+            signal(SIGTERM, lambda a,b: self.stop())
+        else:
+            self.logger.warning('started in a thread')
 
         self.start_servers()
 
