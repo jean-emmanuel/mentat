@@ -93,8 +93,8 @@ class Engine():
 
         self.current_time = time.monotonic_ns()
         self.cycle_start_time = self.current_time
-        self.cycle_length = 4
-        self.tempo = 120
+        self.cycle_length = 4.0
+        self.tempo = 120.0
 
         self.folder = folder
 
@@ -223,6 +223,8 @@ class Engine():
                 with self.lock:
                     for mod in self.animating_modules:
                         mod.update_animations()
+                        if not mod.animations:
+                            self.animating_modules.remove(mod)
 
             # update parameters and queue messages
             while not self.dirty_modules.empty():
@@ -402,7 +404,11 @@ class Engine():
 
             if port in self.midi_ports:
 
-                midi_event = osc_to_midi(address, args)
+                try:
+                    midi_event = osc_to_midi(address, args)
+                except Exception as e:
+                    self.logger.error('failed to generate midi event %s %s\n%s' % (address, args, e))
+
                 if midi_event:
                     midi_event.source = (self.midi_server.client_id, self.midi_ports[port])
                     self.midi_server.output_event(midi_event)
@@ -445,6 +451,7 @@ class Engine():
             if self.is_running:
                 self.active_route.activate()
             self.logger.info('active route set to "%s"' % name)
+            self.dispatch_event('engine_route_changed', name)
         else:
             self.logger.error('route "%s" not found' % name)
 
