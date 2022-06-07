@@ -1,7 +1,8 @@
 ## Mentat
 
 <div class="version">
-Version: 1.0.0-alpha (WORK IN PROGRESS)
+Version: 1.0.0
+License: GNU/GPL v3 (© 2022 Jean-Emmanuel Doucet)
 </div>
 
 ### Overview
@@ -9,6 +10,8 @@ Version: 1.0.0-alpha (WORK IN PROGRESS)
 Mentat is a HUB / Conductor for OSC / MIDI capable softwares. It aims to centralize all controls in one place, manage their state and create routings.
 
 Mentat is a module for [python 3](https://www.python.org/) and requires writing code to work. If you're looking for a fully-featured software with a user interface, try [Chateigne](https://benjamin.kuperberg.fr/chataigne/en) instead.
+
+Mentat has been designed to coordinate the live setup of the rap-in-opposition band [Plagiat](https://plagiat.org/clips) (see the project's [source repository](https://github.com/PlagiatBros/PlagiatSetupII/)).
 
 ### Install
 
