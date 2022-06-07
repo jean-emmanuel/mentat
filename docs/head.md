@@ -1,7 +1,7 @@
 ## Mentat
 
 <div class="version">
-Version: 1.0.0
+Version: 1.0.0<br/>
 License: GNU/GPL v3 (© 2022 Jean-Emmanuel Doucet)
 </div>
 
