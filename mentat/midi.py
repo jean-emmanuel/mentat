@@ -67,7 +67,5 @@ def osc_to_midi(address, args):
         event.set_data({'ext': list(args)})
     elif mtype == SEQ_EVENT_CONTROLLER:
         event.set_data({'control.channel': args[0], 'control.param': args[1], 'control.value': args[2]})
-    else:
-        return None
 
     return event
