@@ -112,7 +112,7 @@ class Parameter():
 
     def cast(self, arg, arg_type):
         """
-        cast(arg, type)
+        cast(arg, arg_type)
 
         Cast value to given type.
 
