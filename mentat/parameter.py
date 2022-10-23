@@ -110,7 +110,7 @@ class Parameter():
         """
         return self.last_sent != self.get()
 
-    def cast(self, arg, type):
+    def cast(self, arg, arg_type):
         """
         cast(arg, type)
 
@@ -119,21 +119,21 @@ class Parameter():
         **Parameters**
 
         - `arg`: input value
-        - `type`: osc typetag letter (supported: 'ifsTF')
+        - `arg_type`: osc typetag letter (supported: 'ifsTF')
 
         **Return**
         Casted value
         """
 
-        if type == 'i':
+        if arg_type == 'i':
             return int(round(arg)) if type(arg) == float else int(arg)
-        elif type == 'f':
+        elif arg_type == 'f':
             return float(arg)
-        elif type == 's':
+        elif arg_type == 's':
             return str(arg)
-        elif type == 'T':
+        elif arg_type == 'T':
             return True
-        elif type == 'F':
+        elif arg_type == 'F':
             return False
         else:
             return arg
