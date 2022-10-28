@@ -29,7 +29,11 @@ def create_easing(ease_in):
         return flip(ease_in(flip(p)))
 
     def ease_in_out(p):
-        return lerp(ease_in(p), ease_out(p), p)
+        if p < 0.5:
+            return ease_in(2 * p) * 0.5
+        else:
+            return ease_out(2 * (p-0.5)) * 0.5 + 0.5
+        # return lerp(ease_in(p), ease_out(p), p)
 
     # def mirror_in(p):
     #     if p <= 0.5:
@@ -65,6 +69,7 @@ EASING_FUNCTIONS = {
     'random':      create_easing(lambda p: p if p == 0 or p == 1 else _rand()),
     'elastic':     create_easing(lambda p: math.sin(13 * math.pi / 2 * p) * math.pow(2, 10 * (p - 1)))
 }
+
 
 
 if __name__ == '__main__':
