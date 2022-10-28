@@ -266,7 +266,7 @@ class Module(Sequencer):
         - `duration`: animation duration
         - `mode`: 'seconds' or 'beats'
         - `easing`: easing function name.
-            - available easings: linear, sine, quadratic, cubic, quartic, quintic, exponential
+            - available easings: linear, sine, quadratic, cubic, quartic, quintic, exponential, random, elastic (sinc)
             - easing name can be suffixed with `-out` (inverted and flipped easing) or `-inout` (linear interpolation between default and `-out`)
         """
         name = args[0]
