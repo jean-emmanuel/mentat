@@ -421,11 +421,15 @@ class Module(Sequencer):
 
         self.add_meta_parameter(name, parameter, getter, setter)
 
-    def get_state(self):
+    def get_state(self, omit_defaults=False):
         """
         get_state()
 
         Get state of all parameters and submodules' parameters.
+
+        **Parameters**
+
+        - `omit_defaults`: set to `True` to only retreive parameters that differ from their default values.
 
         **Return**
 
@@ -436,6 +440,10 @@ class Module(Sequencer):
         for name in self.parameters:
 
             val = self.parameters[name].get()
+
+            if omit_defaults and val == self.parameters[name].default:
+                continue
+
             if type(val) is list:
                 state.append([name, *val])
             else:
@@ -472,7 +480,7 @@ class Module(Sequencer):
         self.set_state(self.get_state(), force_send=True)
 
     @public_method
-    def save(self, name):
+    def save(self, name, omit_defaults=False):
         """
         save(name)
 
@@ -483,7 +491,7 @@ class Module(Sequencer):
         - `name`: name of state save (without file extension)
         """
         file = '%s/%s.json' % (self.states_folder, name)
-        self.states[name] = self.get_state()
+        self.states[name] = self.get_state(omit_defaults)
         pathlib.Path(self.states_folder).mkdir(parents=True, exist_ok=True)
         f = open(file, 'w')
         s = json.dumps(self.states[name], indent=2)
