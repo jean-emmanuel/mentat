@@ -32,23 +32,37 @@ def create_easing(ease_in):
         if p < 0.5:
             return ease_in(2 * p) * 0.5
         else:
-            return ease_out(2 * (p-0.5)) * 0.5 + 0.5
+            return ease_out(2 * (p - 0.5)) * 0.5 + 0.5
         # return lerp(ease_in(p), ease_out(p), p)
 
-    # def mirror_in(p):
-    #     if p <= 0.5:
-    #         return ease_in(p)
-    #     else:
-    #         return ease_in(flip(p))
-    #
-    # def mirror_out(p):
-    #     if p <= 0.5:
-    #         return ease_out(xp)
-    #     else:
-    #         return ease_out(flip(p))
+    def mirror_in(p):
+        if p <= 0.5:
+            return ease_in(2 * p)
+        else:
+            return ease_in(flip(2 * (p - 0.5)))
+
+    def mirror_out(p):
+        if p <= 0.5:
+            return ease_out(2 * p)
+        else:
+            return ease_out(flip(2 * (p - 0.5)))
+
+    def mirror_inout(p):
+        if p <= 0.5:
+            return ease_in_out(2 * p)
+        else:
+            return ease_in_out(flip(2 * (p - 0.5)))
 
 
-    e = {'in': ease_in, 'out': ease_out, 'inout': ease_in_out}
+
+    e = {
+        'in': ease_in,
+        'out': ease_out,
+        'inout': ease_in_out,
+        'mirror-in': mirror_in,
+        'mirror-out': mirror_out,
+        'mirror-inout': mirror_inout
+        }
 
     def ease(start, end, p, mode='in'):
 
@@ -74,5 +88,5 @@ EASING_FUNCTIONS = {
 
 if __name__ == '__main__':
     for name, interp in EASING_FUNCTIONS.items():
-        for mode in ['in', 'out', 'inout']:
+        for mode in ['in', 'out', 'inout', 'mirror-in', 'mirror-out', 'mirror-inout']:
             print(name, mode, '\n', ',\t'.join(['%.1f' % interp(0, 10, x / 10, mode) for x in range(11)]))

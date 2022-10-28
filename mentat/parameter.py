@@ -39,6 +39,7 @@ class Parameter():
         self.animate_duration = 0
         self.animate_from = 0
         self.animate_to = 0
+        self.animate_loop = False
 
         self.easing_function = None
         self.easing_mode = 'in'
@@ -138,9 +139,9 @@ class Parameter():
         else:
             return arg
 
-    def start_animation(self, engine, start, end, duration, mode='beats', easing='linear'):
+    def start_animation(self, engine, start, end, duration, mode='beats', easing='linear', loop=False):
 
-        easing_name, _, easing_mode = easing.partition('-')
+        easing_name, _, easing_mode = easing.rpartition('-')
 
         if not easing_name in EASING_FUNCTIONS:
             self.logger.error('unknown easing "%s", falling back to "linear"' % easing)
@@ -150,6 +151,7 @@ class Parameter():
         self.animate_to = end
         self.animate_start = engine.current_time
         self.animate_duration = duration * 1000000000
+        self.animate_loop = loop
 
         self.easing_function = EASING_FUNCTIONS[easing_name]
         self.easing_mode = easing_mode if easing_mode in ['out', 'inout'] else 'in'
@@ -179,8 +181,11 @@ class Parameter():
 
         t = current_time - self.animate_start
         if t >= self.animate_duration:
-            t = self.animate_duration
-            self.stop_animation()
+            if self.animate_loop:
+                self.animate_start += self.animate_duration
+            else:
+                t = self.animate_duration
+                self.stop_animation()
 
 
         value = [self.easing_function(self.animate_from[i], self.animate_to[i], t / self.animate_duration, self.easing_mode) for i in range(self.n_args)]

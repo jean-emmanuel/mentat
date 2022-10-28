@@ -252,8 +252,8 @@ class Module(Sequencer):
     @submodule_method(pattern_matching=True)
     def animate(self, *args, **kwargs):
         """
-        animate(parameter_name, start, end, duration, mode='beats', easing='linear')
-        animate(submodule_name, parameter_name, start, end, duration, mode='beats', easing='linear')
+        animate(parameter_name, start, end, duration, mode='beats', easing='linear', loop=False)
+        animate(submodule_name, parameter_name, start, end, duration, mode='beats', easing='linear', loop=False)
 
         Animate parameter.
 
@@ -267,7 +267,9 @@ class Module(Sequencer):
         - `mode`: 'seconds' or 'beats'
         - `easing`: easing function name.
             - available easings: linear, sine, quadratic, cubic, quartic, quintic, exponential, random, elastic (sinc)
-            - easing name can be suffixed with `-out` (inverted and flipped easing) or `-inout` (linear interpolation between default and `-out`)
+            - easing name can be suffixed with `-mirror` (back and forth animation)
+            - easing name can be suffixed with `-out` (inverted and flipped easing) or `-inout` (linear interpolation between default and `-out`). Example: `exponential-mirror-inout`.
+        - `loop`: if set to `True`, the animation will start over when `duration` is reached (use mirror easing for back-and-forth loop)
         """
         name = args[0]
 
