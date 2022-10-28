@@ -89,7 +89,7 @@ class Module(Sequencer):
         self.states_folder = ''
         self.states_folder = '%s/states/%s' % (self.engine.folder, '/'.join(self.module_path))
         for file in glob.glob('%s/*.json' % self.states_folder):
-            name = file.split('/')[-1].split('.')[0]
+            name = file.split('/')[-1].rpartition('.')[0]
             self.load(name, preload=True)
 
         Sequencer.__init__(self, 'module/' + '/'.join(self.module_path))
