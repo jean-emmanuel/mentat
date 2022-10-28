@@ -451,7 +451,7 @@ class Module(Sequencer):
 
         for name in self.submodules:
 
-            sstate = self.submodules[name].get_state()
+            sstate = self.submodules[name].get_state(omit_defaults)
             state = state + [[name] + x for x in sstate]
 
         return state
