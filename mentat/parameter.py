@@ -141,7 +141,7 @@ class Parameter():
 
     def start_animation(self, engine, start, end, duration, mode='beats', easing='linear', loop=False):
 
-        easing_name, _, easing_mode = easing.rpartition('-')
+        easing_name, _, easing_mode = easing.partition('-')
 
         if not easing_name in EASING_FUNCTIONS:
             self.logger.error('unknown easing "%s", falling back to "linear"' % easing)
@@ -154,7 +154,7 @@ class Parameter():
         self.animate_loop = loop
 
         self.easing_function = EASING_FUNCTIONS[easing_name]
-        self.easing_mode = easing_mode if easing_mode in ['out', 'inout'] else 'in'
+        self.easing_mode = easing_mode if easing_mode in ['in', 'out', 'inout', 'mirror', 'mirror-in', 'mirror-out', 'mirror-inout'] else 'in'
 
         if type(self.animate_from) is not list:
             self.animate_from = [self.animate_from]

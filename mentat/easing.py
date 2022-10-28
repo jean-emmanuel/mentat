@@ -59,6 +59,7 @@ def create_easing(ease_in):
         'in': ease_in,
         'out': ease_out,
         'inout': ease_in_out,
+        'mirror': mirror_in,
         'mirror-in': mirror_in,
         'mirror-out': mirror_out,
         'mirror-inout': mirror_inout
