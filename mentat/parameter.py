@@ -149,7 +149,7 @@ class Parameter():
             easing = 'linear'
 
         self.animate_from = start if start is not None else self.get()
-        self.animate_to = end
+        self.animate_to = end if end is not None else self.get()
         self.animate_start = engine.current_time
         self.animate_duration = duration * 1000000000
         self.animate_loop = loop

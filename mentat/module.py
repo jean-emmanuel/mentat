@@ -263,8 +263,8 @@ class Module(Sequencer):
 
         - `parameter_name`: name of parameter
         - `submodule_name`: name of submodule, with wildcard ('*') and range ('[]') support
-        - `start`: starting value(s), can be None to use currnet value
-        - `end`: ending value(s)
+        - `start`: starting value(s), can be None to use current value (only for single value parameters)
+        - `end`: ending value(s), can be None to use current value (only for single value parameters)
         - `duration`: animation duration
         - `mode`: 'seconds' or 'beats'
         - `easing`: easing function name.
