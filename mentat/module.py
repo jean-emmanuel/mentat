@@ -182,7 +182,7 @@ class Module(Sequencer):
     @public_method
     @thread_locked
     @submodule_method(pattern_matching=True)
-    def set(self, *args, force_send=False):
+    def set(self, *args, force_send=False, preserve_animation=False):
         """
         set(parameter_name, *args, force_send=False)
         set(submodule_name, param_nam, *args, force_send=False)
@@ -198,13 +198,15 @@ class Module(Sequencer):
         - `submodule_name`: name of submodule, with wildcard ('*') and range ('[]') support
         - `*args`: value(s)
         - `force_send`: send a message regardless of the last sent value
+        - `preserve_animation`: by default, animations are automatically stopped when `set()` is called, set
+        to `True` to prevent that
         """
         name = args[0]
 
         if name in self.parameters:
 
             parameter = self.parameters[name]
-            if parameter.animate_running:
+            if parameter.animate_running and not preserve_animation:
                 parameter.stop_animation()
 
             if force_send and parameter.address:
@@ -350,11 +352,11 @@ class Module(Sequencer):
             list of parameter names involved in the meta parameter.
             Items may be lists if the parameters are owned by a submodule (`['submodule_name', 'parameter_name']`)
         - `getter`:
-            callback function that will be called with the values of involved
-            parameters as arguments whenever one these parameters changes.
+            callback function that will be called with the values of each
+            `parameters` as arguments whenever one these parameters changes.
             Its return value will define the meta parameter's value.
         - `setter`:
-            callback function used to set the value of the parameters involved in the meta parameter when `set()` is called.
+            callback function used to set the value of each `parameters`when when `set()` is called to change the meta parameter's value.
             The function's signature must not use *args or **kwargs arguments.
         """
         meta_parameter = MetaParameter(name, parameters, getter, setter, module=self)
