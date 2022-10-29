@@ -656,7 +656,7 @@ if the parameter are owned by a submodule
 <h3 id="module.save">Module.save()</h3>
 <div class="content">
 <p><i>save(name)</i><br/></p>
-<p>Save current state (including submodules) to file.</p>
+<p>Save current state (including submodules) to a JSON file.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of state save (without file extension)</li>
@@ -665,7 +665,16 @@ if the parameter are owned by a submodule
 <h3 id="module.load">Module.load()</h3>
 <div class="content">
 <p><i>load(name)</i><br/></p>
-<p>Load state from memory or from file if not preloaded already</p>
+<p>Load state from memory or from file if not preloaded already. The
+file must be valid a JSON file containing one list of lists as returned
+by <code>get_state()</code>. Comments may be inserted manually by
+inserting string items:</p>
+<pre><code>[
+    &quot;This is a comment&quot;,
+    [&quot;parameter_a&quot;, 1.0],
+    [&quot;parameter_b&quot;, 2.0],
+    &quot;etc&quot;
+]</code></pre>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of state save (without file extension)</li>
