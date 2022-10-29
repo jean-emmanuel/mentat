@@ -179,45 +179,6 @@
                         href="#module.save">Module.save()</a></li>
                         <li><a
                         href="#module.load">Module.load()</a></li>
-                        <li><a
-                        href="#module.route">Module.route()</a></li>
-                        <li><a
-                        href="#module.send">Module.send()</a></li>
-                        <li><a
-                        href="#module.add_event_callback">Module.add_event_callback()</a></li>
-                        <li><a
-                        href="#module.start_scene">Module.start_scene()</a></li>
-                        <li><a
-                        href="#module.restart_scene">Module.restart_scene()</a></li>
-                        <li><a
-                        href="#module.stop_scene">Module.stop_scene()</a></li>
-                        <li><a
-                        href="#module.wait">Module.wait()</a></li>
-                        <li><a
-                        href="#module.wait_next_cycle">Module.wait_next_cycle()</a></li>
-                        <li><a
-                        href="#module.play_sequence">Module.play_sequence()</a></li>
-                        </ul></li>
-                        <li><a href="#route">Route</a>
-                        <ul>
-                        <li><a href="#route-1">Route()</a></li>
-                        <li><a
-                        href="#route.activate">Route.activate()</a></li>
-                        <li><a
-                        href="#route.deactivate">Route.deactivate()</a></li>
-                        <li><a
-                        href="#route.route">Route.route()</a></li>
-                        <li><a
-                        href="#route.start_scene">Route.start_scene()</a></li>
-                        <li><a
-                        href="#route.restart_scene">Route.restart_scene()</a></li>
-                        <li><a
-                        href="#route.stop_scene">Route.stop_scene()</a></li>
-                        <li><a href="#route.wait">Route.wait()</a></li>
-                        <li><a
-                        href="#route.wait_next_cycle">Route.wait_next_cycle()</a></li>
-                        <li><a
-                        href="#route.play_sequence">Route.play_sequence()</a></li>
                         </ul></li>
                         </ul>
                     </aside>
@@ -667,341 +628,387 @@ if the parameter are owned by a submodule
 <p><i>load(name)</i><br/></p>
 <p>Load state from memory or from file if not preloaded already. The
 file must be valid a JSON file containing one list of lists as returned
-by <code>get_state()</code>. Comments may be inserted manually by
-inserting string items:</p>
+by <code>get_state()</code>. Comments may be added manually by inserting
+string items in the main list:</p>
 <pre><code>[
     &quot;This is a comment&quot;,
     [&quot;parameter_a&quot;, 1.0],
     [&quot;parameter_b&quot;, 2.0],
     &quot;etc&quot;
-]</code></pre>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: name of state save (without file extension)</li>
-<li><code>force_send</code>: see <code>set()</code></li>
-</ul>
-</div>
-<h3 id="module.route">Module.route()</h3>
-<div class="content">
-<p><i>route(address, args)</i><br/></p>
-<p>Route messages received by the engine on the module’s port. Does
-nothing by default, method should be overriden in subclasses. Not called
-on submodules.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>address</code>: osc address</li>
-<li><code>args</code>: list of values</li>
-</ul>
-<p><strong>Return</strong></p>
-<p><code>False</code> if the message should not be passed to the
-engine’s active route after being processed by the module.</p>
-</div>
-<h3 id="module.send">Module.send()</h3>
-<div class="content">
-<p><i>send(address, *args)</i><br/></p>
-<p>Send message to the module’s port.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>address</code>: osc address</li>
-<li><code>*args</code>: values</li>
-</ul>
-</div>
-<h3 id="module.add_event_callback">Module.add_event_callback()</h3>
-<div class="content">
-<p><i>add_event_callback(event, callback)</i><br/></p>
-<p>Bind a callback function to an event.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>event</code>: name of event</li>
-<li><code>callback</code>: function or method. The callback’s signature
-must match the event’s arguments.</li>
-</ul>
-<p><strong>Events</strong></p>
-<ul>
-<li><code>engine_started</code>: emitted when the engine starts.</li>
-<li><code>engine_stopping</code>: emitted before the engine stops</li>
-<li><code>engine_stopped</code>: emitted when the engine is stopped</li>
-<li><code>engine_route_changed</code>: emitted when the engine’s active
-route changes
-<ul>
-<li><code>name</code>: name of active route</li>
-</ul></li>
-<li><code>parameter_changed</code>: emitted when a module’s parameter
-changes. Arguments:
-<ul>
-<li><code>module</code>: instance of module that emitted the event</li>
-<li><code>name</code>: name of parameter</li>
-<li><code>value</code>: value of parameter or list of values</li>
-</ul></li>
-</ul>
-</div>
-<h3 id="module.start_scene">Module.start_scene()</h3>
-<div class="content">
-<p><i>start_scene(name, scene, *args, **kwargs)</i><br/></p>
-<p>Start scene in a thread. If a scene with the same name is already
-running, it will be stopped. Scenes should be implemented as methods of
-the object and can call self.wait() to create timed sequences or loops.
-Different objects may call a scene with the same name
-simultaneously.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: scene name</li>
-<li><code>scene</code>: function or method</li>
-<li><code>*args</code>: arguments for the scene function</li>
-<li><code>**kwargs</code>: keyword arguments for the scene function</li>
-</ul>
-</div>
-<h3 id="module.restart_scene">Module.restart_scene()</h3>
-<div class="content">
-<p><i>restart_scene(name)</i><br/></p>
-<p>Restart a scene that’s already running. Does nothing if the scene is
-not running.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: scene name, with wildcard (’*‘) and range (’[]’)
-support</li>
-</ul>
-</div>
-<h3 id="module.stop_scene">Module.stop_scene()</h3>
-<div class="content">
-<p><i>stop_scene(name)</i><br/></p>
-<p>Stop scene thread.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: scene name, with wildcard support</li>
-</ul>
-</div>
-<h3 id="module.wait">Module.wait()</h3>
-<div class="content">
-<p><i>wait(duration, mode=‘beats’)</i><br/></p>
-<p>Wait for given amount of time. Can only be called in scenes.
-Subsequent calls to wait() in a scene do not drift with time and can be
-safely used to create beat sequences. The engine’s <code>tempo</code>
-must be set for the <code>beats</code> mode to work.</p>
-<pre><code># Example
-beat_1()
-self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1&#39;s exec time
-beat_2()
-self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec time</code></pre>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>duration</code>: amount of time to wait</li>
-<li><code>mode</code>: ‘beats’ or ‘seconds’ (only the first letter
-matters)</li>
-</ul>
-</div>
-<h3 id="module.wait_next_cycle">Module.wait_next_cycle()</h3>
-<div class="content">
-<p><i>wait_next_cycle()</i><br/></p>
-<p>Wait until next cycle begins. The engine’s <code>tempo</code> and
-<code>cycle_length</code> must be set and the engine’s
-<code>start_cycle()</code> method must be called at the beginning of a
-cycle for this to work.</p>
-</div>
-<h3 id="module.play_sequence">Module.play_sequence()</h3>
-<div class="content">
-<p><i>play_sequence(sequence, loop=True)</i><br/></p>
-<p>Play a sequence of actions scheduled on arbitrary beats. Can only be
-called in scenes.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>sequence</code>:
-<ul>
-<li><code>dict</code> with beat numbers (1-indexed, quarter note based)
-as keys and lambda functions as values</li>
-<li><code>list</code> of <code>dict</code> sequences (one sequence = one
-bar)</li>
-<li>sequences may contain an extra ‘signature’ string to change the time
-signature. If not provided in the first sequence, the signature takes
-the engine’s cycle length value.</li>
-</ul></li>
-<li><code>loop</code>: if <code>False</code>, the sequence will play
-only once, otherwise it will loop until the scene is stopped</li>
-</ul>
-<p><strong>Example</strong></p>
-<pre><code># single-bar sequence
-play_sequence({
-    &#39;signature&#39;: &#39;4/4&#39;,
-    # beat 1
-    1: lambda: guitar.set(&#39;mute&#39;, 1),
-    # beat 3
-    3: lambda: [guitar.set(&#39;mute&#39;, 0), guitar.set(&#39;disto&#39;, 1)],
-    # &quot;and&quot; of beat 4
-    4.5: lambda: guitar.set(&#39;disto&#39;, 0),
-})
+]
+``
 
-# multi-bar sequence
-play_sequence([
-    {   # bar 1
-        &#39;signature&#39;: &#39;4/4&#39;,
-        # beat 1
-        1: lambda: voice.set(&#39;autotune&#39;, 1),
-    },
-    {}, # bar 2 (empty)
-    {   # bar 3 (empty, but in 3/4)
-        &#39;signature&#39;: &#39;3/4&#39;,
-    },
-    {   # bar 4 (in 3/4 too)
-        # beat 1
-        1: lambda: foo.set(&#39;autotune&#39;, 0),
-        # beat 3
-        3: lambda: foo.set(&#39;autotune&#39;, 1),
-    }
-])</code></pre>
-</div>
-<hr />
-<h2 id="route">Route</h2>
-<p>Routing object that processes messages received by the engine when
-active.</p>
-<p><strong>Instance properties</strong></p>
-<ul>
-<li><code>engine</code>: Engine instance</li>
-<li><code>logger</code>: python logger</li>
-</ul>
-<h3 id="route-1">Route()</h3>
-<div class="content">
-<p><i>Route()</i><br/></p>
-<p>Route object constructor.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: route name</li>
-</ul>
-</div>
-<h3 id="route.activate">Route.activate()</h3>
-<div class="content">
-<p><i>activate()</i><br/></p>
-<p>Called when the engine switches to this route.</p>
-</div>
-<h3 id="route.deactivate">Route.deactivate()</h3>
-<div class="content">
-<p><i>deactivate()</i><br/></p>
-<p>Called when the engine switches to another route.</p>
-</div>
-<h3 id="route.route">Route.route()</h3>
-<div class="content">
-<p><i>route(protocol, port, address, args)</i><br/></p>
-<p>Process messages received by the engine.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>protocol</code>: ‘osc’, ‘osc.tcp’ or ‘midi’</li>
-<li><code>port</code>: name of module or port number if unknown</li>
-<li><code>address</code>: osc address</li>
-<li><code>args</code>: list of values</li>
-</ul>
-</div>
-<h3 id="route.start_scene">Route.start_scene()</h3>
-<div class="content">
-<p><i>start_scene(name, scene, *args, **kwargs)</i><br/></p>
-<p>Start scene in a thread. If a scene with the same name is already
-running, it will be stopped. Scenes should be implemented as methods of
-the object and can call self.wait() to create timed sequences or loops.
-Different objects may call a scene with the same name
-simultaneously.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: scene name</li>
-<li><code>scene</code>: function or method</li>
-<li><code>*args</code>: arguments for the scene function</li>
-<li><code>**kwargs</code>: keyword arguments for the scene function</li>
-</ul>
-</div>
-<h3 id="route.restart_scene">Route.restart_scene()</h3>
-<div class="content">
-<p><i>restart_scene(name)</i><br/></p>
-<p>Restart a scene that’s already running. Does nothing if the scene is
-not running.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: scene name, with wildcard (’*‘) and range (’[]’)
-support</li>
-</ul>
-</div>
-<h3 id="route.stop_scene">Route.stop_scene()</h3>
-<div class="content">
-<p><i>stop_scene(name)</i><br/></p>
-<p>Stop scene thread.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: scene name, with wildcard support</li>
-</ul>
-</div>
-<h3 id="route.wait">Route.wait()</h3>
-<div class="content">
-<p><i>wait(duration, mode=‘beats’)</i><br/></p>
-<p>Wait for given amount of time. Can only be called in scenes.
-Subsequent calls to wait() in a scene do not drift with time and can be
-safely used to create beat sequences. The engine’s <code>tempo</code>
-must be set for the <code>beats</code> mode to work.</p>
-<pre><code># Example
-beat_1()
-self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1&#39;s exec time
-beat_2()
-self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec time</code></pre>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>duration</code>: amount of time to wait</li>
-<li><code>mode</code>: ‘beats’ or ‘seconds’ (only the first letter
-matters)</li>
-</ul>
-</div>
-<h3 id="route.wait_next_cycle">Route.wait_next_cycle()</h3>
-<div class="content">
-<p><i>wait_next_cycle()</i><br/></p>
-<p>Wait until next cycle begins. The engine’s <code>tempo</code> and
-<code>cycle_length</code> must be set and the engine’s
-<code>start_cycle()</code> method must be called at the beginning of a
-cycle for this to work.</p>
-</div>
-<h3 id="route.play_sequence">Route.play_sequence()</h3>
-<div class="content">
-<p><i>play_sequence(sequence, loop=True)</i><br/></p>
-<p>Play a sequence of actions scheduled on arbitrary beats. Can only be
-called in scenes.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>sequence</code>:
-<ul>
-<li><code>dict</code> with beat numbers (1-indexed, quarter note based)
-as keys and lambda functions as values</li>
-<li><code>list</code> of <code>dict</code> sequences (one sequence = one
-bar)</li>
-<li>sequences may contain an extra ‘signature’ string to change the time
-signature. If not provided in the first sequence, the signature takes
-the engine’s cycle length value.</li>
-</ul></li>
-<li><code>loop</code>: if <code>False</code>, the sequence will play
-only once, otherwise it will loop until the scene is stopped</li>
-</ul>
-<p><strong>Example</strong></p>
-<pre><code># single-bar sequence
-play_sequence({
-    &#39;signature&#39;: &#39;4/4&#39;,
-    # beat 1
-    1: lambda: guitar.set(&#39;mute&#39;, 1),
-    # beat 3
-    3: lambda: [guitar.set(&#39;mute&#39;, 0), guitar.set(&#39;disto&#39;, 1)],
-    # &quot;and&quot; of beat 4
-    4.5: lambda: guitar.set(&#39;disto&#39;, 0),
-})
+**Parameters**
 
-# multi-bar sequence
-play_sequence([
-    {   # bar 1
-        &#39;signature&#39;: &#39;4/4&#39;,
-        # beat 1
-        1: lambda: voice.set(&#39;autotune&#39;, 1),
-    },
-    {}, # bar 2 (empty)
-    {   # bar 3 (empty, but in 3/4)
-        &#39;signature&#39;: &#39;3/4&#39;,
-    },
-    {   # bar 4 (in 3/4 too)
-        # beat 1
-        1: lambda: foo.set(&#39;autotune&#39;, 0),
-        # beat 3
-        3: lambda: foo.set(&#39;autotune&#39;, 1),
-    }
-])</code></pre>
+- `name`: name of state save (without file extension)
+- `force_send`: see `set()`
+
+&lt;/div&gt;
+
+### Module.route()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;route(address, args)&lt;/i&gt;&lt;br/&gt;
+
+Route messages received by the engine on the module&#39;s port.
+Does nothing by default, method should be overriden in subclasses.
+Not called on submodules.
+
+**Parameters**
+
+- `address`: osc address
+- `args`: list of values
+
+**Return**
+
+`False` if the message should not be passed to the engine&#39;s
+active route after being processed by the module.
+
+&lt;/div&gt;
+
+### Module.send()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;send(address, *args)&lt;/i&gt;&lt;br/&gt;
+
+Send message to the module&#39;s port.
+
+**Parameters**
+
+- `address`: osc address
+- `*args`: values
+
+&lt;/div&gt;
+
+### Module.add_event_callback()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;add_event_callback(event, callback)&lt;/i&gt;&lt;br/&gt;
+
+Bind a callback function to an event.
+
+**Parameters**
+
+- `event`: name of event
+- `callback`: function or method.
+The callback&#39;s signature must match the event&#39;s arguments.
+
+**Events**
+
+- `engine_started`: emitted when the engine starts.
+- `engine_stopping`: emitted before the engine stops
+- `engine_stopped`: emitted when the engine is stopped
+- `engine_route_changed`: emitted when the engine&#39;s active route changes
+    - `name`: name of active route
+- `parameter_changed`: emitted when a module&#39;s parameter changes. Arguments:
+    - `module`: instance of module that emitted the event
+    - `name`: name of parameter
+    - `value`: value of parameter or list of values
+
+&lt;/div&gt;
+
+### Module.start_scene()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;start_scene(name, scene, *args, **kwargs)&lt;/i&gt;&lt;br/&gt;
+
+Start scene in a thread.
+If a scene with the same name is already running, it will be stopped.
+Scenes should be implemented as methods of the object and
+can call self.wait() to create timed sequences or loops.
+Different objects may call a scene with the same name simultaneously.
+
+**Parameters**
+
+- `name`: scene name
+- `scene`: function or method
+- `*args`: arguments for the scene function
+- `**kwargs`: keyword arguments for the scene function
+
+&lt;/div&gt;
+
+### Module.restart_scene()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;restart_scene(name)&lt;/i&gt;&lt;br/&gt;
+
+Restart a scene that&#39;s already running.
+Does nothing if the scene is not running.
+
+**Parameters**
+
+- `name`: scene name, with wildcard (&#39;*&#39;) and range (&#39;[]&#39;) support
+
+&lt;/div&gt;
+
+### Module.stop_scene()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;stop_scene(name)&lt;/i&gt;&lt;br/&gt;
+
+Stop scene thread.
+
+**Parameters**
+
+- `name`: scene name, with wildcard support
+
+&lt;/div&gt;
+
+### Module.wait()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;wait(duration, mode=&#39;beats&#39;)&lt;/i&gt;&lt;br/&gt;
+
+Wait for given amount of time. Can only be called in scenes.
+Subsequent calls to wait() in a scene do not drift with time
+and can be safely used to create beat sequences.
+The engine&#39;s `tempo` must be set for the `beats` mode to work.
+</code></pre>
+<h1 id="example">Example</h1>
+<p>beat_1() self.wait(1, ‘b’) # will wait 1 beat minus beat_1’s exec
+time beat_2() self.wait(1, ‘b’) # will wait 1 beat minus beat_1 and
+beat_2’s exec time</p>
+<pre><code>
+**Parameters**
+
+- `duration`: amount of time to wait
+- `mode`: &#39;beats&#39; or &#39;seconds&#39; (only the first letter matters)
+
+&lt;/div&gt;
+
+### Module.wait_next_cycle()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;wait_next_cycle()&lt;/i&gt;&lt;br/&gt;
+
+Wait until next cycle begins. The engine&#39;s `tempo` and `cycle_length`
+must be set and the engine&#39;s `start_cycle()` method
+must be called at the beginning of a cycle for this to work.
+
+&lt;/div&gt;
+
+### Module.play_sequence()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;play_sequence(sequence, loop=True)&lt;/i&gt;&lt;br/&gt;
+
+Play a sequence of actions scheduled on arbitrary beats.
+Can only be called in scenes.
+
+
+**Parameters**
+
+- `sequence`:
+    - `dict` with beat numbers (1-indexed, quarter note based) as keys and lambda functions as values
+    - `list` of `dict` sequences (one sequence = one bar)
+    - sequences may contain an extra &#39;signature&#39; string to change the time signature.
+        If not provided in the first sequence, the signature takes the engine&#39;s cycle length value.
+- `loop`: if `False`, the sequence will play only once, otherwise it will loop until the scene is stopped
+
+**Example**
+</code></pre>
+<h1 id="single-bar-sequence">single-bar sequence</h1>
+<p>play_sequence({ ‘signature’: ‘4/4’, # beat 1 1: lambda:
+guitar.set(‘mute’, 1), # beat 3 3: lambda: [guitar.set(‘mute’, 0),
+guitar.set(‘disto’, 1)], # “and” of beat 4 4.5: lambda:
+guitar.set(‘disto’, 0), })</p>
+<h1 id="multi-bar-sequence">multi-bar sequence</h1>
+<p>play_sequence([ { # bar 1 ‘signature’: ‘4/4’, # beat 1 1: lambda:
+voice.set(‘autotune’, 1), }, {}, # bar 2 (empty) { # bar 3 (empty, but
+in 3/4) ‘signature’: ‘3/4’, }, { # bar 4 (in 3/4 too) # beat 1 1:
+lambda: foo.set(‘autotune’, 0), # beat 3 3: lambda: foo.set(‘autotune’,
+1), }])</p>
+<pre><code>
+&lt;/div&gt;
+
+----
+
+## Route
+
+Routing object that processes messages received by the engine when active.
+
+**Instance properties**
+
+- `engine`: Engine instance
+- `logger`: python logger
+
+### Route()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;Route()&lt;/i&gt;&lt;br/&gt;
+
+Route object constructor.
+
+**Parameters**
+
+- `name`: route name
+
+&lt;/div&gt;
+
+### Route.activate()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;activate()&lt;/i&gt;&lt;br/&gt;
+
+Called when the engine switches to this route.
+
+&lt;/div&gt;
+
+### Route.deactivate()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;deactivate()&lt;/i&gt;&lt;br/&gt;
+
+Called when the engine switches to another route.
+
+&lt;/div&gt;
+
+### Route.route()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;route(protocol, port, address, args)&lt;/i&gt;&lt;br/&gt;
+
+Process messages received by the engine.
+
+**Parameters**
+
+- `protocol`: &#39;osc&#39;, &#39;osc.tcp&#39; or &#39;midi&#39;
+- `port`: name of module or port number if unknown
+- `address`: osc address
+- `args`: list of values
+
+&lt;/div&gt;
+
+### Route.start_scene()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;start_scene(name, scene, *args, **kwargs)&lt;/i&gt;&lt;br/&gt;
+
+Start scene in a thread.
+If a scene with the same name is already running, it will be stopped.
+Scenes should be implemented as methods of the object and
+can call self.wait() to create timed sequences or loops.
+Different objects may call a scene with the same name simultaneously.
+
+**Parameters**
+
+- `name`: scene name
+- `scene`: function or method
+- `*args`: arguments for the scene function
+- `**kwargs`: keyword arguments for the scene function
+
+&lt;/div&gt;
+
+### Route.restart_scene()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;restart_scene(name)&lt;/i&gt;&lt;br/&gt;
+
+Restart a scene that&#39;s already running.
+Does nothing if the scene is not running.
+
+**Parameters**
+
+- `name`: scene name, with wildcard (&#39;*&#39;) and range (&#39;[]&#39;) support
+
+&lt;/div&gt;
+
+### Route.stop_scene()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;stop_scene(name)&lt;/i&gt;&lt;br/&gt;
+
+Stop scene thread.
+
+**Parameters**
+
+- `name`: scene name, with wildcard support
+
+&lt;/div&gt;
+
+### Route.wait()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;wait(duration, mode=&#39;beats&#39;)&lt;/i&gt;&lt;br/&gt;
+
+Wait for given amount of time. Can only be called in scenes.
+Subsequent calls to wait() in a scene do not drift with time
+and can be safely used to create beat sequences.
+The engine&#39;s `tempo` must be set for the `beats` mode to work.
+</code></pre>
+<h1 id="example-1">Example</h1>
+<p>beat_1() self.wait(1, ‘b’) # will wait 1 beat minus beat_1’s exec
+time beat_2() self.wait(1, ‘b’) # will wait 1 beat minus beat_1 and
+beat_2’s exec time</p>
+<pre><code>
+**Parameters**
+
+- `duration`: amount of time to wait
+- `mode`: &#39;beats&#39; or &#39;seconds&#39; (only the first letter matters)
+
+&lt;/div&gt;
+
+### Route.wait_next_cycle()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;wait_next_cycle()&lt;/i&gt;&lt;br/&gt;
+
+Wait until next cycle begins. The engine&#39;s `tempo` and `cycle_length`
+must be set and the engine&#39;s `start_cycle()` method
+must be called at the beginning of a cycle for this to work.
+
+&lt;/div&gt;
+
+### Route.play_sequence()
+
+&lt;div class=&#39;content&#39;&gt;
+
+&lt;i&gt;play_sequence(sequence, loop=True)&lt;/i&gt;&lt;br/&gt;
+
+Play a sequence of actions scheduled on arbitrary beats.
+Can only be called in scenes.
+
+
+**Parameters**
+
+- `sequence`:
+    - `dict` with beat numbers (1-indexed, quarter note based) as keys and lambda functions as values
+    - `list` of `dict` sequences (one sequence = one bar)
+    - sequences may contain an extra &#39;signature&#39; string to change the time signature.
+        If not provided in the first sequence, the signature takes the engine&#39;s cycle length value.
+- `loop`: if `False`, the sequence will play only once, otherwise it will loop until the scene is stopped
+
+**Example**
+</code></pre>
+<h1 id="single-bar-sequence-1">single-bar sequence</h1>
+<p>play_sequence({ ‘signature’: ‘4/4’, # beat 1 1: lambda:
+guitar.set(‘mute’, 1), # beat 3 3: lambda: [guitar.set(‘mute’, 0),
+guitar.set(‘disto’, 1)], # “and” of beat 4 4.5: lambda:
+guitar.set(‘disto’, 0), })</p>
+<h1 id="multi-bar-sequence-1">multi-bar sequence</h1>
+<p>play_sequence([ { # bar 1 ‘signature’: ‘4/4’, # beat 1 1: lambda:
+voice.set(‘autotune’, 1), }, {}, # bar 2 (empty) { # bar 3 (empty, but
+in 3/4) ‘signature’: ‘3/4’, }, { # bar 4 (in 3/4 too) # beat 1 1:
+lambda: foo.set(‘autotune’, 0), # beat 3 3: lambda: foo.set(‘autotune’,
+1), }]) ```</p>
 </div>
 <hr />
         </main>

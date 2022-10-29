@@ -512,7 +512,7 @@ class Module(Sequencer):
 
         Load state from memory or from file if not preloaded already.
         The file must be valid a JSON file containing one list of lists as returned by `get_state()`.
-        Comments may be inserted manually by inserting string items:
+        Comments may be added manually by inserting string items in the main list:
         ```
         [
             "This is a comment",
@@ -520,7 +520,7 @@ class Module(Sequencer):
             ["parameter_b", 2.0],
             "etc"
         ]
-        ```
+        ``
 
         **Parameters**
 
