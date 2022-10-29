@@ -50,7 +50,7 @@ class Module(Sequencer):
         if parent is not None:
             logger_name = parent.name + '.' + name
         self.logger = logging.getLogger(__name__).getChild(logger_name)
-        
+
         self.name = name
 
         if '*' in name or '[' in name:

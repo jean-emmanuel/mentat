@@ -18,6 +18,7 @@ class TrackA(Light, Video, Audio, GlobalRoute):
         # klick1.stop_animate('position_x')
         klick1.animate('position_x', 0, 1, 1, loop=True)
         klick1.animate('position', [None, -1, -1], [None, -2, -2], 1, loop=True)
+        klick1.remove_parameter('*')
 
     def part(self, *args, **kwargs):
         """

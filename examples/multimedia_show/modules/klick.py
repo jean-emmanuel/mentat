@@ -7,6 +7,7 @@ class SubKlick(Module):
         Module.__init__(self, *args, **kwargs)
 
         self.add_parameter('thing', '/subklick/simple/set_thing', 'f', default=0)
+        self.add_parameter('thing', '/subklick/simple/set_thing', 'f', default=0)
         self.add_parameter('thing2', '/subklick/simple/set_thing2', 'f', default=0)
 
 
