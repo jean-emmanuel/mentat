@@ -470,7 +470,8 @@ class Module(Sequencer):
         - `force_send`: see `set()`
         """
         for data in state:
-            self.set(*data, force_send=force_send)
+            if type(data) == list:
+                self.set(*data, force_send=force_send)
 
     @public_method
     def send_state(self):
