@@ -523,7 +523,7 @@ class Module(Sequencer):
             ["parameter_b", 2.0],
             "etc"
         ]
-        ``
+        ```
 
         **Parameters**
 
