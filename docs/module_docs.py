@@ -6,7 +6,7 @@ from mentat import Engine, Module, Route
 from inspect import getmembers, getdoc, signature, getsourcelines
 import re
 
-docs = ""
+docs = "\n"
 
 for mod in [Engine, Module, Route]:
 

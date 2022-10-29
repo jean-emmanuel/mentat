@@ -120,6 +120,38 @@
                         <li><a href="#install">Install</a></li>
                         <li><a href="#usage">Usage</a></li>
                         </ul></li>
+                        <li><a href="#engine">Engine</a>
+                        <ul>
+                        <li><a href="#engine-1">Engine()</a></li>
+                        <li><a
+                        href="#engine.start">Engine.start()</a></li>
+                        <li><a
+                        href="#engine.stop">Engine.stop()</a></li>
+                        <li><a
+                        href="#engine.restart">Engine.restart()</a></li>
+                        <li><a
+                        href="#engine.autorestart">Engine.autorestart()</a></li>
+                        <li><a
+                        href="#engine.add_module">Engine.add_module()</a></li>
+                        <li><a
+                        href="#engine.send">Engine.send()</a></li>
+                        <li><a
+                        href="#engine.add_route">Engine.add_route()</a></li>
+                        <li><a
+                        href="#engine.set_route">Engine.set_route()</a></li>
+                        <li><a
+                        href="#engine.route">Engine.route()</a></li>
+                        <li><a
+                        href="#engine.set_tempo">Engine.set_tempo()</a></li>
+                        <li><a
+                        href="#engine.set_cycle_length">Engine.set_cycle_length()</a></li>
+                        <li><a
+                        href="#engine.set_time_signature">Engine.set_time_signature()</a></li>
+                        <li><a
+                        href="#engine.start_cycle">Engine.start_cycle()</a></li>
+                        <li><a
+                        href="#engine.dispatch_event">Engine.dispatch_event()</a></li>
+                        </ul></li>
                         <li><a href="#module">Module</a>
                         <ul>
                         <li><a href="#module-1">Module()</a></li>
@@ -249,347 +281,171 @@ href="#route.route"><code>route()</code></a> method.</p>
 href="#route.route"><code>route()</code></a> method definition will
 allow writing the actual routing that should occur during that
 track.</p>
-<table style="width:7%;">
-<colgroup>
-<col style="width: 6%" />
-</colgroup>
-<tbody>
-<tr class="odd">
-<td>## Engine</td>
-</tr>
-<tr class="even">
-<td>Main object. Singleton that must be instanciated before any
+<hr />
+<h2 id="engine">Engine</h2>
+<p>Main object. Singleton that must be instanciated before any
 <code>Module</code> or <code>Route</code> object. The global engine
-instance is always accessible via <code>Engine.INSTANCE</code>.</td>
-</tr>
-<tr class="odd">
-<td><strong>Instance properties</strong></td>
-</tr>
-<tr class="even">
-<td>- <code>modules</code>: <code>dict</code> containing modules added
-to the engine with names as keys - <code>routes</code>:
-<code>dict</code> containing routes added to the engine with names as
-keys - <code>active_route</code>: active route object (<code>None</code>
-by default) - <code>restarted</code>: <code>True</code> if the engine
-was restarted using <code>autorestart()</code> - <code>logger</code>:
-python logger - <code>root_module</code>: module instance that exposes
-all modules added to the engine. Allows reaching toplevel module’s
-parameters by name with <code>set()</code>, <code>animate()</code>, and
-creating meta parameters with multiple modules. - <code>tempo</code>:
-beats per minute - <code>cycle_length</code>: quarter notes per
-cycle</td>
-</tr>
-<tr class="odd">
-<td>### Engine()</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td><i>Engine(name, port, folder, debug=False, tcp_port=None,
-unix_port=None)</i><br/></td>
-</tr>
-<tr class="even">
-<td>Engine constructor.</td>
-</tr>
-<tr class="odd">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="even">
-<td>- <code>name</code>: client name - <code>port</code>: osc (udp)
-input port number - <code>folder</code>: path to config folder where
-state files will be saved to and loaded from - <code>debug</code>: set
-to True to enable debug messages and i/o statistics -
-<code>tcp_port</code>: osc (tcp) input port number -
-<code>unix_port</code>: osc (unix) input socket path</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td>### Engine.start()</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td><i>start()</i><br/></td>
-</tr>
-<tr class="odd">
-<td>Start engine. This is usually the last statement in the script as it
-starts the processing loop that keeps the engine running.</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td>### Engine.stop()</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td><i>stop()</i><br/></td>
-</tr>
-<tr class="even">
-<td>Stop engine. This is called automatically when the process is
-terminated or when the engine restarts.</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td>### Engine.restart()</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td><i>restart()</i><br/></td>
-</tr>
-<tr class="odd">
-<td>Stop the engine and restart once the process is terminated.</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td>### Engine.autorestart()</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td><i>autorestart()</i><br/></td>
-</tr>
-<tr class="even">
-<td>Enable engine autorestart. This watches the main python script and
+instance is always accessible via <code>Engine.INSTANCE</code>.</p>
+<p><strong>Instance properties</strong></p>
+<ul>
+<li><code>modules</code>: <code>dict</code> containing modules added to
+the engine with names as keys</li>
+<li><code>routes</code>: <code>dict</code> containing routes added to
+the engine with names as keys</li>
+<li><code>active_route</code>: active route object (<code>None</code> by
+default)</li>
+<li><code>restarted</code>: <code>True</code> if the engine was
+restarted using <code>autorestart()</code></li>
+<li><code>logger</code>: python logger</li>
+<li><code>root_module</code>: module instance that exposes all modules
+added to the engine. Allows reaching toplevel module’s parameters by
+name with <code>set()</code>, <code>animate()</code>, and creating meta
+parameters with multiple modules.</li>
+<li><code>tempo</code>: beats per minute</li>
+<li><code>cycle_length</code>: quarter notes per cycle</li>
+</ul>
+<h3 id="engine-1">Engine()</h3>
+<div class="content">
+<p><i>Engine(name, port, folder, debug=False, tcp_port=None,
+unix_port=None)</i><br/></p>
+<p>Engine constructor.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>name</code>: client name</li>
+<li><code>port</code>: osc (udp) input port number</li>
+<li><code>folder</code>: path to config folder where state files will be
+saved to and loaded from</li>
+<li><code>debug</code>: set to True to enable debug messages and i/o
+statistics</li>
+<li><code>tcp_port</code>: osc (tcp) input port number</li>
+<li><code>unix_port</code>: osc (unix) input socket path</li>
+</ul>
+</div>
+<h3 id="engine.start">Engine.start()</h3>
+<div class="content">
+<p><i>start()</i><br/></p>
+<p>Start engine. This is usually the last statement in the script as it
+starts the processing loop that keeps the engine running.</p>
+</div>
+<h3 id="engine.stop">Engine.stop()</h3>
+<div class="content">
+<p><i>stop()</i><br/></p>
+<p>Stop engine. This is called automatically when the process is
+terminated or when the engine restarts.</p>
+</div>
+<h3 id="engine.restart">Engine.restart()</h3>
+<div class="content">
+<p><i>restart()</i><br/></p>
+<p>Stop the engine and restart once the process is terminated.</p>
+</div>
+<h3 id="engine.autorestart">Engine.autorestart()</h3>
+<div class="content">
+<p><i>autorestart()</i><br/></p>
+<p>Enable engine autorestart. This watches the main python script and
 all imported modules that are located in the same directoty. Whenever a
-file is modified, the engine is restarted.</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td>### Engine.add_module()</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td><i>add_module(module)</i><br/></td>
-</tr>
-<tr class="odd">
-<td>Add a module. This method will create midi ports if the module’s
+file is modified, the engine is restarted.</p>
+</div>
+<h3 id="engine.add_module">Engine.add_module()</h3>
+<div class="content">
+<p><i>add_module(module)</i><br/></p>
+<p>Add a module. This method will create midi ports if the module’s
 protocol is ‘midi’. Modules added with this method will be children of
-the engine’s root module instance.</td>
-</tr>
-<tr class="even">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="odd">
-<td>- <code>module</code>: Module object</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td>### Engine.send()</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td><i>send(protocol, port, address, *args)</i><br/></td>
-</tr>
-<tr class="even">
-<td>Send OSC / MIDI message.</td>
-</tr>
-<tr class="odd">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="even">
-<td>- <code>protocol</code>: ‘osc’, ‘osc.tcp’, ‘osc.unix’ or ‘midi’ -
-<code>port</code>: module name, port number (‘osc’ protocol only) or
-unix socket path (‘osc.unix’ protocol only) - <code>address</code>: osc
-address - <code>args</code>: values</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td>### Engine.add_route()</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td><i>add_route(route)</i><br/></td>
-</tr>
-<tr class="odd">
-<td>Add a route.</td>
-</tr>
-<tr class="even">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="odd">
-<td>- <code>route</code>: Route object</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td>### Engine.set_route()</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td><i>set_route(name)</i><br/></td>
-</tr>
-<tr class="even">
-<td>Set active route.</td>
-</tr>
-<tr class="odd">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="even">
-<td>- <code>name</code>: route name</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td>### Engine.route()</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td><i>route(protocol, port, address, args)</i><br/></td>
-</tr>
-<tr class="odd">
-<td>Unified route for osc and midi messages, called when the engine
-receives a midi or osc message.</td>
-</tr>
-<tr class="even">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="odd">
-<td>- <code>protocol</code>: ‘osc’, ‘osc.tcp’ or ‘midi’ -
-<code>port</code>: name of module or port number if unknown -
-<code>address</code>: osc address - <code>args</code>: list of
-values</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td>### Engine.set_tempo()</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td><i>set_tempo(bpm)</i><br/></td>
-</tr>
-<tr class="even">
-<td>Set engine tempo.</td>
-</tr>
-<tr class="odd">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="even">
-<td>- <code>bpm</code>: beats per minute</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td>### Engine.set_cycle_length()</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td><i>set_cycle_length(quarter_notes)</i><br/></td>
-</tr>
-<tr class="odd">
-<td>Set engine cycle (measure) length in quarter notes.</td>
-</tr>
-<tr class="even">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="odd">
-<td>- <code>quarter_notes</code>: quarter notes per cycle (decimals
-allowed)</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td>### Engine.set_time_signature()</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td><i>set_time_signature(signature)</i><br/></td>
-</tr>
-<tr class="even">
-<td>Set engine cycle (measure) length from a musical time
-signature.</td>
-</tr>
-<tr class="odd">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="even">
-<td>- <code>signature</code>: <code>string</code> like ‘4/4’, ‘5/4’,
-‘7/8’…</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td>### Engine.start_cycle()</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td><i>start_cycle()</i><br/></td>
-</tr>
-<tr class="odd">
-<td>Set current time as cycle start. Affects Route.wait_next_cycle()
-method.</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td>### Engine.dispatch_event()</td>
-</tr>
-<tr class="even">
-<td></td>
-</tr>
-<tr class="odd">
-<td><i>dispatch_event(event, *args)</i><br/></td>
-</tr>
-<tr class="even">
-<td>Dispatch event to bound callback functions.</td>
-</tr>
-<tr class="odd">
-<td><strong>Parameters</strong></td>
-</tr>
-<tr class="even">
-<td>- <code>event</code>: name of event - <code>*args</code>: arguments
-for the callback function</td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-</tbody>
-</table>
+the engine’s root module instance.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>module</code>: Module object</li>
+</ul>
+</div>
+<h3 id="engine.send">Engine.send()</h3>
+<div class="content">
+<p><i>send(protocol, port, address, *args)</i><br/></p>
+<p>Send OSC / MIDI message.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>protocol</code>: ‘osc’, ‘osc.tcp’, ‘osc.unix’ or ‘midi’</li>
+<li><code>port</code>: module name, port number (‘osc’ protocol only) or
+unix socket path (‘osc.unix’ protocol only)</li>
+<li><code>address</code>: osc address</li>
+<li><code>args</code>: values</li>
+</ul>
+</div>
+<h3 id="engine.add_route">Engine.add_route()</h3>
+<div class="content">
+<p><i>add_route(route)</i><br/></p>
+<p>Add a route.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>route</code>: Route object</li>
+</ul>
+</div>
+<h3 id="engine.set_route">Engine.set_route()</h3>
+<div class="content">
+<p><i>set_route(name)</i><br/></p>
+<p>Set active route.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>name</code>: route name</li>
+</ul>
+</div>
+<h3 id="engine.route">Engine.route()</h3>
+<div class="content">
+<p><i>route(protocol, port, address, args)</i><br/></p>
+<p>Unified route for osc and midi messages, called when the engine
+receives a midi or osc message.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>protocol</code>: ‘osc’, ‘osc.tcp’ or ‘midi’</li>
+<li><code>port</code>: name of module or port number if unknown</li>
+<li><code>address</code>: osc address</li>
+<li><code>args</code>: list of values</li>
+</ul>
+</div>
+<h3 id="engine.set_tempo">Engine.set_tempo()</h3>
+<div class="content">
+<p><i>set_tempo(bpm)</i><br/></p>
+<p>Set engine tempo.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>bpm</code>: beats per minute</li>
+</ul>
+</div>
+<h3 id="engine.set_cycle_length">Engine.set_cycle_length()</h3>
+<div class="content">
+<p><i>set_cycle_length(quarter_notes)</i><br/></p>
+<p>Set engine cycle (measure) length in quarter notes.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>quarter_notes</code>: quarter notes per cycle (decimals
+allowed)</li>
+</ul>
+</div>
+<h3 id="engine.set_time_signature">Engine.set_time_signature()</h3>
+<div class="content">
+<p><i>set_time_signature(signature)</i><br/></p>
+<p>Set engine cycle (measure) length from a musical time signature.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>signature</code>: <code>string</code> like ‘4/4’, ‘5/4’,
+‘7/8’…</li>
+</ul>
+</div>
+<h3 id="engine.start_cycle">Engine.start_cycle()</h3>
+<div class="content">
+<p><i>start_cycle()</i><br/></p>
+<p>Set current time as cycle start. Affects Route.wait_next_cycle()
+method.</p>
+</div>
+<h3 id="engine.dispatch_event">Engine.dispatch_event()</h3>
+<div class="content">
+<p><i>dispatch_event(event, *args)</i><br/></p>
+<p>Dispatch event to bound callback functions.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>event</code>: name of event</li>
+<li><code>*args</code>: arguments for the callback function</li>
+</ul>
+</div>
+<hr />
 <h2 id="module">Module</h2>
 <p>Interface between a software / hardware and the engine.</p>
 <p><strong>Instance properties</strong></p>
