@@ -487,7 +487,7 @@ class Module(Sequencer):
         """
         save(name)
 
-        Save current state (including submodules) to file.
+        Save current state (including submodules) to a JSON file.
 
         **Parameters**
 
@@ -510,7 +510,17 @@ class Module(Sequencer):
         """
         load(name)
 
-        Load state from memory or from file if not preloaded already
+        Load state from memory or from file if not preloaded already.
+        The file must be valid a JSON file containing one list of lists as returned by `get_state()`.
+        Comments may be inserted manually by inserting string items:
+        ```
+        [
+            "This is a comment",
+            ["parameter_a", 1.0],
+            ["parameter_b", 2.0],
+            "etc"
+        ]
+        ```
 
         **Parameters**
 
@@ -520,16 +530,30 @@ class Module(Sequencer):
         if name not in self.states and preload:
 
             file = '%s/%s.json' % (self.states_folder, name)
-            f = open(file)
-            self.states[name] = json.loads(f.read())
-            f.close()
+
+            try:
+                f = open(file)
+
+                try:
+                    self.states[name] = json.loads(f.read())
+                except Exception as e:
+                    self.logger.info('failed to parse state file "%s"\n%s' % (file, e))
+                finally:
+                    f.close()
+
+            except Exception as e:
+                self.logger.info('failed to open state file "%s"\n%s' % (file, e))
+
             self.logger.info('state "%s" preloaded from %s' % (name, file))
 
         if not preload:
 
             if name in self.states:
-                self.set_state(self.states[name], force_send=force_send)
-                self.logger.info('state "%s" loaded' % name)
+                try:
+                    self.set_state(self.states[name], force_send=force_send)
+                    self.logger.info('state "%s" loaded' % name)
+                except Exception as e:
+                    self.logger.info('failed to load state "%s"\n%s' % (name, e))
             else:
                 self.logger.error('state "%s" not found' % name)
 
