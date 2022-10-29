@@ -46,7 +46,11 @@ class Module(Sequencer):
             if the module is a submodule, this must be set
             to the parent module's instance
         """
-        self.logger = logging.getLogger(__name__).getChild(name)
+        logger_name = name
+        if parent is not None:
+            logger_name = parent.name + '.' + name
+        self.logger = logging.getLogger(__name__).getChild(logger_name)
+        
         self.name = name
 
         if '*' in name or '[' in name:
