@@ -152,8 +152,33 @@ class Module(Sequencer):
         - `static_args`: list of static values before the ones that can be modified
         - `default`: value or list of values if the parameter has multiple dynamic values
         """
-        self.parameters[name] = Parameter(name, address, types, static_args, default)
-        self.reset(name)
+        if name not in self.parameters:
+            self.parameters[name] = Parameter(name, address, types, static_args, default)
+            self.reset(name)
+        else:
+            self.logger.error('could not add parameter "%s" (parameter already exists)' % name)
+
+    @public_method
+    def remove_parameter(self, name):
+        """
+        remove_parameter(name)
+
+        Remove parameter from module.
+
+        **Parameters**
+
+        - `name`: name of parameter, '*' to delete all parameters
+        """
+        if name == '*':
+            for name in list(self.parameters.keys()):
+                self.remove_parameter(name)
+            return
+        if name in self.parameters:
+            del self.parameters[name]
+        if name in self.meta_parameters:
+            del self.meta_parameters[name]
+        if name in self.animations:
+            self.animations.remove(name)
 
     @public_method
     @thread_locked
@@ -363,10 +388,13 @@ class Module(Sequencer):
             callback function used to set the value of each `parameters`when when `set()` is called to change the meta parameter's value.
             The function's signature must not use *args or **kwargs arguments.
         """
-        meta_parameter = MetaParameter(name, parameters, getter, setter, module=self)
-        self.meta_parameters[name] = meta_parameter
-        self.parameters[name] = meta_parameter
-        self.update_meta_parameter(name)
+        if name not in self.parameters:
+            meta_parameter = MetaParameter(name, parameters, getter, setter, module=self)
+            self.meta_parameters[name] = meta_parameter
+            self.parameters[name] = meta_parameter
+            self.update_meta_parameter(name)
+        else:
+            self.logger.error('could not add meta parameter "%s" (parameter already exists)' % name)
 
     def check_meta_parameters(self, updated_parameter):
         """
