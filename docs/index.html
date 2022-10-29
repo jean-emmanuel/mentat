@@ -174,6 +174,10 @@
                         <li><a
                         href="#module.add_alias_parameter">Module.add_alias_parameter()</a></li>
                         <li><a
+                        href="#module.get_state">Module.get_state()</a></li>
+                        <li><a
+                        href="#module.set_state">Module.set_state()</a></li>
+                        <li><a
                         href="#module.send_state">Module.send_state()</a></li>
                         <li><a
                         href="#module.save">Module.save()</a></li>
@@ -499,9 +503,9 @@ param_name)</i><br/></p>
 </div>
 <h3 id="module.set">Module.set()</h3>
 <div class="content">
-<p><i>set(parameter_name, <em>args, force_send=False)</i><br/>
-<i>set(submodule_name, param_nam, </em>args,
-force_send=False)</i><br/></p>
+<p><i>set(parameter_name, <em>args, force_send=False,
+preserve_animation=False)</i><br/> <i>set(submodule_name, param_nam,
+</em>args, force_send=False, preserve_animation=False)</i><br/></p>
 <p>Set value of parameter.</p>
 <p>The engine will apply the new value only at the end of current
 processing cycle and send a message if the new value differs from the
@@ -609,6 +613,29 @@ if the parameter are owned by a submodule
 (<code>['submodule_name', 'parameter_name']</code>)</li>
 </ul>
 </div>
+<h3 id="module.get_state">Module.get_state()</h3>
+<div class="content">
+<p><i>get_state()</i><br/></p>
+<p>Get state of all parameters and submodules’ parameters.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>omit_defaults</code>: set to <code>True</code> to only
+retreive parameters that differ from their default values.</li>
+</ul>
+<p><strong>Return</strong></p>
+<p>List of lists that can be fed to set()</p>
+</div>
+<h3 id="module.set_state">Module.set_state()</h3>
+<div class="content">
+<p><i>set_state(state)</i><br/></p>
+<p>Set state of any number of parameters and submodules’ parameters.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>state</code>: state object as returned by
+<code>get_state()</code></li>
+<li><code>force_send</code>: see <code>set()</code></li>
+</ul>
+</div>
 <h3 id="module.send_state">Module.send_state()</h3>
 <div class="content">
 <p><i>send_state()</i><br/></p>
@@ -616,16 +643,18 @@ if the parameter are owned by a submodule
 </div>
 <h3 id="module.save">Module.save()</h3>
 <div class="content">
-<p><i>save(name)</i><br/></p>
+<p><i>save(name, omit_defaults=False)</i><br/></p>
 <p>Save current state (including submodules) to a JSON file.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of state save (without file extension)</li>
+<li><code>omit_defaults</code>: set to <code>True</code> to only save
+parameters that differ from their default values.</li>
 </ul>
 </div>
 <h3 id="module.load">Module.load()</h3>
 <div class="content">
-<p><i>load(name)</i><br/></p>
+<p><i>load(name, force_send=False)</i><br/></p>
 <p>Load state from memory or from file if not preloaded already. The
 file must be valid a JSON file containing one list of lists as returned
 by <code>get_state()</code>. Comments may be added manually by inserting

@@ -184,8 +184,8 @@ class Module(Sequencer):
     @submodule_method(pattern_matching=True)
     def set(self, *args, force_send=False, preserve_animation=False):
         """
-        set(parameter_name, *args, force_send=False)
-        set(submodule_name, param_nam, *args, force_send=False)
+        set(parameter_name, *args, force_send=False, preserve_animation=False)
+        set(submodule_name, param_nam, *args, force_send=False, preserve_animation=False)
 
         Set value of parameter.
 
@@ -423,6 +423,7 @@ class Module(Sequencer):
 
         self.add_meta_parameter(name, parameter, getter, setter)
 
+    @public_method
     def get_state(self, omit_defaults=False):
         """
         get_state()
@@ -458,6 +459,7 @@ class Module(Sequencer):
 
         return state
 
+    @public_method
     def set_state(self, state, force_send=False):
         """
         set_state(state)
@@ -485,13 +487,14 @@ class Module(Sequencer):
     @public_method
     def save(self, name, omit_defaults=False):
         """
-        save(name)
+        save(name, omit_defaults=False)
 
         Save current state (including submodules) to a JSON file.
 
         **Parameters**
 
         - `name`: name of state save (without file extension)
+        - `omit_defaults`: set to `True` to only save parameters that differ from their default values.
         """
         file = '%s/%s.json' % (self.states_folder, name)
         self.states[name] = self.get_state(omit_defaults)
@@ -508,7 +511,7 @@ class Module(Sequencer):
     @public_method
     def load(self, name, force_send=False, preload=False):
         """
-        load(name)
+        load(name, force_send=False)
 
         Load state from memory or from file if not preloaded already.
         The file must be valid a JSON file containing one list of lists as returned by `get_state()`.
