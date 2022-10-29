@@ -9,6 +9,9 @@ class SubKlick(Module):
         self.add_parameter('thing', '/subklick/simple/set_thing', 'f', default=0)
         self.add_parameter('thing2', '/subklick/simple/set_thing2', 'f', default=0)
 
+
+
+
 class Klick(Module):
 
     def __init__(self, *args, **kwargs):
@@ -36,6 +39,23 @@ class Klick(Module):
 
 
 
+        self.add_parameter('position', None, 'fff', default=[0,0,0])
+
+        axis = {0: '_x', 1: '_y', 2: '_z'}
+        for index, ax in axis.items():
+            def closure(index, ax):
+
+                def setter(val):
+                    value = self.get('position')
+                    value[index] = val
+                    self.set('position', *value, preserve_animation = True)
+
+                self.add_meta_parameter('position' + ax, ['position'],
+                    getter = lambda prop: prop[index],
+                    setter = setter
+                )
+
+            closure(index, ax)
 
     def start(self):
         self.send('/klick/metro/start')
