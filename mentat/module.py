@@ -3,7 +3,6 @@ import json
 import pathlib
 import re
 import logging
-import threading
 from queue import Queue
 
 from .utils import *
@@ -80,8 +79,6 @@ class Module(Sequencer):
 
         self.submodules = {}
         self.aliases = {}
-
-        self.lock = threading.RLock()
 
         self.module_path = [name]
         parent = self.parent_module

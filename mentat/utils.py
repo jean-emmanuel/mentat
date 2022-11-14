@@ -1,6 +1,8 @@
 import logging
 import traceback
+import threading
 import fnmatch
+
 from queue import Queue
 from functools import wraps
 
@@ -41,6 +43,7 @@ def submodule_method(pattern_matching):
     return decorate
 
 
+lock = threading.RLock()
 def thread_locked(method):
     """
     Decorator for Module methods that shouldn't run concurrently in multiple threads.
@@ -48,13 +51,10 @@ def thread_locked(method):
     """
     @wraps(method)
     def decorated(self, *args, **kwargs):
-        with self.lock:
+        with lock:
             return method(self, *args, **kwargs)
     return decorated
 
-
-import logging
-import traceback
 
 class TraceLogger(logging.Logger):
     """
