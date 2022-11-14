@@ -305,8 +305,9 @@ class Module(Sequencer):
 
             parameter = self.parameters[name]
             parameter.start_animation(self.engine, *args[1:], **kwargs)
-            if name not in self.animations and parameter.animate_running:
-                self.animations.append(name)
+            if parameter.animate_running:
+                if name not in self.animations:
+                    self.animations.append(name)
                 self.set_animating()
         else:
             self.logger.error('animate: parameter or submodule "%s" not found' % name)
