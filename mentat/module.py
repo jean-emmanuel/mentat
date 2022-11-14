@@ -336,8 +336,6 @@ class Module(Sequencer):
             for name in self.animations:
                 self.parameters[name].stop_animation()
 
-            self.animations = []
-
         elif name in self.animations:
 
             self.parameters[name].stop_animation()
