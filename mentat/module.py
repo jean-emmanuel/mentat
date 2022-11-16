@@ -214,6 +214,27 @@ class Module(Sequencer):
         else:
             self.logger.error('get: parameter or submodule "%s" not found' % name)
 
+    @thread_locked
+    @submodule_method(pattern_matching=False)
+    def has(self, *args):
+        """
+        has(parameter_name)
+        has(submodule_name, param_name)
+
+        Check if module as parameter
+
+        **Parameters**
+
+        - `parameter_name`: name of parameter
+        - `submodule_name`: name of submodule
+
+        **Return**
+
+        `True` if module
+        """
+        name = args[0]
+        return name in self.parameters
+
     @public_method
     @thread_locked
     @submodule_method(pattern_matching=True)
@@ -398,6 +419,11 @@ class Module(Sequencer):
             meta_parameter = MetaParameter(name, parameters, getter, setter, module=self)
             self.meta_parameters[name] = meta_parameter
             self.parameters[name] = meta_parameter
+            for p in meta_parameter.parameters:
+                # avoid updating meta parameter the first time if
+                # dependencies don't exist they may be not ready yet 
+                if not self.has(*p):
+                    return
             self.update_meta_parameter(name)
         else:
             self.logger.error('could not add meta parameter "%s" (parameter already exists)' % name)
