@@ -34,10 +34,6 @@ class Engine(Module):
     - `active_route`: active route object (`None` by default)
     - `restarted`: `True` if the engine was restarted using `autorestart()`
     - `logger`: python logger
-    - `root_module`:
-            module instance that exposes all modules added to the engine.
-            Allows reaching toplevel module's parameters by name with `set()`, `animate()`,
-            and creating meta parameters with multiple modules.
     - `tempo`: beats per minute
     - `cycle_length`: quarter notes per cycle
     - `port`: osc (udp) input port number
@@ -553,15 +549,13 @@ class Engine(Module):
         module_path = address.split('/')[1:]
         module_name = module_path[0]
 
-        if not module_path or module_path[0] != self.name:
+        if len(module_path) < 2 or module_path[0] != self.name:
             return True
 
-        call = False
-        if module_path[-1] == 'call':
-            module_path = module_path[:-1]
-            call = True
-
+        method_name = module_path[-1]
+        module_path = module_path[:-1]
         module = self
+
         if len(module_path) > 1:
             module_name = module_path[1]
             if module_name in self.modules:
@@ -575,15 +569,10 @@ class Engine(Module):
 
         if module is not None:
 
-            if call:
-                if len(args) > 0 and type(args[0] == str) and hasattr(module, args[0]):
-                    method = getattr(module, args[0])
-                    if callable(method):
-                        method(*args[1:])
-            else:
-
-                if type(args[0]) == str:
-                    module.set(*args)
+            if hasattr(module, method_name):
+                method = getattr(module, method_name)
+                if callable(method):
+                    method(*args)
 
 
             return False

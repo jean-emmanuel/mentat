@@ -44,14 +44,17 @@ Each track should be a dedicated class derived from the `Route` class. The [`rou
 
 ### Generic control API
 
-In order to ensure state consistency, parameters should always be controlled by mentat. The following commands are exposed to allow controlling modules on the fly by sending osc messages to mentat:
+In order to ensure state consistency, parameters should always be controlled by mentat. A generic command is exposed to control modules using osc messages, it allows calling any method owned by the engine and its modules:
 
-**Set parameter**
 
-`/engine_name/module_name/submodule_name <parameter_name> <parameter_values>`
+`/engine_name/module_name/submodule_name/method_name <*arguments>`
 
-**Call method**
+**Examples**
 
-`/engine_name/module_name/submodule_name/call <method_name> <arguments>`
+```
+/engine_name/set_route route_name
+/engine_name/module_name/set parameter_name 1.0
+/engine_name/module_name/submodule_name/animate parameter_name 1.0 10.0 1.0
+```
 
 ----
