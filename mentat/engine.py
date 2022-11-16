@@ -361,7 +361,7 @@ class Engine(Module):
         """
         Bypass Module.add_submodule()
         """
-        self
+        self.add_module(*args, **kwargs)
 
     def flush(self):
         """
@@ -571,7 +571,7 @@ class Engine(Module):
 
             if hasattr(module, method_name):
                 method = getattr(module, method_name)
-                if callable(method):
+                if callable(method) and hasattr(method, '_public_method'):
                     method(*args)
 
 
