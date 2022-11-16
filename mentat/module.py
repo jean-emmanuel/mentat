@@ -55,6 +55,9 @@ class Module(Sequencer):
         if '*' in name or '[' in name:
             self.logger.error('characters "*" and "[" are forbidden in module name')
             raise Exception
+        if name == 'call':
+            self.logger.error('module name cannot be "call"')
+            raise Exception
 
         if Engine.INSTANCE is None:
             self.logger.error('the engine must created before any module')
