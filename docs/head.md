@@ -39,7 +39,19 @@ All messages received by the engine that are coming from a software associated w
 
 [`Route`](#route) objects represent the different parts of the performance (eg tracks / songs in a musical show). The `Engine` has one active route at a time and will pass all incoming messages to its [`route()`](#route.route) method.
 
-Each track should be a dedicated class derived from the `Route` class. The [`route()`](#route.route) method definition will allow writing
-the actual routing that should occur during that track.
+Each track should be a dedicated class derived from the `Route` class. The [`route()`](#route.route) method definition will allow writing the actual routing that should occur during that track.
+
+
+### Generic control API
+
+In order to ensure state consistency, parameters should always be controlled by mentat. The following commands are exposed to allow controlling modules on the fly by sending osc messages to mentat:
+
+**Set parameter**
+
+`/module_name/submodule_name <parameter_name> <parameter_values>`
+
+**Call method**
+
+`/module_name/submodule_name/call <method_name> <arguments>`
 
 ----

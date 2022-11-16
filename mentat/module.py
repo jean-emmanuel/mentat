@@ -37,10 +37,10 @@ class Module(Sequencer):
 
         - `name`: module name
         - `protocol`: 'osc', 'osc.tcp', 'osc.unix' or 'midi'
-        - `port`:
+        - `port`: port used by the software / hardware to send and receive messages
             - port number if protocol is 'osc' or 'osc.tcp'
             - unix socket path if protocol is 'osc.unix'
-            - `None` if protocol is 'midi' or if no osc input port is needed
+            - `None` if protocol is 'midi' or if no port is needed
         - `parent`:
             if the module is a submodule, this must be set
             to the parent module's instance
@@ -101,9 +101,15 @@ class Module(Sequencer):
         add_submodule(*modules)
 
         Add a submodule.
+
         Submodule's protocol and port can be omitted, in which case
-        they will be inherited from their parent. The submodule's parent
-        instance must be provided in its constructor function (`parent` argument).
+        they will be inherited from their parent.
+
+        A submodule can send messages but it will not receive messages through
+        its route method.
+
+        The submodule's parent instance must be provided in its constructor
+        function (`parent` argument).
 
         **Parameters**
 

@@ -65,7 +65,7 @@
             aside li {
                 margin: 0;
             }
-            ul {
+            ul, ol {
                 padding-left: 20px;
             }
             main ul ul {
@@ -119,6 +119,8 @@
                         <li><a href="#overview">Overview</a></li>
                         <li><a href="#install">Install</a></li>
                         <li><a href="#usage">Usage</a></li>
+                        <li><a href="#generic-control-api">Generic
+                        control API</a></li>
                         </ul></li>
                         <li><a href="#engine">Engine</a>
                         <ul>
@@ -287,6 +289,14 @@ href="#route.route"><code>route()</code></a> method.</p>
 href="#route.route"><code>route()</code></a> method definition will
 allow writing the actual routing that should occur during that
 track.</p>
+<h3 id="generic-control-api">Generic control API</h3>
+<p>In order to ensure state consistency, parameters should always be
+controlled by mentat. The following commands are exposed to allow
+controlling modules on the fly by sending osc messages to mentat:</p>
+<p><strong>Set parameter</strong></p>
+<p><code>/module_name/submodule_name &lt;parameter_name&gt; &lt;parameter_values&gt;</code></p>
+<p><strong>Call method</strong></p>
+<p><code>/module_name/submodule_name/call &lt;method_name&gt; &lt;arguments&gt;</code></p>
 <hr />
 <h2 id="engine">Engine</h2>
 <p>Main object. Singleton that must be instanciated before any
@@ -397,7 +407,16 @@ unix socket path (‘osc.unix’ protocol only)</li>
 <div class="content">
 <p><i>route(protocol, port, address, args)</i><br/></p>
 <p>Unified route for osc and midi messages, called when the engine
-receives a midi or osc message.</p>
+receives a midi or osc message. Messages are processed this way :</p>
+<ol type="1">
+<li><p>If the message is sent from a port that matches a module’s, the
+message is passed to that module’s route method. If it returns
+<code>False</code>, further processing is prevented.</p></li>
+<li><p>If the address matches a command as per the generic control API,
+further processing is prevented.</p></li>
+<li><p>If a route is active, the message is passed to that route’s route
+method.</p></li>
+</ol>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>protocol</code>: ‘osc’, ‘osc.tcp’ or ‘midi’</li>
@@ -478,12 +497,12 @@ parameters added to the module with names as keys</li>
 <ul>
 <li><code>name</code>: module name</li>
 <li><code>protocol</code>: ‘osc’, ‘osc.tcp’, ‘osc.unix’ or ‘midi’</li>
-<li><code>port</code>:
+<li><code>port</code>: port used by the software / hardware to send and
+receive messages
 <ul>
 <li>port number if protocol is ‘osc’ or ‘osc.tcp’</li>
 <li>unix socket path if protocol is ‘osc.unix’</li>
-<li><code>None</code> if protocol is ‘midi’ or if no osc input port is
-needed</li>
+<li><code>None</code> if protocol is ‘midi’ or if no port is needed</li>
 </ul></li>
 <li><code>parent</code>: if the module is a submodule, this must be set
 to the parent module’s instance</li>

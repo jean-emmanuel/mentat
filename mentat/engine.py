@@ -461,7 +461,17 @@ class Engine():
         route(protocol, port, address, args)
 
         Unified route for osc and midi messages, called when the engine
-        receives a midi or osc message.
+        receives a midi or osc message. Messages are processed this way :
+
+        1. If the message is sent from a port that matches a module's,
+        the message is passed to that module's route method. If it
+        returns `False`, further processing is prevented.
+
+        2. If the address matches a command as per the generic control API,
+        further processing is prevented.
+
+        3. If a route is active, the message is passed to that route's
+        route method.
 
         **Parameters**
 
@@ -472,6 +482,10 @@ class Engine():
         """
         if port in self.modules:
             if self.modules[port].route(address, args) == False:
+                return
+
+        if protocol != 'midi':
+            if self.route_generic_osc_api(address, args) == True:
                 return
 
         if self.active_route:
@@ -504,6 +518,58 @@ class Engine():
             self.route('midi', port, osc_message['address'], osc_message['args'])
             if self.log_statistics:
                 self.statistics['midi_in'] += 1
+
+    def route_generic_osc_api(self, address, args):
+        """
+        Generic OSC API: control any parameter or call any module method
+
+        **Parameters**
+
+        - `address`: osc address
+        - `args`: list of values
+        """
+        module_path = address.split('/')[1:]
+        module_name = module_path[0]
+
+        call = False
+        if module_path[-1] == 'call':
+            module_path = module_path[:-1]
+            call = True
+
+        module_name = module_path[0]
+        module = None
+
+        if module_name == 'Engine':
+            module = self
+        elif module_name == 'Root':
+            module = self.root_module
+        elif module_name in self.engine.modules:
+            module = self.modules[module_name]
+            for n in path[1:]:
+                if n in module.submodules:
+                    module = module.submodules[n]
+                else:
+                    module = None
+                    break
+
+        if module is not None:
+
+            if call:
+                if len(args) > 0 and type(args[0] == str) and hasattr(mod, args[0]):
+                    method = getattr(mod, args[0])
+                    if callable(method):
+                        method(*args[1:])
+            else:
+
+                if type(args[0]) == str:
+                    mod.set(*args)
+
+
+            return False
+
+        else:
+
+            return True
 
     def start_scene(self, name, scene, *args, **kwargs):
         """
