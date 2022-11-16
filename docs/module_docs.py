@@ -20,7 +20,7 @@ for mod in [Engine, Module, Route]:
             source, start_line = getsourcelines(obj)
             if obj.__qualname__.split('.')[0] == 'Sequencer':
                 start_line += 10000
-            if obj.__qualname__.split('.')[0] == 'Module' and mod == Engine:
+            if mod == Engine and obj.__qualname__.split('.')[0] != 'Engine':
                 continue
             methods.append([name, obj, start_line])
     methods.sort(key = lambda v: v[2])

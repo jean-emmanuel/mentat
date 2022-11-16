@@ -153,18 +153,6 @@
                         href="#engine.start_cycle">Engine.start_cycle()</a></li>
                         <li><a
                         href="#engine.dispatch_event">Engine.dispatch_event()</a></li>
-                        <li><a
-                        href="#engine.start_scene">Engine.start_scene()</a></li>
-                        <li><a
-                        href="#engine.restart_scene">Engine.restart_scene()</a></li>
-                        <li><a
-                        href="#engine.stop_scene">Engine.stop_scene()</a></li>
-                        <li><a
-                        href="#engine.wait">Engine.wait()</a></li>
-                        <li><a
-                        href="#engine.wait_next_cycle">Engine.wait_next_cycle()</a></li>
-                        <li><a
-                        href="#engine.play_sequence">Engine.play_sequence()</a></li>
                         </ul></li>
                         <li><a href="#module">Module</a>
                         <ul>
@@ -245,7 +233,7 @@
         <main>
 <h2 id="mentat">Mentat</h2>
 <div class="version">
-<p>Version: 1.1.1 (14/11/2022) <br/> License: GNU/GPL v3 (© 2022
+<p>Version: 1.2.0 (16/11/2022) <br/> License: GNU/GPL v3 (© 2022
 Jean-Emmanuel Doucet)</p>
 </div>
 <h3 id="overview">Overview</h3>
@@ -486,120 +474,6 @@ method.</p>
 <li><code>event</code>: name of event</li>
 <li><code>*args</code>: arguments for the callback function</li>
 </ul>
-</div>
-<h3 id="engine.start_scene">Engine.start_scene()</h3>
-<div class="content">
-<p><i>start_scene(name, scene, *args, **kwargs)</i><br/></p>
-<p>Start scene in a thread. If a scene with the same name is already
-running, it will be stopped. Scenes should be implemented as methods of
-the object and can call self.wait() to create timed sequences or loops.
-Different objects may call a scene with the same name
-simultaneously.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: scene name</li>
-<li><code>scene</code>: function or method</li>
-<li><code>*args</code>: arguments for the scene function</li>
-<li><code>**kwargs</code>: keyword arguments for the scene function</li>
-</ul>
-</div>
-<h3 id="engine.restart_scene">Engine.restart_scene()</h3>
-<div class="content">
-<p><i>restart_scene(name)</i><br/></p>
-<p>Restart a scene that’s already running. Does nothing if the scene is
-not running.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: scene name, with wildcard (’*‘) and range (’[]’)
-support</li>
-</ul>
-</div>
-<h3 id="engine.stop_scene">Engine.stop_scene()</h3>
-<div class="content">
-<p><i>stop_scene(name)</i><br/></p>
-<p>Stop scene thread.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>name</code>: scene name, with wildcard support</li>
-</ul>
-</div>
-<h3 id="engine.wait">Engine.wait()</h3>
-<div class="content">
-<p><i>wait(duration, mode=‘beats’)</i><br/></p>
-<p>Wait for given amount of time. Can only be called in scenes.
-Subsequent calls to wait() in a scene do not drift with time and can be
-safely used to create beat sequences. The engine’s <code>tempo</code>
-must be set for the <code>beats</code> mode to work.</p>
-<pre><code># Example
-beat_1()
-self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1&#39;s exec time
-beat_2()
-self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec time</code></pre>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>duration</code>: amount of time to wait</li>
-<li><code>mode</code>: ‘beats’ or ‘seconds’ (only the first letter
-matters)</li>
-</ul>
-</div>
-<h3 id="engine.wait_next_cycle">Engine.wait_next_cycle()</h3>
-<div class="content">
-<p><i>wait_next_cycle()</i><br/></p>
-<p>Wait until next cycle begins. The engine’s <code>tempo</code> and
-<code>cycle_length</code> must be set and the engine’s
-<code>start_cycle()</code> method must be called at the beginning of a
-cycle for this to work.</p>
-</div>
-<h3 id="engine.play_sequence">Engine.play_sequence()</h3>
-<div class="content">
-<p><i>play_sequence(sequence, loop=True)</i><br/></p>
-<p>Play a sequence of actions scheduled on arbitrary beats. Can only be
-called in scenes.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>sequence</code>:
-<ul>
-<li><code>dict</code> with beat numbers (1-indexed, quarter note based)
-as keys and lambda functions as values</li>
-<li><code>list</code> of <code>dict</code> sequences (one sequence = one
-bar)</li>
-<li>sequences may contain an extra ‘signature’ string to change the time
-signature. If not provided in the first sequence, the signature takes
-the engine’s cycle length value.</li>
-</ul></li>
-<li><code>loop</code>: if <code>False</code>, the sequence will play
-only once, otherwise it will loop until the scene is stopped</li>
-</ul>
-<p><strong>Example</strong></p>
-<pre><code># single-bar sequence
-play_sequence({
-    &#39;signature&#39;: &#39;4/4&#39;,
-    # beat 1
-    1: lambda: guitar.set(&#39;mute&#39;, 1),
-    # beat 3
-    3: lambda: [guitar.set(&#39;mute&#39;, 0), guitar.set(&#39;disto&#39;, 1)],
-    # &quot;and&quot; of beat 4
-    4.5: lambda: guitar.set(&#39;disto&#39;, 0),
-})
-
-# multi-bar sequence
-play_sequence([
-    {   # bar 1
-        &#39;signature&#39;: &#39;4/4&#39;,
-        # beat 1
-        1: lambda: voice.set(&#39;autotune&#39;, 1),
-    },
-    {}, # bar 2 (empty)
-    {   # bar 3 (empty, but in 3/4)
-        &#39;signature&#39;: &#39;3/4&#39;,
-    },
-    {   # bar 4 (in 3/4 too)
-        # beat 1
-        1: lambda: foo.set(&#39;autotune&#39;, 0),
-        # beat 3
-        3: lambda: foo.set(&#39;autotune&#39;, 1),
-    }
-])</code></pre>
 </div>
 <hr />
 <h2 id="module">Module</h2>
