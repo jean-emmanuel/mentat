@@ -11,6 +11,7 @@ import threading
 from pyalsa import alsaseq
 from signal import signal, SIGINT, SIGTERM
 from queue import Queue
+from pathlib import Path
 
 from .config import *
 from .utils import *
@@ -100,7 +101,7 @@ class Engine(Module):
         self.cycle_length = 4.0
         self.tempo = 120.0
 
-        self.folder = folder
+        self.folder = Path(folder).expanduser().resolve()
 
         self.modules = {}
         self.event_callbacks = {}
