@@ -17,11 +17,14 @@ from .utils import *
 from .midi import osc_to_midi, midi_to_osc
 from .thread import KillableThread as Thread
 from .timer import Timer
+from .module import Module
 
-class Engine():
+class Engine(Module):
     """
     Main object. Singleton that must be instanciated before any `Module` or `Route` object.
     The global engine instance is always accessible via `Engine.INSTANCE`.
+
+    The engine is also a `Module` instance and can use the methods of this class.
 
     **Instance properties**
 
@@ -36,6 +39,9 @@ class Engine():
             and creating meta parameters with multiple modules.
     - `tempo`: beats per minute
     - `cycle_length`: quarter notes per cycle
+    - `port`: osc (udp) input port number
+    - `tcp_port`: osc (tcp) input port number
+    - `unix_port`: osc (unix) input socket path
     """
 
     INSTANCE = None
@@ -64,11 +70,9 @@ class Engine():
         self.unix_port = unix_port
 
         if Engine.INSTANCE is not None:
-            self.logger.error('only one instance Engine can be created')
-            raise Exception
+            self.logger.critical('only one instance Engine can be created')
         else:
             Engine.INSTANCE = self
-            from .module import Module
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
@@ -98,7 +102,6 @@ class Engine():
 
         self.folder = folder
 
-        self.root_module = Module(self.name)
         self.modules = {}
         self.event_callbacks = {}
         self.queue = Queue()
@@ -120,6 +123,14 @@ class Engine():
             'osc_out': 0,
             'exec_time': [0, 0, 0] # max, total, iterations
         }
+
+        Module.__init__(self, name)
+
+    # backward compat
+    def get_root_module(self):
+        self.logger.warning('root_module property is deprecated, use engine instance directly instead')
+        return self
+    root_module = property(get_root_module)
 
     def start_servers(self):
         """
@@ -179,9 +190,10 @@ class Engine():
             pass
 
         # process midi messages
-        midi_events = self.midi_server.receive_events()
-        for e in midi_events:
-            self.route_midi(e)
+        if self.midi_server:
+            midi_events = self.midi_server.receive_events()
+            for e in midi_events:
+                self.route_midi(e)
 
     @public_method
     def start(self):
@@ -338,8 +350,8 @@ class Engine():
         - `module`: Module object
         """
         self.modules[module.name] = module
-        module.parent_module = self.root_module
-        self.root_module.add_submodule(module)
+        self.submodules[module.name] = module
+        module.parent_module = self
 
         if module.port is not None:
             if module.protocol in ['osc', 'osc.tcp', 'osc.unix']:
@@ -347,6 +359,12 @@ class Engine():
                 self.osc_outputs[module.protocol][module.name] = module.port
             elif module.protocol == 'midi':
                 self.midi_ports[module.name] = None
+
+    def add_submodule(self, *args, **kwargs):
+        """
+        Bypass Module.add_submodule()
+        """
+        self
 
     def flush(self):
         """
@@ -485,7 +503,7 @@ class Engine():
                 return
 
         if protocol != 'midi':
-            if self.route_generic_osc_api(address, args) == True:
+            if self.route_generic_osc_api(address, args) == False:
                 return
 
         if self.active_route:
@@ -527,42 +545,45 @@ class Engine():
 
         - `address`: osc address
         - `args`: list of values
+
+        **Returns*
+        `False` if a module parameter or method was reached, `True` otherwise.
         """
         module_path = address.split('/')[1:]
         module_name = module_path[0]
+
+        if not module_path or module_path[0] != self.name:
+            return True
 
         call = False
         if module_path[-1] == 'call':
             module_path = module_path[:-1]
             call = True
 
-        module_name = module_path[0]
-        module = None
+        module = self
 
-        if module_name == 'Engine':
-            module = self
-        elif module_name == 'Root':
-            module = self.root_module
-        elif module_name in self.engine.modules:
-            module = self.modules[module_name]
-            for n in path[1:]:
-                if n in module.submodules:
-                    module = module.submodules[n]
-                else:
-                    module = None
-                    break
+        if len(module_path) > 1:
+            module_name = module_path[1]
+            if module_name in self.modules:
+                module = self.modules[module_name]
+                for n in module_path[1:]:
+                    if n in module.submodules:
+                        module = module.submodules[n]
+                    else:
+                        module = None
+                        break
 
         if module is not None:
 
             if call:
-                if len(args) > 0 and type(args[0] == str) and hasattr(mod, args[0]):
-                    method = getattr(mod, args[0])
+                if len(args) > 0 and type(args[0] == str) and hasattr(module, args[0]):
+                    method = getattr(module, args[0])
                     if callable(method):
                         method(*args[1:])
             else:
 
                 if type(args[0]) == str:
-                    mod.set(*args)
+                    module.set(*args)
 
 
             return False
@@ -571,9 +592,9 @@ class Engine():
 
             return True
 
-    def start_scene(self, name, scene, *args, **kwargs):
+    def start_scene_thread(self, name, scene, *args, **kwargs):
         """
-        scene(scene)
+        start_scene_thread(scene)
 
         Start function in a thread.
         If a scene with the same name is already running, it will be stopped.
@@ -585,15 +606,15 @@ class Engine():
         - `*args`: arguments for the scene function
         - `*kwargs`: keyword arguments for the scene function
         """
-        self.stop_scene(name)
+        self.stop_scene_thread(name)
         self.scenes_timers[name] = Timer(self)
         self.scenes[name] = Thread(target=scene, name=name, args=args, kwargs=kwargs)
         self.scenes[name].start()
         self.logger.debug('starting scene %s' % name)
 
-    def restart_scene(self, name):
+    def restart_scene_thread(self, name):
         """
-        restart_scene(name)
+        restart_scene_thread(name)
 
         Restart a scene that's already running.
         Does nothing if the scene is not running.
@@ -604,16 +625,16 @@ class Engine():
         """
         if '*' in name or '[' in name:
             for n in fnmatch.filter(self.scenes.keys(), name):
-                self.restart_scene(n)
+                self.restart_scene_thread(n)
         elif name in self.scenes and self.scenes[name].is_alive():
             self.scenes[name].kill()
             self.scenes_timers[name].reset()
             self.scenes[name].start()
             self.logger.debug('restarting scene %s' % name)
 
-    def stop_scene(self, name):
+    def stop_scene_thread(self, name):
         """
-        scene(scene)
+        stop_scene_thread(scene)
 
         Stop scene thread.
 
@@ -624,7 +645,7 @@ class Engine():
         """
         if '*' in name or '[' in name:
             for n in fnmatch.filter(self.scenes.keys(), name):
-                self.stop_scene(n)
+                self.stop_scene_thread(n)
         elif name in self.scenes:
             if self.scenes[name].is_alive():
                 self.logger.debug('stopping scene %s' % name)
@@ -707,9 +728,9 @@ class Engine():
         self.cycle_start_time = self.current_time
 
 
-    def add_event_callback(self, event, callback):
+    def register_event_callback(self, event, callback):
         """
-        add_event_callback(event, callback)
+        register_event_callback(event, callback)
 
         See module.add_event_callback()
         """

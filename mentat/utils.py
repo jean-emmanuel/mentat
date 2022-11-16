@@ -1,3 +1,4 @@
+import sys
 import logging
 import traceback
 import threading
@@ -55,14 +56,34 @@ def thread_locked(method):
             return method(self, *args, **kwargs)
     return decorated
 
-
 class TraceLogger(logging.Logger):
     """
     Add backtrace to error logs
     """
+    def get_formatted_stack(self):
+        exc_info = sys.exc_info()
+        stack = traceback.extract_stack()[:-3]
+        trace = traceback.format_list(stack)
+        formatted = ''
+        for line in trace:
+            if '  File "/usr/lib' in line or '  File "<frozen' in line:
+                continue
+            elif 'mentat/utils.py' in line and ', in decorated' in line:
+                continue
+            else:
+                formatted += line
+
+        return '\nTraceback (most recent call last):\n%s' % formatted
+
     def error(self, msg, *args, **kwargs):
 
-        msg += '\nTraceback:\n%s' % ''.join(traceback.format_stack()[-5:-2])
-        return super().error(msg, *args, **kwargs)
+        msg += self.get_formatted_stack()
+        return super().error(msg , *args, **kwargs)
+
+    def critical(self, msg, *args, **kwargs):
+
+        msg += self.get_formatted_stack()
+        super().critical(msg, *args, **kwargs)
+        raise SystemExit
 
 logging.setLoggerClass(TraceLogger)

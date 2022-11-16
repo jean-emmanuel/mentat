@@ -27,11 +27,10 @@ class Sequencer():
         - `**kwargs`: keyword arguments for the scene function
         """
         if '*' in name or '[' in name:
-            self.logger.error('characters "*" and "[" are forbidden in scene name')
-            raise Exception
+            self.logger.critical('characters "*" and "[" are forbidden in scene name')
 
         self.stop_scene('/%s/%s' % (self.scene_namespace, name))
-        self.engine.start_scene('/%s/%s' % (self.scene_namespace, name), scene, *args, **kwargs)
+        self.engine.start_scene_thread('/%s/%s' % (self.scene_namespace, name), scene, *args, **kwargs)
 
     @public_method
     def restart_scene(self, name):
@@ -45,7 +44,7 @@ class Sequencer():
 
         - `name`: scene name, with wildcard ('*') and range ('[]') support
         """
-        self.engine.restart_scene('/%s/%s' % (self.scene_namespace, name))
+        self.engine.restart_scene_thread('/%s/%s' % (self.scene_namespace, name))
 
     @public_method
     def stop_scene(self, name):
@@ -58,7 +57,7 @@ class Sequencer():
 
         - `name`: scene name, with wildcard support
         """
-        self.engine.stop_scene('/%s/%s' % (self.scene_namespace, name))
+        self.engine.stop_scene_thread('/%s/%s' % (self.scene_namespace, name))
 
     @public_method
     def wait(self, duration, mode='beats'):

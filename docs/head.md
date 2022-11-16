@@ -48,10 +48,10 @@ In order to ensure state consistency, parameters should always be controlled by 
 
 **Set parameter**
 
-`/module_name/submodule_name <parameter_name> <parameter_values>`
+`/engine_name/module_name/submodule_name <parameter_name> <parameter_values>`
 
 **Call method**
 
-`/module_name/submodule_name/call <method_name> <arguments>`
+`/engine_name/module_name/submodule_name/call <method_name> <arguments>`
 
 ----

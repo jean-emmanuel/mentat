@@ -153,6 +153,18 @@
                         href="#engine.start_cycle">Engine.start_cycle()</a></li>
                         <li><a
                         href="#engine.dispatch_event">Engine.dispatch_event()</a></li>
+                        <li><a
+                        href="#engine.start_scene">Engine.start_scene()</a></li>
+                        <li><a
+                        href="#engine.restart_scene">Engine.restart_scene()</a></li>
+                        <li><a
+                        href="#engine.stop_scene">Engine.stop_scene()</a></li>
+                        <li><a
+                        href="#engine.wait">Engine.wait()</a></li>
+                        <li><a
+                        href="#engine.wait_next_cycle">Engine.wait_next_cycle()</a></li>
+                        <li><a
+                        href="#engine.play_sequence">Engine.play_sequence()</a></li>
                         </ul></li>
                         <li><a href="#module">Module</a>
                         <ul>
@@ -294,14 +306,16 @@ track.</p>
 controlled by mentat. The following commands are exposed to allow
 controlling modules on the fly by sending osc messages to mentat:</p>
 <p><strong>Set parameter</strong></p>
-<p><code>/module_name/submodule_name &lt;parameter_name&gt; &lt;parameter_values&gt;</code></p>
+<p><code>/engine_name/module_name/submodule_name &lt;parameter_name&gt; &lt;parameter_values&gt;</code></p>
 <p><strong>Call method</strong></p>
-<p><code>/module_name/submodule_name/call &lt;method_name&gt; &lt;arguments&gt;</code></p>
+<p><code>/engine_name/module_name/submodule_name/call &lt;method_name&gt; &lt;arguments&gt;</code></p>
 <hr />
 <h2 id="engine">Engine</h2>
 <p>Main object. Singleton that must be instanciated before any
 <code>Module</code> or <code>Route</code> object. The global engine
 instance is always accessible via <code>Engine.INSTANCE</code>.</p>
+<p>The engine is also a <code>Module</code> instance and can use the
+methods of this class.</p>
 <p><strong>Instance properties</strong></p>
 <ul>
 <li><code>modules</code>: <code>dict</code> containing modules added to
@@ -319,6 +333,9 @@ name with <code>set()</code>, <code>animate()</code>, and creating meta
 parameters with multiple modules.</li>
 <li><code>tempo</code>: beats per minute</li>
 <li><code>cycle_length</code>: quarter notes per cycle</li>
+<li><code>port</code>: osc (udp) input port number</li>
+<li><code>tcp_port</code>: osc (tcp) input port number</li>
+<li><code>unix_port</code>: osc (unix) input socket path</li>
 </ul>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
@@ -470,6 +487,120 @@ method.</p>
 <li><code>*args</code>: arguments for the callback function</li>
 </ul>
 </div>
+<h3 id="engine.start_scene">Engine.start_scene()</h3>
+<div class="content">
+<p><i>start_scene(name, scene, *args, **kwargs)</i><br/></p>
+<p>Start scene in a thread. If a scene with the same name is already
+running, it will be stopped. Scenes should be implemented as methods of
+the object and can call self.wait() to create timed sequences or loops.
+Different objects may call a scene with the same name
+simultaneously.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>name</code>: scene name</li>
+<li><code>scene</code>: function or method</li>
+<li><code>*args</code>: arguments for the scene function</li>
+<li><code>**kwargs</code>: keyword arguments for the scene function</li>
+</ul>
+</div>
+<h3 id="engine.restart_scene">Engine.restart_scene()</h3>
+<div class="content">
+<p><i>restart_scene(name)</i><br/></p>
+<p>Restart a scene that’s already running. Does nothing if the scene is
+not running.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>name</code>: scene name, with wildcard (’*‘) and range (’[]’)
+support</li>
+</ul>
+</div>
+<h3 id="engine.stop_scene">Engine.stop_scene()</h3>
+<div class="content">
+<p><i>stop_scene(name)</i><br/></p>
+<p>Stop scene thread.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>name</code>: scene name, with wildcard support</li>
+</ul>
+</div>
+<h3 id="engine.wait">Engine.wait()</h3>
+<div class="content">
+<p><i>wait(duration, mode=‘beats’)</i><br/></p>
+<p>Wait for given amount of time. Can only be called in scenes.
+Subsequent calls to wait() in a scene do not drift with time and can be
+safely used to create beat sequences. The engine’s <code>tempo</code>
+must be set for the <code>beats</code> mode to work.</p>
+<pre><code># Example
+beat_1()
+self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1&#39;s exec time
+beat_2()
+self.wait(1, &#39;b&#39;) # will wait 1 beat minus beat_1 and beat_2&#39;s exec time</code></pre>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>duration</code>: amount of time to wait</li>
+<li><code>mode</code>: ‘beats’ or ‘seconds’ (only the first letter
+matters)</li>
+</ul>
+</div>
+<h3 id="engine.wait_next_cycle">Engine.wait_next_cycle()</h3>
+<div class="content">
+<p><i>wait_next_cycle()</i><br/></p>
+<p>Wait until next cycle begins. The engine’s <code>tempo</code> and
+<code>cycle_length</code> must be set and the engine’s
+<code>start_cycle()</code> method must be called at the beginning of a
+cycle for this to work.</p>
+</div>
+<h3 id="engine.play_sequence">Engine.play_sequence()</h3>
+<div class="content">
+<p><i>play_sequence(sequence, loop=True)</i><br/></p>
+<p>Play a sequence of actions scheduled on arbitrary beats. Can only be
+called in scenes.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>sequence</code>:
+<ul>
+<li><code>dict</code> with beat numbers (1-indexed, quarter note based)
+as keys and lambda functions as values</li>
+<li><code>list</code> of <code>dict</code> sequences (one sequence = one
+bar)</li>
+<li>sequences may contain an extra ‘signature’ string to change the time
+signature. If not provided in the first sequence, the signature takes
+the engine’s cycle length value.</li>
+</ul></li>
+<li><code>loop</code>: if <code>False</code>, the sequence will play
+only once, otherwise it will loop until the scene is stopped</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code># single-bar sequence
+play_sequence({
+    &#39;signature&#39;: &#39;4/4&#39;,
+    # beat 1
+    1: lambda: guitar.set(&#39;mute&#39;, 1),
+    # beat 3
+    3: lambda: [guitar.set(&#39;mute&#39;, 0), guitar.set(&#39;disto&#39;, 1)],
+    # &quot;and&quot; of beat 4
+    4.5: lambda: guitar.set(&#39;disto&#39;, 0),
+})
+
+# multi-bar sequence
+play_sequence([
+    {   # bar 1
+        &#39;signature&#39;: &#39;4/4&#39;,
+        # beat 1
+        1: lambda: voice.set(&#39;autotune&#39;, 1),
+    },
+    {}, # bar 2 (empty)
+    {   # bar 3 (empty, but in 3/4)
+        &#39;signature&#39;: &#39;3/4&#39;,
+    },
+    {   # bar 4 (in 3/4 too)
+        # beat 1
+        1: lambda: foo.set(&#39;autotune&#39;, 0),
+        # beat 3
+        3: lambda: foo.set(&#39;autotune&#39;, 1),
+    }
+])</code></pre>
+</div>
 <hr />
 <h2 id="module">Module</h2>
 <p>Interface between a software / hardware and the engine.</p>
@@ -481,7 +612,7 @@ method.</p>
 <li><code>parent_module</code>: parent module instance,
 <code>None</code> if the module is not a submodule</li>
 <li><code>module_path</code>: list of module names, from topmost parent
-(excluding the engine’s <code>root_module</code>) to submodule</li>
+(engine) to submodule</li>
 <li><code>submodules</code>: <code>dict</code> containing submodules
 added to the module with names as keys</li>
 <li><code>parameters</code>: <code>dict</code> containing parameters
@@ -511,10 +642,13 @@ to the parent module’s instance</li>
 <h3 id="module.add_submodule">Module.add_submodule()</h3>
 <div class="content">
 <p><i>add_submodule(*modules)</i><br/></p>
-<p>Add a submodule. Submodule’s protocol and port can be omitted, in
-which case they will be inherited from their parent. The submodule’s
-parent instance must be provided in its constructor function
-(<code>parent</code> argument).</p>
+<p>Add a submodule.</p>
+<p>Submodule’s protocol and port can be omitted, in which case they will
+be inherited from their parent.</p>
+<p>A submodule can send messages but it will not receive messages
+through its route method.</p>
+<p>The submodule’s parent instance must be provided in its constructor
+function (<code>parent</code> argument).</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>modules</code>: Module objects (one module per argument)</li>
@@ -657,9 +791,14 @@ several parameters owned by the module or its submodules.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of meta parameter</li>
-<li><code>parameters</code>: list of parameter names involved in the
-meta parameter. Items may be lists if the parameters are owned by a
-submodule (<code>['submodule_name', 'parameter_name']</code>)</li>
+<li><code>parameters</code>: list of parameters involved in the meta
+parameter’s definition. Each item in the list can be either:
+<ul>
+<li><code>string</code>: a parameter name</li>
+<li><code>list</code>: one or multiple submodule names and one parameter
+name (<code>['submodule_name', 'parameter_name']</code>) if the
+parameter is owned by a submodule</li>
+</ul></li>
 <li><code>getter</code>: callback function that will be called with the
 values of each <code>parameters</code> as arguments whenever one these
 parameters changes. Its return value will define the meta parameter’s

@@ -8,7 +8,6 @@ from queue import Queue
 from .utils import *
 from .parameter import Parameter, MetaParameter
 from .sequencer import Sequencer
-from .engine import Engine
 
 class Module(Sequencer):
     """
@@ -20,7 +19,7 @@ class Module(Sequencer):
     - `logger`: python logger
     - `name`: module name
     - `parent_module`: parent module instance, `None` if the module is not a submodule
-    - `module_path`: list of module names, from topmost parent (excluding the engine's `root_module`) to submodule
+    - `module_path`: list of module names, from topmost parent (engine) to submodule
     - `submodules`: `dict` containing submodules added to the module with names as keys
     - `parameters`: `dict` containing parameters (including meta parameters) added to the module with names as keys
     - `meta_parameters`: `dict` containing meta parameters added to the module with names as keys
@@ -53,25 +52,26 @@ class Module(Sequencer):
         self.name = name
 
         if '*' in name or '[' in name:
-            self.logger.error('characters "*" and "[" are forbidden in module name')
-            raise Exception
+            self.logger.critical('characters "*" and "[" are forbidden in module name')
         if name == 'call':
-            self.logger.error('module name cannot be "call"')
-            raise Exception
+            self.logger.critical('module name cannot be "call"')
 
+        from .engine import Engine
         if Engine.INSTANCE is None:
-            self.logger.error('the engine must created before any module')
-            raise Exception
+            self.logger.critical('the engine must created before any module')
         else:
             self.engine = Engine.INSTANCE
+        if self != Engine.INSTANCE and parent is None:
+            parent = Engine.INSTANCE
 
         self.parent_module = parent
 
         self.protocol = protocol
-        if protocol == 'midi':
-            self.port = name
-        else:
-            self.port = port
+        if self != Engine.INSTANCE:
+            if protocol == 'midi':
+                self.port = name
+            else:
+                self.port = port
 
         self.parameters = {}
         self.animations = []
@@ -85,7 +85,8 @@ class Module(Sequencer):
 
         self.module_path = [name]
         parent = self.parent_module
-        while parent is not None and parent is not self.engine.root_module:
+
+        while parent is not None:#   and parent is not self.engine.root_module:
             self.module_path.insert(0, parent.name)
             parent = parent.parent_module
 
@@ -120,8 +121,7 @@ class Module(Sequencer):
         """
         for module in modules:
             if module.parent_module != self:
-                self.logger.error('incorrect value for argument "parent" of submodule "%s".' % module.name)
-                raise Exception
+                self.logger.critical('incorrect value for argument "parent" of submodule "%s".' % module.name)
             self.submodules[module.name] = module
             if module.protocol is None:
                 module.protocol = self.protocol
@@ -383,8 +383,9 @@ class Module(Sequencer):
 
         - `name`: name of meta parameter
         - `parameters`:
-            list of parameter names involved in the meta parameter.
-            Items may be lists if the parameters are owned by a submodule (`['submodule_name', 'parameter_name']`)
+            list of parameters involved in the meta parameter's definition. Each item in the list can be either:
+            - `string`: a parameter name
+            - `list`: one or multiple submodule names and one parameter name (`['submodule_name', 'parameter_name']`) if the parameter is owned by a submodule
         - `getter`:
             callback function that will be called with the values of each
             `parameters` as arguments whenever one these parameters changes.
@@ -704,4 +705,4 @@ class Module(Sequencer):
 
         """
 
-        self.engine.add_event_callback(event, callback)
+        self.engine.register_event_callback(event, callback)

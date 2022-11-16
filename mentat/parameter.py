@@ -22,8 +22,7 @@ class Parameter():
         - `default`: default value
         """
         if '*' in name or '[' in name:
-            self.logger.error('characters "*" and "[" are forbidden in parameter name')
-            raise Exception
+            self.logger.critical('characters "*" and "[" are forbidden in parameter name')
 
         self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name

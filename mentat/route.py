@@ -31,8 +31,7 @@ class Route(Sequencer):
         Sequencer.__init__(self, 'route/' + self.name)
 
         if Engine.INSTANCE is None:
-            self.logger.error('the engine must created before any module')
-            raise Exception
+            self.logger.critical('the engine must created before any module')
         else:
             self.engine = Engine.INSTANCE
 
