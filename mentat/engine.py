@@ -346,6 +346,9 @@ class Engine(Module):
 
         - `module`: Module object
         """
+        if module == self:
+            self.logger.critical('cannot add self as module')
+
         self.modules[module.name] = module
         self.submodules[module.name] = module
         module.parent_module = self
