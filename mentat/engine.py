@@ -561,12 +561,11 @@ class Engine(Module):
             call = True
 
         module = self
-
         if len(module_path) > 1:
             module_name = module_path[1]
             if module_name in self.modules:
                 module = self.modules[module_name]
-                for n in module_path[1:]:
+                for n in module_path[2:]:
                     if n in module.submodules:
                         module = module.submodules[n]
                     else:
