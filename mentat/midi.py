@@ -51,11 +51,11 @@ def osc_to_midi(address, args):
     if address not in OSC_TO_MIDI:
         return None
 
+    if None in args:
+        return None
+
     if not all(isinstance(e, int) for e in args):
-        try:
-            args = [int(x) for x in args]
-        except:
-            return None
+        args = [int(x) for x in args]
 
     mtype = OSC_TO_MIDI[address]
     event = alsaseq.SeqEvent(mtype)
