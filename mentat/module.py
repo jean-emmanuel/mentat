@@ -53,8 +53,6 @@ class Module(Sequencer):
 
         if '*' in name or '[' in name:
             self.logger.critical('characters "*" and "[" are forbidden in module name')
-        if name == 'call':
-            self.logger.critical('module name cannot be "call"')
 
         from .engine import Engine
         if Engine.INSTANCE is None:
@@ -94,8 +92,8 @@ class Module(Sequencer):
         self.states_folder = ''
         self.states_folder = '%s/states/%s' % (self.engine.folder, '/'.join(self.module_path))
         for file in glob.glob('%s/*.json' % self.states_folder):
-            name = file.split('/')[-1].rpartition('.')[0]
-            self.load(name, preload=True)
+            state_name = file.split('/')[-1].rpartition('.')[0]
+            self.load(state_name, preload=True)
 
         Sequencer.__init__(self, 'module/' + '/'.join(self.module_path))
 
@@ -221,7 +219,7 @@ class Module(Sequencer):
         has(parameter_name)
         has(submodule_name, param_name)
 
-        Check if module as parameter
+        Check if module has parameter
 
         **Parameters**
 
@@ -421,7 +419,7 @@ class Module(Sequencer):
             self.parameters[name] = meta_parameter
             for p in meta_parameter.parameters:
                 # avoid updating meta parameter the first time if
-                # dependencies don't exist they may be not ready yet 
+                # dependencies don't exist they may be not ready yet
                 if not self.has(*p):
                     return
             self.update_meta_parameter(name)
