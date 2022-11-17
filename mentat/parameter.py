@@ -33,6 +33,9 @@ class Parameter():
             self.args[i] = static_args[i]
         self.n_args = len(types) - len(static_args)
 
+        if self.n_args < 0:
+            self.logger.critical('incoherent values for types and static_args arguments')
+
         self.animate_running = False
         self.animate_start = 0
         self.animate_duration = 0
@@ -110,6 +113,23 @@ class Parameter():
         """
         return self.last_sent != self.get()
 
+    cast_functions = {
+        'i': lambda arg: int(round(arg)) if type(arg) == float else int(arg),
+        'h': lambda arg: int(round(arg)) if type(arg) == float else int(arg),
+        'f': lambda arg: float(arg),
+        'd': lambda arg: float(arg),
+        't': lambda arg: float(arg),
+        's': lambda arg: str(arg),
+        'S': lambda arg: str(arg),
+        'c': lambda arg: str(arg),
+        'T': lambda arg: True,
+        'F': lambda arg: False,
+        'm': lambda arg: arg,
+        'N': lambda arg: arg,
+        'I': lambda arg: arg,
+        'b': lambda arg: arg,
+    }
+
     def cast(self, arg, arg_type):
         """
         cast(arg, arg_type)
@@ -119,25 +139,31 @@ class Parameter():
         **Parameters**
 
         - `arg`: input value
-        - `arg_type`: osc typetag letter (supported: 'ifsTF')
+        - `arg_type`: osc typetag letter
 
         **Return**
 
         Casted value
         """
 
-        if arg_type == 'i':
-            return int(round(arg)) if type(arg) == float else int(arg)
-        elif arg_type == 'f':
-            return float(arg)
-        elif arg_type == 's':
-            return str(arg)
-        elif arg_type == 'T':
-            return True
-        elif arg_type == 'F':
-            return False
+        if arg_type in self.cast_functions:
+            return self.cast_functions[arg_type](arg)
         else:
             return arg
+
+    def get_message_args(self):
+        """
+        get_message_args()
+
+        Format typetags and args for liblo.send()
+
+        **Return**
+        List of (typetag, value) tuples
+        """
+        return [
+            (self.types[i], self.args[i]) if self.types[i] in self.cast_functions else self.args[i]
+            for i in range(len(self.args))
+        ]
 
     def start_animation(self, engine, start, end, duration, mode='beats', easing='linear', loop=False):
 

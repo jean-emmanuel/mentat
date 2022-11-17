@@ -153,6 +153,7 @@ class Module(Sequencer):
         - `name`: name of parameter
         - `address`: osc address of parameter. Can be `None` if the parameter should not send any message.
         - `types`: osc typetags string, one letter per value, including static values
+        (character '*' can be used for arguments that should not be explicitely typed)
         - `static_args`: list of static values before the ones that can be modified
         - `default`: value or list of values if the parameter has multiple dynamic values
         """
@@ -265,7 +266,7 @@ class Module(Sequencer):
 
             if force_send and parameter.address:
                 parameter.set(*args[1:])
-                self.send(parameter.address, *parameter.args)
+                self.send(parameter.address, *parameter.get_message_args())
                 parameter.set_last_sent()
 
             else:
@@ -671,7 +672,7 @@ class Module(Sequencer):
             parameter = self.dirty_parameters.get()
             if parameter.should_send():
                 if parameter.address:
-                    self.send(parameter.address, *parameter.args)
+                    self.send(parameter.address, *parameter.get_message_args())
                 parameter.set_last_sent()
                 self.engine.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
                 self.check_meta_parameters(parameter.name)
@@ -689,7 +690,7 @@ class Module(Sequencer):
         **Parameters**
 
         - `address`: osc address
-        - `*args`: values
+        - `*args`: values, or (typetag, value) tuples
         """
         proto = self.protocol
         port = self.port

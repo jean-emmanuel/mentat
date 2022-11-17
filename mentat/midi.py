@@ -51,6 +51,8 @@ def osc_to_midi(address, args):
     if address not in OSC_TO_MIDI:
         return None
 
+    args = [arg[1] if type(arg) is tuple else arg for arg in args]
+
     if None in args:
         return None
 

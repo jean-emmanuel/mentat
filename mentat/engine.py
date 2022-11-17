@@ -393,7 +393,7 @@ class Engine(Module):
         - `port`:
             module name, port number ('osc' protocol only) or unix socket path ('osc.unix' protocol only)
         - `address`: osc address
-        - `args`: values
+        - `args`: values or (typetag, value) tuples
         """
         if not self.is_running:
             # in case a module calls this method directly
