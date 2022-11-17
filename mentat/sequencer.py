@@ -15,8 +15,8 @@ class Sequencer():
 
         Start scene in a thread.
         If a scene with the same name is already running, it will be stopped.
-        Scenes should be implemented as methods of the object and
-        can call self.wait() to create timed sequences or loops.
+        Scenes should be implemented as methods of the object or lambda functions
+        and can call self.wait() and self.play_sequence() to create timed sequences or loops.
         Different objects may call a scene with the same name simultaneously.
 
         **Parameters**
