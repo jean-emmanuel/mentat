@@ -301,8 +301,9 @@ its modules:</p>
 /engine_name/module_name/set parameter_name 1.0
 /engine_name/module_name/submodule_name/animate parameter_name 1.0 10.0 1.0</code></pre>
 <h3 id="midi">MIDI</h3>
-<p>Mentat treats MIDI messages as OSC messages, supported messages are
-listed below:</p>
+<p>Mentat treats MIDI messages as OSC messages. Modules with protocol
+set to <code>'midi'</code> will send and receive messages formatted as
+follows:</p>
 <pre><code>/note_on &lt;int: channel&gt; &lt;int: note&gt; &lt;int: velocity&gt;
 /note_off &lt;int: channel&gt; &lt;int: note&gt;
 /control_change &lt;int: channel&gt; &lt;int: control&gt; &lt;int: value&gt;

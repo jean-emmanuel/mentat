@@ -59,7 +59,7 @@ In order to ensure state consistency, parameters should always be controlled by 
 
 ### MIDI
 
-Mentat treats MIDI messages as OSC messages, supported messages are listed below:
+Mentat treats MIDI messages as OSC messages. Modules with protocol set to `'midi'` will send and receive messages formatted as follows:
 
 
 ```
