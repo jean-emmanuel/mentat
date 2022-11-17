@@ -200,6 +200,9 @@ class Engine(Module):
         Start engine. This is usually the last statement in the script as
         it starts the processing loop that keeps the engine running.
         """
+        if self.is_running:
+            self.logger.error('already started')
+            return
 
         if threading.main_thread() == threading.current_thread():
             signal(SIGINT, lambda a,b: self.stop())
@@ -570,12 +573,18 @@ class Engine(Module):
                     else:
                         module = None
                         break
+            else:
+                module = None
 
         if module is not None:
 
             if hasattr(module, method_name):
                 method = getattr(module, method_name)
-                if callable(method) and hasattr(method, '_public_method'):
+                # only allow public methods and user-defined methods
+                if callable(method) and (
+                        hasattr(method, '_public_method') or
+                        method.__qualname__.split('.')[0] not in ['Engine', 'Module', 'Route', 'Sequencer']
+                    ):
                     method(*args)
 
 
