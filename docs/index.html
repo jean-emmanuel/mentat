@@ -121,6 +121,7 @@
                         <li><a href="#usage">Usage</a></li>
                         <li><a href="#generic-control-api">Generic
                         control API</a></li>
+                        <li><a href="#midi">MIDI</a></li>
                         </ul></li>
                         <li><a href="#engine">Engine</a>
                         <ul>
@@ -299,6 +300,15 @@ its modules:</p>
 <pre><code>/engine_name/set_route route_name
 /engine_name/module_name/set parameter_name 1.0
 /engine_name/module_name/submodule_name/animate parameter_name 1.0 10.0 1.0</code></pre>
+<h3 id="midi">MIDI</h3>
+<p>Mentat treats MIDI messages as OSC messages, supported messages are
+listed below:</p>
+<pre><code>/note_on &lt;int: channel&gt; &lt;int: note&gt; &lt;int: velocity&gt;
+/note_off &lt;int: channel&gt; &lt;int: note&gt;
+/control_change &lt;int: channel&gt; &lt;int: control&gt; &lt;int: value&gt;
+/program_change &lt;int: channel&gt; &lt;int: program&gt;
+/pitch_bend  &lt;int: channel&gt; &lt;int: pitch&gt;
+/sysex &lt;*int: values&gt;</code></pre>
 <hr />
 <h2 id="engine">Engine</h2>
 <p>Main object. Singleton that must be instanciated before any
@@ -385,7 +395,7 @@ the engine’s root module instance.</p>
 <li><code>port</code>: module name, port number (‘osc’ protocol only) or
 unix socket path (‘osc.unix’ protocol only)</li>
 <li><code>address</code>: osc address</li>
-<li><code>args</code>: values</li>
+<li><code>args</code>: values or (typetag, value) tuples</li>
 </ul>
 </div>
 <h3 id="engine.add_route">Engine.add_route()</h3>
@@ -547,7 +557,8 @@ default=None)</i><br/></p>
 <li><code>address</code>: osc address of parameter. Can be
 <code>None</code> if the parameter should not send any message.</li>
 <li><code>types</code>: osc typetags string, one letter per value,
-including static values</li>
+including static values (character ’*’ can be used for arguments that
+should not be explicitely typed)</li>
 <li><code>static_args</code>: list of static values before the ones that
 can be modified</li>
 <li><code>default</code>: value or list of values if the parameter has
@@ -775,7 +786,7 @@ engine’s active route after being processed by the module.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>address</code>: osc address</li>
-<li><code>*args</code>: values</li>
+<li><code>*args</code>: values, or (typetag, value) tuples</li>
 </ul>
 </div>
 <h3 id="module.add_event_callback">Module.add_event_callback()</h3>

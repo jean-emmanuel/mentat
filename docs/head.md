@@ -57,4 +57,18 @@ In order to ensure state consistency, parameters should always be controlled by 
 /engine_name/module_name/submodule_name/animate parameter_name 1.0 10.0 1.0
 ```
 
+### MIDI
+
+Mentat treats MIDI messages as OSC messages, supported messages are listed below:
+
+
+```
+/note_on <int: channel> <int: note> <int: velocity>
+/note_off <int: channel> <int: note>
+/control_change <int: channel> <int: control> <int: value>
+/program_change <int: channel> <int: program>
+/pitch_bend  <int: channel> <int: pitch>
+/sysex <*int: values>
+```
+
 ----
