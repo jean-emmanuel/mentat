@@ -29,6 +29,9 @@ class Sequencer():
         if '*' in name or '[' in name:
             self.logger.critical('characters "*" and "[" are forbidden in scene name')
 
+        if not callable(scene):
+            self.logger.critical('scene "%s" must be a function (%s provided)' % (name, type(scene).__name__))
+
         self.stop_scene('/%s/%s' % (self.scene_namespace, name))
         self.engine.start_scene_thread('/%s/%s' % (self.scene_namespace, name), scene, *args, **kwargs)
 
