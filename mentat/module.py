@@ -186,7 +186,6 @@ class Module(Sequencer):
             self.animations.remove(name)
 
     @public_method
-    @force_mainthread
     @submodule_method(pattern_matching=False)
     def get(self, *args):
         """
