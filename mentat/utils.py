@@ -58,7 +58,9 @@ def thread_locked(method):
 
 def force_mainthread(method):
     """
-    Decorator for methods that should be run only in the main thread
+    Decorator for methods that should be run only in the main thread:
+    when called from another thread, the method is put in a queue and
+    resolved in the engine's main loop.
     """
     @wraps(method)
     def decorated(self, *args, **kwargs):
