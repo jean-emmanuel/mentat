@@ -348,7 +348,6 @@ class Engine(Module):
         add_module(module)
 
         Add a module. This method will create midi ports if the module's protocol is 'midi'.
-        Modules added with this method will be children of the engine's root module instance.
 
         **Parameters**
 
