@@ -6,6 +6,7 @@ import fnmatch
 
 from queue import Queue
 from functools import wraps
+from contextlib import contextmanager
 
 def public_method(method):
     """
@@ -44,16 +45,29 @@ def submodule_method(pattern_matching):
     return decorate
 
 
+@contextmanager
+def get_lock(timeout=None):
+    held = lock.acquire(timeout=timeout)
+    try:
+        yield held
+    finally:
+        if held:
+            lock.release()
+
 lock = threading.RLock()
+lock_timeout = 3
 def thread_locked(method):
     """
-    Decorator for Module methods that shouldn't run concurrently in multiple threads.
+    Decorator for Module methods that shouldn't run co>
     Wrap method in a simple lock context.
     """
     @wraps(method)
     def decorated(self, *args, **kwargs):
-        with lock:
-            return method(self, *args, **kwargs)
+        with get_lock(3) as success:
+            if success:
+                return method(self, *args, **kwargs)
+            else:
+                self.logger.critical('deadlock while running %s() with args: %s, kwargs: %s' % (method.__name__, args, kwargs))
     return decorated
 
 def force_mainthread(method):
