@@ -45,17 +45,16 @@ def submodule_method(pattern_matching):
     return decorate
 
 
+lock = threading.RLock()
+lock_timeout = 3
 @contextmanager
-def get_lock(timeout=None):
-    held = lock.acquire(timeout=timeout)
+def get_lock():
+    held = lock.acquire(timeout=lock_timeout)
     try:
         yield held
     finally:
         if held:
             lock.release()
-
-lock = threading.RLock()
-lock_timeout = 3
 def thread_locked(method):
     """
     Decorator for Module methods that shouldn't run co>
@@ -63,7 +62,7 @@ def thread_locked(method):
     """
     @wraps(method)
     def decorated(self, *args, **kwargs):
-        with get_lock(3) as success:
+        with get_lock() as success:
             if success:
                 return method(self, *args, **kwargs)
             else:
