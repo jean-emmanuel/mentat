@@ -521,6 +521,7 @@ class Module(Sequencer):
         return state
 
     @public_method
+    @force_mainthread
     def set_state(self, state, force_send=False):
         """
         set_state(state)
