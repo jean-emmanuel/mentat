@@ -46,6 +46,7 @@ def submodule_method(pattern_matching):
 
 
 lock = threading.RLock()
+lock_last_held = None
 lock_timeout = 3
 @contextmanager
 def get_lock():
@@ -55,6 +56,7 @@ def get_lock():
     finally:
         if held:
             lock.release()
+            lock_last_held = None
 def thread_locked(method):
     """
     Decorator for Module methods that shouldn't run co>
@@ -64,9 +66,10 @@ def thread_locked(method):
     def decorated(self, *args, **kwargs):
         with get_lock() as success:
             if success:
+                lock_last_held = [self, method.__name__, args, kwargs]
                 return method(self, *args, **kwargs)
             else:
-                self.logger.critical('deadlock while running %s() with args: %s, kwargs: %s' % (method.__name__, args, kwargs))
+                self.logger.critical('deadlock while running %s() with args: %s, kwargs: %s. Lock held by %s.%s() with args: %s, kwargs: %s' % (method.__name__, args, kwargs, *lock_last_held))
     return decorated
 
 def force_mainthread(method):
