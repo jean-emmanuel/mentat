@@ -45,35 +45,6 @@ def submodule_method(pattern_matching):
     return decorate
 
 
-lock = threading.RLock()
-lock_last_held = None
-lock_timeout = 3
-@contextmanager
-def get_lock():
-    global lock_last_held
-    held = lock.acquire(timeout=lock_timeout)
-    try:
-        yield held
-    finally:
-        if held:
-            lock.release()
-            lock_last_held = None
-def thread_locked(method):
-    """
-    Decorator for Module methods that shouldn't run co>
-    Wrap method in a simple lock context.
-    """
-    @wraps(method)
-    def decorated(self, *args, **kwargs):
-        global lock_last_held
-        with get_lock() as success:
-            if success:
-                lock_last_held = [self.name, method.__name__, args, kwargs]
-                return method(self, *args, **kwargs)
-            else:
-                self.logger.critical('deadlock while running %s() with args: %s, kwargs: %s. Lock held by %s.%s() with args: %s, kwargs: %s' % (method.__name__, args, kwargs, *lock_last_held))
-    return decorated
-
 def force_mainthread(method):
     """
     Decorator for methods that should be run only in the main thread:
@@ -83,7 +54,7 @@ def force_mainthread(method):
     @wraps(method)
     def decorated(self, *args, **kwargs):
         if threading.main_thread() != threading.current_thread():
-            self.action_queue.put([method, self, args, kwargs])
+            self.engine.action_queue.put([method, self, args, kwargs])
             return None
         else:
             return method(self, *args, **kwargs)

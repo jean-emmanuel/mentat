@@ -186,7 +186,7 @@ class Module(Sequencer):
             self.animations.remove(name)
 
     @public_method
-    @thread_locked
+    @force_mainthread
     @submodule_method(pattern_matching=False)
     def get(self, *args):
         """
@@ -213,7 +213,6 @@ class Module(Sequencer):
         else:
             self.logger.error('get: parameter or submodule "%s" not found' % name)
 
-    @thread_locked
     @submodule_method(pattern_matching=False)
     def has(self, *args):
         """
@@ -235,7 +234,7 @@ class Module(Sequencer):
         return name in self.parameters
 
     @public_method
-    @thread_locked
+    @force_mainthread
     @submodule_method(pattern_matching=True)
     def set(self, *args, force_send=False, preserve_animation=False):
         """
@@ -305,7 +304,7 @@ class Module(Sequencer):
 
 
     @public_method
-    @thread_locked
+    @force_mainthread
     @submodule_method(pattern_matching=True)
     def animate(self, *args, **kwargs):
         """
@@ -342,7 +341,7 @@ class Module(Sequencer):
             self.logger.error('animate: parameter or submodule "%s" not found' % name)
 
     @public_method
-    @thread_locked
+    @force_mainthread
     @submodule_method(pattern_matching=False)
     def stop_animate(self, *args):
         """
@@ -649,9 +648,8 @@ class Module(Sequencer):
         """
         Tell parent module we have animating parameters
         """
-        with self.engine.lock:
-            if self not in self.engine.animating_modules:
-                self.engine.animating_modules.append(self)
+        if self not in self.engine.animating_modules:
+            self.engine.animating_modules.append(self)
 
 
     def set_dirty(self):

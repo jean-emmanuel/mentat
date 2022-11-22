@@ -109,8 +109,6 @@ class Engine(Module):
         self.message_queue = Queue()
         self.action_queue = Queue()
 
-        self.lock = threading.Lock()
-
         self.notifier = None
         self.restarted = os.getenv('MENTAT_RESTART') is not None
 
@@ -235,11 +233,10 @@ class Engine(Module):
             # update animations
             if self.current_time - last_animation >= ANIMATION_PERIOD:
                 last_animation = self.current_time
-                with self.lock:
-                    for mod in self.animating_modules:
-                        mod.update_animations()
-                        if not mod.animations:
-                            self.animating_modules.remove(mod)
+                for mod in self.animating_modules:
+                    mod.update_animations()
+                    if not mod.animations:
+                        self.animating_modules.remove(mod)
 
             # update parameters and queue messages
             while not self.dirty_modules.empty():
