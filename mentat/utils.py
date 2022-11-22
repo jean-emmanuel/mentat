@@ -66,7 +66,7 @@ def thread_locked(method):
     def decorated(self, *args, **kwargs):
         with get_lock() as success:
             if success:
-                lock_last_held = [self, method.__name__, args, kwargs]
+                lock_last_held = [self.name, method.__name__, args, kwargs]
                 return method(self, *args, **kwargs)
             else:
                 self.logger.critical('deadlock while running %s() with args: %s, kwargs: %s. Lock held by %s.%s() with args: %s, kwargs: %s' % (method.__name__, args, kwargs, *lock_last_held))
