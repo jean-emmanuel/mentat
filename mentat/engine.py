@@ -288,7 +288,7 @@ class Engine(Module):
         self.logger.info('stopping...')
         self.dispatch_event('engine_stopping')
         self.is_running = False
-        self.stop_scene('*')
+        self.stop_scene_thread('*')
         self.stop_servers()
         if self.notifier:
             try:
