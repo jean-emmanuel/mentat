@@ -50,6 +50,7 @@ lock_last_held = None
 lock_timeout = 3
 @contextmanager
 def get_lock():
+    global lock_last_held
     held = lock.acquire(timeout=lock_timeout)
     try:
         yield held
@@ -64,6 +65,7 @@ def thread_locked(method):
     """
     @wraps(method)
     def decorated(self, *args, **kwargs):
+        global lock_last_held
         with get_lock() as success:
             if success:
                 lock_last_held = [self.name, method.__name__, args, kwargs]
