@@ -701,7 +701,7 @@ class Module(Sequencer):
 
         if port:
             message = [proto, port, address, *args]
-            self.engine.queue.put(message)
+            self.engine.message_queue.put(message)
 
     @public_method
     def add_event_callback(self, event, callback):

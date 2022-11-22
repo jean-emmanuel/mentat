@@ -56,6 +56,20 @@ def thread_locked(method):
             return method(self, *args, **kwargs)
     return decorated
 
+def force_mainthread(method):
+    """
+    Decorator for methods that should be run only in the main thread
+    """
+    @wraps(method)
+    def decorated(self, *args, **kwargs):
+        if threading.main_thread() != threading.current_thread():
+            self.action_queue.put([method, self, args, kwargs])
+            return None
+        else:
+            return method(self, *args, **kwargs)
+    return decorated
+
+
 class TraceLogger(logging.Logger):
     """
     Add backtrace to error logs

@@ -101,10 +101,13 @@ class Engine(Module):
 
         self.modules = {}
         self.event_callbacks = {}
-        self.queue = Queue()
+        self.message_queue = Queue()
 
         self.dirty_modules = Queue()
         self.animating_modules = []
+
+        self.message_queue = Queue()
+        self.action_queue = Queue()
 
         self.lock = threading.Lock()
 
@@ -243,6 +246,11 @@ class Engine(Module):
                 mod = self.dirty_modules.get()
                 mod.update_dirty_parameters()
 
+            # resolve pending actions
+            while not self.action_queue.empty():
+                method, _self, args, kwargs = self.action_queue.get()
+                method(_self, *args, **kwargs)
+
             # send pending messages
             self.flush()
 
@@ -377,8 +385,8 @@ class Engine(Module):
         """
         if self.is_running:
 
-            while not self.queue.empty():
-                message = self.queue.get()
+            while not self.message_queue.empty():
+                message = self.message_queue.get()
                 self.send(*message)
 
             self.midi_server.sync_output_queue()
@@ -402,7 +410,7 @@ class Engine(Module):
             # in case a module calls this method directly
             # before the server is started
             message = [proto, port, address, *args]
-            self.queue.put(message)
+            self.message_queue.put(message)
             return
 
         if protocol in ['osc', 'osc.tcp', 'osc.unix']:
@@ -456,6 +464,7 @@ class Engine(Module):
         self.routes[route.name] = route
 
     @public_method
+    @force_mainthread
     def set_route(self, name):
         """
         set_route(name)
