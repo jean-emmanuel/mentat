@@ -311,6 +311,7 @@ class Engine(Module):
         """
         self.is_restarting = True
         self.logger.info('restarting...')
+        self.dispatch_event('restarting')
 
     def _restart(self):
         def restart_python():
