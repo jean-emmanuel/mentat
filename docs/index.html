@@ -207,6 +207,8 @@
                         <li><a
                         href="#module.wait_next_cycle">Module.wait_next_cycle()</a></li>
                         <li><a
+                        href="#module.lock">Module.lock()</a></li>
+                        <li><a
                         href="#module.play_sequence">Module.play_sequence()</a></li>
                         </ul></li>
                         <li><a href="#route">Route</a>
@@ -227,6 +229,7 @@
                         <li><a href="#route.wait">Route.wait()</a></li>
                         <li><a
                         href="#route.wait_next_cycle">Route.wait_next_cycle()</a></li>
+                        <li><a href="#route.lock">Route.lock()</a></li>
                         <li><a
                         href="#route.play_sequence">Route.play_sequence()</a></li>
                         </ul></li>
@@ -915,6 +918,26 @@ matters)</li>
 <code>start_cycle()</code> method must be called at the beginning of a
 cycle for this to work.</p>
 </div>
+<h3 id="module.lock">Module.lock()</h3>
+<div class="content">
+<p><i>lock()</i><br/></p>
+<p>Returns the engine’s main loop lock. Can only be called in scenes.
+While held, the engine’s main loop will be paused (no message will be
+processed, parameter changes won’t be applied).</p>
+<p>This can be used when multiple parameter changes <em>must</em> happen
+within a single processing cycle and prevent sending unnecessary
+intermediate values (example 1).</p>
+<p><strong>Examples</strong></p>
+<pre><code># example 1
+with self.lock():
+    # reset all parameters
+    module_a.reset()
+    # set a parameter, but if its value
+    # was the same before being reset
+    # no message will be sent
+    module_a.set(&#39;some_param&#39;, 1)
+</code></pre>
+</div>
 <h3 id="module.play_sequence">Module.play_sequence()</h3>
 <div class="content">
 <p><i>play_sequence(sequence, loop=True)</i><br/></p>
@@ -1068,6 +1091,26 @@ matters)</li>
 <code>cycle_length</code> must be set and the engine’s
 <code>start_cycle()</code> method must be called at the beginning of a
 cycle for this to work.</p>
+</div>
+<h3 id="route.lock">Route.lock()</h3>
+<div class="content">
+<p><i>lock()</i><br/></p>
+<p>Returns the engine’s main loop lock. Can only be called in scenes.
+While held, the engine’s main loop will be paused (no message will be
+processed, parameter changes won’t be applied).</p>
+<p>This can be used when multiple parameter changes <em>must</em> happen
+within a single processing cycle and prevent sending unnecessary
+intermediate values (example 1).</p>
+<p><strong>Examples</strong></p>
+<pre><code># example 1
+with self.lock():
+    # reset all parameters
+    module_a.reset()
+    # set a parameter, but if its value
+    # was the same before being reset
+    # no message will be sent
+    module_a.set(&#39;some_param&#39;, 1)
+</code></pre>
 </div>
 <h3 id="route.play_sequence">Route.play_sequence()</h3>
 <div class="content">
