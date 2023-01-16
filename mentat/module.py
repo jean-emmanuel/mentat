@@ -283,6 +283,7 @@ class Module(Sequencer):
             self.logger.error('set: parameter or submodule "%s" not found' % name)
 
     @public_method
+    @force_mainthread
     def reset(self, name=None):
         """
         reset(name=None)
