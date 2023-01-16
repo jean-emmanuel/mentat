@@ -126,6 +126,7 @@ class Module(Sequencer):
             if module.port is None:
                 module.port = self.port
             module.parent_module = self
+            self.engine.dispatch_event('module_added', self, module)
 
     @public_method
     def set_aliases(self, aliases):
@@ -160,6 +161,7 @@ class Module(Sequencer):
         if name not in self.parameters:
             self.parameters[name] = Parameter(name, address, types, static_args, default)
             self.reset(name)
+            self.engine.dispatch_event('parameter_added', self, name)
         else:
             self.logger.error('could not add parameter "%s" (parameter already exists)' % name)
 
@@ -244,6 +246,9 @@ class Module(Sequencer):
 
         The engine will apply the new value only at the end of current processing cycle
         and send a message if the new value differs from the one that was previously sent.
+
+        When in a scene, subsequent calls to `set()` are not guaranteed to be executed
+        within the same processing cycle. (see `lock()`)
 
         **Parameters**
 
@@ -422,6 +427,7 @@ class Module(Sequencer):
                 if not self.has(*p):
                     return
             self.update_meta_parameter(name)
+            self.engine.dispatch_event('parameter_added', self, name)
         else:
             self.logger.error('could not add meta parameter "%s" (parameter already exists)' % name)
 
@@ -716,16 +722,23 @@ class Module(Sequencer):
 
         **Events**
 
-        - `engine_started`: emitted when the engine starts.
-        - `engine_stopping`: emitted before the engine stops
-        - `engine_stopped`: emitted when the engine is stopped
-        - `engine_route_changed`: emitted when the engine's active route changes
-            - `name`: name of active route
+        - `started`: emitted when the engine starts.
+        - `stopping`: emitted before the engine stops
+        - `stopped`: emitted when the engine is stopped
+        - `route_added`: emitted when a route is added to the engine
+            - `route`: route instance
+        - `route_changed`: emitted when the engine's active route changes
+            - `name`: active route instance
+        - `module_added`: emitted when a submodule is added to a module. Arguments:
+            - `module`: instance of parent module
+            - `submodule`: instace of child module
+        - `parameter_added`: emitted when a parameter is added to a module. Arguments:
+            - `module`: instance of module that emitted the event
+            - `name`: name of parameter
         - `parameter_changed`: emitted when a module's parameter changes. Arguments:
             - `module`: instance of module that emitted the event
             - `name`: name of parameter
             - `value`: value of parameter or list of values
-
         """
 
         self.engine.register_event_callback(event, callback)

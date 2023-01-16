@@ -102,6 +102,35 @@ class Sequencer():
         if timer:
             timer.wait_next_cycle()
 
+    def lock(self):
+        """
+        lock()
+
+        Returns the engine's main loop lock. Can only be called in scenes.
+        While held, the engine's main loop will be paused
+        (no message will be processed, parameter changes won't be applied).
+
+        This can be used when multiple parameter changes *must* happen
+        within a single processing cycle and prevent sending unnecessary
+        intermediate values (example 1).
+
+        **Examples**
+
+        ```
+        # example 1
+        with self.lock():
+            # reset all parameters
+            module_a.reset()
+            # set a parameter, but if its value
+            # was the same before being reset
+            # no message will be sent
+            module_a.set('some_param', 1)
+
+        ```
+        """
+        return self.engine.get_main_loop_lock()
+
+
     @public_method
     def play_sequence(self, sequence, loop=True):
         """

@@ -8,10 +8,12 @@ import os
 import pyinotify
 import logging
 import threading
+
 from pyalsa import alsaseq
 from signal import signal, SIGINT, SIGTERM
 from queue import Queue
 from pathlib import Path
+from contextlib import contextmanager
 
 from .config import *
 from .utils import *
@@ -97,6 +99,11 @@ class Engine(Module):
         self.cycle_length = 4.0
         self.tempo = 120.0
 
+        self.fastforwarding = False
+        self.fastforward_frametime = False
+        self.fastforward_frames = 0
+        self.time_offset = 0
+
         self.folder = Path(folder).expanduser().resolve()
 
         self.modules = {}
@@ -121,6 +128,8 @@ class Engine(Module):
             'osc_out': 0,
             'exec_time': [0, 0, 0] # max, total, iterations
         }
+
+        self.main_loop_lock = threading.RLock()
 
         Module.__init__(self, name)
 
@@ -222,63 +231,72 @@ class Engine(Module):
         animation_period = ANIMATION_PERIOD * 1000000
 
         self.logger.info('started')
-        self.dispatch_event('engine_started')
+        self.dispatch_event('started')
 
         while self.is_running:
 
-            self.current_time = time.monotonic_ns()
+            with self.main_loop_lock:
 
-            self.poll_servers()
+                self.current_time = time.monotonic_ns() + self.time_offset
 
-            # update animations
-            if self.current_time - last_animation >= ANIMATION_PERIOD:
-                last_animation = self.current_time
-                for mod in self.animating_modules:
-                    mod.update_animations()
-                    if not mod.animations:
-                        self.animating_modules.remove(mod)
+                if self.fastforwarding:
+                    self.time_offset += self.fastforward_frametime
+                    self.fastforward_frames -= 1
+                    if self.fastforward_frames == 0:
+                        self.fastforwarding = False
 
-            # update parameters and queue messages
-            while not self.dirty_modules.empty():
-                mod = self.dirty_modules.get()
-                mod.update_dirty_parameters()
+                self.poll_servers()
 
-            # resolve pending actions
-            while not self.action_queue.empty():
-                method, _self, args, kwargs = self.action_queue.get()
-                method(_self, *args, **kwargs)
+                # update animations
+                if self.current_time - last_animation >= ANIMATION_PERIOD:
+                    last_animation = self.current_time
+                    for mod in self.animating_modules:
+                        mod.update_animations()
+                        if not mod.animations:
+                            self.animating_modules.remove(mod)
 
-            # send pending messages
-            self.flush()
+                # update parameters and queue messages
+                while not self.dirty_modules.empty():
+                    mod = self.dirty_modules.get()
+                    mod.update_dirty_parameters()
 
-            # statistics
-            if self.log_statistics:
-                self.statistics['exec_time'][0] = max(time.monotonic_ns() - self.current_time, self.statistics['exec_time'][0])
-                self.statistics['exec_time'][1] += time.monotonic_ns() - self.current_time
-                self.statistics['exec_time'][2] += 1
-                if self.statistics_time == 0:
-                    self.statistics_time = self.current_time
-                if self.current_time - self.statistics_time >= 1000000000:
-                    for stat in self.statistics:
-                        if stat == 'exec_time':
-                            peak_time = self.statistics['exec_time'][0] / 1000000
-                            average_time = self.statistics['exec_time'][1] / self.statistics['exec_time'][2] / 1000000
-                            self.logger.info('statistic: main loop exec time: peak %.3fms, average %.3fms' % (peak_time, average_time))
-                            self.statistics['exec_time'] = [0, 0, 0]
-                        elif self.statistics[stat] != 0:
-                            self.logger.info('statistic: %s: %i in 1s' % (stat, self.statistics[stat]))
-                            self.statistics[stat] = 0
-                    self.statistics_time = self.current_time
+                # resolve pending actions
+                while not self.action_queue.empty():
+                    method, _self, args, kwargs = self.action_queue.get()
+                    method(_self, *args, **kwargs)
 
-            # restart ?
-            if self.is_restarting:
-                self._restart()
+                # send pending messages
+                self.flush()
 
-            # take some rest
-            time.sleep(MAINLOOP_PERIOD)
+                # statistics
+                if self.log_statistics:
+                    current_time = self.current_time - self.time_offset
+                    self.statistics['exec_time'][0] = max(time.monotonic_ns() - current_time, self.statistics['exec_time'][0])
+                    self.statistics['exec_time'][1] += time.monotonic_ns() - current_time
+                    self.statistics['exec_time'][2] += 1
+                    if self.statistics_time == 0:
+                        self.statistics_time = current_time
+                    if current_time - self.statistics_time >= 1000000000:
+                        for stat in self.statistics:
+                            if stat == 'exec_time':
+                                peak_time = self.statistics['exec_time'][0] / 1000000
+                                average_time = self.statistics['exec_time'][1] / self.statistics['exec_time'][2] / 1000000
+                                self.logger.info('statistic: main loop exec time: peak %.3fms, average %.3fms' % (peak_time, average_time))
+                                self.statistics['exec_time'] = [0, 0, 0]
+                            elif self.statistics[stat] != 0:
+                                self.logger.info('statistic: %s: %i in 1s' % (stat, self.statistics[stat]))
+                                self.statistics[stat] = 0
+                        self.statistics_time = current_time
+
+                # restart ?
+                if self.is_restarting:
+                    self._restart()
+
+                # take some rest
+                time.sleep(MAINLOOP_PERIOD)
 
         self.logger.info('stopped')
-        self.dispatch_event('engine_stopped')
+        self.dispatch_event('stopped')
 
 
     @public_method
@@ -291,7 +309,7 @@ class Engine(Module):
         """
 
         self.logger.info('stopping...')
-        self.dispatch_event('engine_stopping')
+        self.dispatch_event('stopping')
         self.is_running = False
         self.stop_scene_thread('*')
         self.stop_servers()
@@ -367,6 +385,9 @@ class Engine(Module):
                 self.osc_outputs[module.protocol][module.name] = module.port
             elif module.protocol == 'midi':
                 self.midi_ports[module.name] = None
+
+
+        self.dispatch_event('module_added', self, module)
 
     def add_submodule(self, *args, **kwargs):
         """
@@ -459,6 +480,7 @@ class Engine(Module):
         - `route`: Route object
         """
         self.routes[route.name] = route
+        self.dispatch_event('route_added', route)
 
     @public_method
     @force_mainthread
@@ -479,7 +501,7 @@ class Engine(Module):
             if self.is_running:
                 self.active_route.activate()
             self.logger.info('active route set to "%s"' % name)
-            self.dispatch_event('engine_route_changed', name)
+            self.dispatch_event('route_changed', self.active_route)
         else:
             self.logger.error('route "%s" not found' % name)
 
@@ -678,6 +700,24 @@ class Engine(Module):
             self.logger.error('cannot call wait() from main thread')
             return None
 
+    def get_main_loop_lock(self):
+        """
+        get_main_loop_lock()
+
+        Return main loop lock
+
+        **Return**
+
+        threading.RLock instance
+        """
+        name = Thread.get_current().name
+        if name in self.scenes_timers:
+            return self.main_loop_lock
+        else:
+            self.logger.error('cannot call lock() from main thread')
+            # return cheap no-op context
+            return memoryview(b'')
+
     @public_method
     def set_tempo(self, bpm):
         """
@@ -735,6 +775,46 @@ class Engine(Module):
         """
         self.cycle_start_time = self.current_time
 
+    @public_method
+    def fastforward(self, duration, mode='beats'):
+        """
+        fastforward(amount, mode='beats')
+
+        /!\ Experimental /!\
+
+        Increment current time by a number of beats or seconds.
+        All parameter animations and wait() calls will be affected.
+
+        **Parameters**
+
+        - `duration`: number of beats or seconds
+        - `mode`: 'beats' or 'seconds' (only the first letter matters)
+        """
+        if type(duration) not in (int, float) or duration <= 0:
+            self.error('fastforward: duration must be a positive number')
+            return
+        if self.fastforwarding:
+            self.error('fastforward: already busy')
+            return
+
+
+        if mode[0] == 'b':
+            duration = duration * 60. / self.tempo
+            duration *= 1000000000 # s to ns
+        elif mode[0] == 's':
+            duration *= 1000000000 # s to ns
+
+        self.fastforward_frames = 100
+        self.fastforward_frametime = duration / self.fastforward_frames
+        self.fastforwarding = True
+
+    def advance_timers(self):
+
+        for timer in self.scenes_timers.values():
+            timer.start_time += duration
+        for mod in self.animating_modules:
+            for param in mod.animations:
+                param.animate_start += duration
 
     def register_event_callback(self, event, callback):
         """
