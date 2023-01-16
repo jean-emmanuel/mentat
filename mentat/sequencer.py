@@ -102,6 +102,7 @@ class Sequencer():
         if timer:
             timer.wait_next_cycle()
 
+    @public_method
     def lock(self):
         """
         lock()
