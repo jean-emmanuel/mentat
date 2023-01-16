@@ -153,6 +153,8 @@
                         <li><a
                         href="#engine.start_cycle">Engine.start_cycle()</a></li>
                         <li><a
+                        href="#engine.fastforward">Engine.fastforward()</a></li>
+                        <li><a
                         href="#engine.dispatch_event">Engine.dispatch_event()</a></li>
                         </ul></li>
                         <li><a href="#module">Module</a>
@@ -379,8 +381,7 @@ file is modified, the engine is restarted.</p>
 <div class="content">
 <p><i>add_module(module)</i><br/></p>
 <p>Add a module. This method will create midi ports if the module’s
-protocol is ‘midi’. Modules added with this method will be children of
-the engine’s root module instance.</p>
+protocol is ‘midi’.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>module</code>: Module object</li>
@@ -473,6 +474,18 @@ allowed)</li>
 <p><i>start_cycle()</i><br/></p>
 <p>Set current time as cycle start. Affects Route.wait_next_cycle()
 method.</p>
+</div>
+<h3 id="engine.fastforward">Engine.fastforward()</h3>
+<div class="content">
+<p><i>fastforward(amount, mode=‘beats’)</i><br/></p>
+<p>/! Experimental /! Increment current time by a number of beats or
+seconds. All parameter animations and wait() calls will be affected.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>duration</code>: number of beats or seconds</li>
+<li><code>mode</code>: ‘beats’ or ‘seconds’ (only the first letter
+matters)</li>
+</ul>
 </div>
 <h3 id="engine.dispatch_event">Engine.dispatch_event()</h3>
 <div class="content">
@@ -598,6 +611,9 @@ preserve_animation=False)</i><br/> <i>set(submodule_name, param_nam,
 <p>The engine will apply the new value only at the end of current
 processing cycle and send a message if the new value differs from the
 one that was previously sent.</p>
+<p>When in a scene, subsequent calls to <code>set()</code> are not
+guaranteed to be executed within the same processing cycle. (see
+<code>lock()</code>)</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>parameter_name</code>: name of parameter</li>
@@ -802,13 +818,30 @@ must match the event’s arguments.</li>
 </ul>
 <p><strong>Events</strong></p>
 <ul>
-<li><code>engine_started</code>: emitted when the engine starts.</li>
-<li><code>engine_stopping</code>: emitted before the engine stops</li>
-<li><code>engine_stopped</code>: emitted when the engine is stopped</li>
-<li><code>engine_route_changed</code>: emitted when the engine’s active
-route changes
+<li><code>started</code>: emitted when the engine starts.</li>
+<li><code>stopping</code>: emitted before the engine stops</li>
+<li><code>stopped</code>: emitted when the engine is stopped</li>
+<li><code>route_added</code>: emitted when a route is added to the
+engine
 <ul>
-<li><code>name</code>: name of active route</li>
+<li><code>route</code>: route instance</li>
+</ul></li>
+<li><code>route_changed</code>: emitted when the engine’s active route
+changes
+<ul>
+<li><code>name</code>: active route instance</li>
+</ul></li>
+<li><code>module_added</code>: emitted when a submodule is added to a
+module. Arguments:
+<ul>
+<li><code>module</code>: instance of parent module</li>
+<li><code>submodule</code>: instace of child module</li>
+</ul></li>
+<li><code>parameter_added</code>: emitted when a parameter is added to a
+module. Arguments:
+<ul>
+<li><code>module</code>: instance of module that emitted the event</li>
+<li><code>name</code>: name of parameter</li>
 </ul></li>
 <li><code>parameter_changed</code>: emitted when a module’s parameter
 changes. Arguments:
