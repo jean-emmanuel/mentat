@@ -427,7 +427,7 @@ class Engine(Module):
         if not self.is_running:
             # in case a module calls this method directly
             # before the server is started
-            message = [proto, port, address, *args]
+            message = [protocol, port, address, *args]
             self.message_queue.put(message)
             return
 
