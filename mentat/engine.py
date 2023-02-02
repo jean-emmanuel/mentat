@@ -232,8 +232,7 @@ class Engine(Module):
         if self.active_route:
             self.active_route.activate()
 
-        last_animation = 0
-        animation_period = ANIMATION_PERIOD * 1000000
+        last_animation = self.current_time
 
         self.logger.info('started')
         self.dispatch_event('started')
@@ -253,8 +252,8 @@ class Engine(Module):
                 self.poll_servers()
 
                 # update animations
-                if self.current_time - last_animation >= ANIMATION_PERIOD:
-                    last_animation = self.current_time
+                if self.current_time > last_animation + ANIMATION_PERIOD_NS - MAINLOOP_PERIOD_NS / 2:
+                    last_animation += ANIMATION_PERIOD_NS
                     for mod in self.animating_modules:
                         mod.update_animations()
                         if not mod.animations:
