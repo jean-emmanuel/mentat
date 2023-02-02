@@ -222,6 +222,8 @@ class Engine(Module):
 
         self.start_servers()
 
+        self.current_time = time.monotonic_ns()
+
         if self.active_route:
             self.active_route.activate()
 
