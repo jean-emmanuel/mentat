@@ -62,7 +62,7 @@ class Timer():
         if mode[0] == 'b':
             self.is_beat_waiting = True
 
-        while self.engine.current_time < self.end_time:
+        while self.engine.current_time < self.end_time - MAINLOOP_PERIOD_NS:
             time.sleep(MAINLOOP_PERIOD)
 
         self.is_beat_waiting = False
