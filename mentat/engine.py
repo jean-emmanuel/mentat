@@ -730,6 +730,8 @@ class Engine(Module):
         - `bpm`: beats per minute
         """
         self.tempo = max(float(bpm), 0.001)
+        for name in self.scenes_timers:
+            self.scenes_timers[name].update_tempo()
 
     @public_method
     def set_cycle_length(self, quarter_notes):
