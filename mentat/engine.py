@@ -227,10 +227,10 @@ class Engine(Module):
         self.cycle_start_time = self.current_time
         self.update_tempo_map()
 
+        self.is_running = True
+
         if self.active_route:
             self.active_route.activate()
-
-        self.is_running = True
 
         last_animation = 0
         animation_period = ANIMATION_PERIOD * 1000000
