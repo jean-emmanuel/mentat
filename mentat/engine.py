@@ -830,14 +830,6 @@ class Engine(Module):
         self.fastforward_frametime = duration / self.fastforward_frames
         self.fastforwarding = True
 
-    def advance_timers(self):
-
-        for timer in self.scenes_timers.values():
-            timer.start_time += duration
-        for mod in self.animating_modules:
-            for param in mod.animations:
-                param.animate_start += duration
-
     def register_event_callback(self, event, callback):
         """
         register_event_callback(event, callback)
