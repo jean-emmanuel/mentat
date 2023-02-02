@@ -46,7 +46,6 @@ class Timer():
         """
         wait for a given amount of time in beats or seconds
         """
-
         if mode[0] == 'b':
             self.is_beat_waiting = True
             duration = duration * 60. / self.engine.tempo
@@ -73,8 +72,22 @@ class Timer():
         """
         get engine's current cycle
         """
-        elapsed_beats = (self.engine.current_time - self.engine.cycle_start_time) / 1000000000 * self.tempo / 60
-        return int(elapsed_beats / self.engine.cycle_length)
+        current_cycle = 0
+        map_length = len(self.engine.tempo_map)
+
+        for i in range(map_length):
+            _time, _tempo, _cycle = self.engine.tempo_map[i]
+
+            if i == map_length - 1:
+                elapsed_time = self.engine.current_time - _time
+            else:
+                next_time, next_tempo, next_cycle = self.engine.tempo_map[i + 1]
+                elapsed_time = next_time - _time
+
+            elapsed_beats = elapsed_time / 1000000000 / 60 * _tempo
+            current_cycle += elapsed_beats / _cycle
+
+        return int(current_cycle)
 
 
     def wait_next_cycle(self):

@@ -98,6 +98,7 @@ class Engine(Module):
         self.cycle_start_time = self.current_time
         self.cycle_length = 4.0
         self.tempo = 120.0
+        self.tempo_map = []
 
         self.fastforwarding = False
         self.fastforward_frametime = False
@@ -223,6 +224,8 @@ class Engine(Module):
         self.start_servers()
 
         self.current_time = time.monotonic_ns()
+        self.cycle_start_time = self.current_time
+        self.update_tempo_map()
 
         if self.active_route:
             self.active_route.activate()
@@ -731,9 +734,20 @@ class Engine(Module):
 
         - `bpm`: beats per minute
         """
-        self.tempo = max(float(bpm), 0.001)
-        for name in self.scenes_timers:
-            self.scenes_timers[name].update_tempo()
+        if bpm != self.tempo:
+            self.tempo = max(float(bpm), 0.001)
+            self.update_tempo_map()
+            for name in self.scenes_timers:
+                self.scenes_timers[name].update_tempo()
+
+    def update_tempo_map(self):
+        """
+        update_tempo_map(self)
+
+        Update inner tempo map to keep track of tempo/cycle_length changes over time
+        """
+        self.tempo_map.append([self.current_time, self.tempo, self.cycle_length])
+
 
     @public_method
     def set_cycle_length(self, quarter_notes):
@@ -746,7 +760,9 @@ class Engine(Module):
 
         - `quarter_notes`: quarter notes per cycle (decimals allowed)
         """
-        self.cycle_length = float(quarter_notes)
+        if quarter_notes != self.cycle_length:
+            self.cycle_length = float(quarter_notes)
+            self.update_tempo_map()
 
     def time_signature_to_quarter_notes(self, signature):
         """
@@ -778,6 +794,8 @@ class Engine(Module):
         Affects Route.wait_next_cycle() method.
         """
         self.cycle_start_time = self.current_time
+        self.tempo_map = []
+        self.update_tempo_map()
 
     @public_method
     def fastforward(self, duration, mode='beats'):
