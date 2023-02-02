@@ -47,8 +47,7 @@ class Timer():
         wait for a given amount of time in beats or seconds
         """
         if mode[0] == 'b':
-            self.is_beat_waiting = True
-            duration = duration * 60. / self.engine.tempo
+            duration = duration * 60. / self.tempo
             duration *= 1000000000 # s to ns
         elif mode[0] == 's':
             duration *= 1000000000 # s to ns
@@ -60,12 +59,17 @@ class Timer():
 
         self.end_time = self.start_time + duration
 
+        if mode[0] == 'b':
+            self.is_beat_waiting = True
+
         while self.engine.current_time < self.end_time:
             time.sleep(MAINLOOP_PERIOD)
 
+        self.is_beat_waiting = False
+
         self.start_time = self.end_time
 
-        self.is_beat_waiting = False
+
 
 
     def get_current_cycle(self):
