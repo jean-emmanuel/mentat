@@ -489,7 +489,7 @@ class Module(Sequencer):
         else:
             setter = lambda val: self.set(parameter, val)
 
-        self.add_meta_parameter(name, parameter, getter, setter)
+        self.add_meta_parameter(name, [parameter], getter, setter)
 
     @public_method
     def get_state(self, omit_defaults=False):
