@@ -21,10 +21,11 @@ class Parameter():
         - `static_args`: list of static values before the ones that can be modified
         - `default`: default value
         """
+        self.logger = logging.getLogger(__name__).getChild(name)
+
         if '*' in name or '[' in name:
             self.logger.critical('characters "*" and "[" are forbidden in parameter name')
 
-        self.logger = logging.getLogger(__name__).getChild(name)
         self.name = name
         self.address = address
         self.types = types
