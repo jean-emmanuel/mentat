@@ -21,6 +21,7 @@ from .midi import osc_to_midi, midi_to_osc
 from .thread import KillableThread as Thread
 from .timer import Timer
 from .module import Module
+from .gui import Gui
 
 class Engine(Module):
     """
@@ -133,6 +134,8 @@ class Engine(Module):
         self.main_loop_lock = threading.RLock()
 
         Module.__init__(self, name)
+
+        # self.add_module(Gui())
 
     # backward compat
     def get_root_module(self):

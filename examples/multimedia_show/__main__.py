@@ -15,6 +15,7 @@ engine.add_module(kbd)
 # add routes
 from routes import *
 engine.add_route(trackA)
+engine.add_route(b)
 
 # set default route
 engine.set_route('A')
