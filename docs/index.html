@@ -154,8 +154,6 @@
                         href="#engine.start_cycle">Engine.start_cycle()</a></li>
                         <li><a
                         href="#engine.fastforward">Engine.fastforward()</a></li>
-                        <li><a
-                        href="#engine.dispatch_event">Engine.dispatch_event()</a></li>
                         </ul></li>
                         <li><a href="#module">Module</a>
                         <ul>
@@ -177,6 +175,8 @@
                         <li><a
                         href="#module.stop_animate">Module.stop_animate()</a></li>
                         <li><a
+                        href="#module.add_mapping">Module.add_mapping()</a></li>
+                        <li><a
                         href="#module.add_meta_parameter">Module.add_meta_parameter()</a></li>
                         <li><a
                         href="#module.add_alias_parameter">Module.add_alias_parameter()</a></li>
@@ -195,8 +195,6 @@
                         <li><a
                         href="#module.send">Module.send()</a></li>
                         <li><a
-                        href="#module.add_event_callback">Module.add_event_callback()</a></li>
-                        <li><a
                         href="#module.start_scene">Module.start_scene()</a></li>
                         <li><a
                         href="#module.restart_scene">Module.restart_scene()</a></li>
@@ -210,6 +208,10 @@
                         href="#module.lock">Module.lock()</a></li>
                         <li><a
                         href="#module.play_sequence">Module.play_sequence()</a></li>
+                        <li><a
+                        href="#module.add_event_callback">Module.add_event_callback()</a></li>
+                        <li><a
+                        href="#module.dispatch_event">Module.dispatch_event()</a></li>
                         </ul></li>
                         <li><a href="#route">Route</a>
                         <ul>
@@ -338,6 +340,22 @@ restarted using <code>autorestart()</code></li>
 <li><code>port</code>: osc (udp) input port number</li>
 <li><code>tcp_port</code>: osc (tcp) input port number</li>
 <li><code>unix_port</code>: osc (unix) input socket path</li>
+</ul>
+<p><strong>Events</strong></p>
+<ul>
+<li><code>started</code>: emitted when the engine starts.</li>
+<li><code>stopping</code>: emitted before the engine stops</li>
+<li><code>stopped</code>: emitted when the engine is stopped</li>
+<li><code>route_added</code>: emitted when a route is added to the
+engine. Arguments:
+<ul>
+<li><code>route</code>: route instance</li>
+</ul></li>
+<li><code>route_changed</code>: emitted when the engine’s active route
+changes. Arguments:
+<ul>
+<li><code>name</code>: active route instance</li>
+</ul></li>
 </ul>
 <h3 id="engine-1">Engine()</h3>
 <div class="content">
@@ -491,16 +509,6 @@ animations and wait() calls will be affected.</p>
 matters)</li>
 </ul>
 </div>
-<h3 id="engine.dispatch_event">Engine.dispatch_event()</h3>
-<div class="content">
-<p><i>dispatch_event(event, *args)</i><br/></p>
-<p>Dispatch event to bound callback functions.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>event</code>: name of event</li>
-<li><code>*args</code>: arguments for the callback function</li>
-</ul>
-</div>
 <hr />
 <h2 id="module">Module</h2>
 <p>Interface between a software / hardware and the engine.</p>
@@ -519,6 +527,28 @@ added to the module with names as keys</li>
 (including meta parameters) added to the module with names as keys</li>
 <li><code>meta_parameters</code>: <code>dict</code> containing meta
 parameters added to the module with names as keys</li>
+</ul>
+<p><strong>Events</strong></p>
+<ul>
+<li><code>module_added</code>: emitted when a submodule is added to a
+module. Arguments:
+<ul>
+<li><code>module</code>: instance of parent module</li>
+<li><code>submodule</code>: instace of child module</li>
+</ul></li>
+<li><code>parameter_added</code>: emitted when a parameter is added to a
+module. Arguments:
+<ul>
+<li><code>module</code>: instance of module that emitted the event</li>
+<li><code>name</code>: name of parameter</li>
+</ul></li>
+<li><code>parameter_changed</code>: emitted when a module’s parameter
+changes. Arguments:
+<ul>
+<li><code>module</code>: instance of module that emitted the event</li>
+<li><code>name</code>: name of parameter</li>
+<li><code>value</code>: value of parameter or list of values</li>
+</ul></li>
 </ul>
 <h3 id="module-1">Module()</h3>
 <div class="content">
@@ -687,6 +717,38 @@ all animations including submodules’.</li>
 <li><code>submodule_name</code>: name of submodule</li>
 </ul>
 </div>
+<h3 id="module.add_mapping">Module.add_mapping()</h3>
+<div class="content">
+<p><i>add_mapping(self, src, dest, transform, inverse=None)</i><br/></p>
+<p>Add a value mapping between two or more parameters owned by the
+module or one of its submodules. Whenever a value change occurs in one
+of the source parameters, <code>transform</code> will be called and its
+result will be dispatched to the destination parameters.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>src</code>: source parameter(s), can be
+<ul>
+<li><code>string</code> if there’s only one source parameter owned by
+the module itself</li>
+<li><code>tuple</code> of <code>string</code> if the source parameter is
+owned by a submodule
+(e.g. <code>['submodule_name', 'parameter_name']</code>)</li>
+<li><code>list</code> containing either of the above if there are
+multiple source parameters.</li>
+</ul></li>
+<li><code>dest</code>: destination parameter(s), see
+<code>src</code></li>
+<li><code>transform</code>: function that takes one argument per source
+parameter and returns a value for the destination parameters or a list
+if there are multiple destination parameters.</li>
+<li><code>inverse</code>: same as <code>transform</code> but for
+updating source parameters when destination parameters update. If
+<code>transform</code> and <code>inverse</code> are inconsistent
+(e.g. <code>transform(inverse(x)) != x</code>), mappings will not
+trigger each others indefinetely (a mapping cannot run twice during a
+cycle).</li>
+</ul>
+</div>
 <h3 id="module.add_meta_parameter">Module.add_meta_parameter()</h3>
 <div class="content">
 <p><i>add_meta_parameter(name, parameters, getter, setter)</i><br/></p>
@@ -808,52 +870,6 @@ engine’s active route after being processed by the module.</p>
 <ul>
 <li><code>address</code>: osc address</li>
 <li><code>*args</code>: values, or (typetag, value) tuples</li>
-</ul>
-</div>
-<h3 id="module.add_event_callback">Module.add_event_callback()</h3>
-<div class="content">
-<p><i>add_event_callback(event, callback)</i><br/></p>
-<p>Bind a callback function to an event.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>event</code>: name of event</li>
-<li><code>callback</code>: function or method. The callback’s signature
-must match the event’s arguments.</li>
-</ul>
-<p><strong>Events</strong></p>
-<ul>
-<li><code>started</code>: emitted when the engine starts.</li>
-<li><code>stopping</code>: emitted before the engine stops</li>
-<li><code>stopped</code>: emitted when the engine is stopped</li>
-<li><code>route_added</code>: emitted when a route is added to the
-engine
-<ul>
-<li><code>route</code>: route instance</li>
-</ul></li>
-<li><code>route_changed</code>: emitted when the engine’s active route
-changes
-<ul>
-<li><code>name</code>: active route instance</li>
-</ul></li>
-<li><code>module_added</code>: emitted when a submodule is added to a
-module. Arguments:
-<ul>
-<li><code>module</code>: instance of parent module</li>
-<li><code>submodule</code>: instace of child module</li>
-</ul></li>
-<li><code>parameter_added</code>: emitted when a parameter is added to a
-module. Arguments:
-<ul>
-<li><code>module</code>: instance of module that emitted the event</li>
-<li><code>name</code>: name of parameter</li>
-</ul></li>
-<li><code>parameter_changed</code>: emitted when a module’s parameter
-changes. Arguments:
-<ul>
-<li><code>module</code>: instance of module that emitted the event</li>
-<li><code>name</code>: name of parameter</li>
-<li><code>value</code>: value of parameter or list of values</li>
-</ul></li>
 </ul>
 </div>
 <h3 id="module.start_scene">Module.start_scene()</h3>
@@ -990,6 +1006,31 @@ play_sequence([
     }
 ])</code></pre>
 </div>
+<h3 id="module.add_event_callback">Module.add_event_callback()</h3>
+<div class="content">
+<p><i>add_event_callback(event, callback)</i><br/></p>
+<p>Bind a callback function to an event. See <a
+href="#module">Module</a> and <a href="#engine">Engine</a> for existing
+events.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>event</code>: name of event</li>
+<li><code>callback</code>: function or method. The callback’s signature
+must match the event’s arguments.</li>
+</ul>
+</div>
+<h3 id="module.dispatch_event">Module.dispatch_event()</h3>
+<div class="content">
+<p><i>dispatch_event(event, *args)</i><br/></p>
+<p>Dispatch event to bound callback functions. Unless the callback
+returns <code>False</code>, the event will be passed to the module’s
+parent until</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>event</code>: name of event</li>
+<li><code>*args</code>: arguments for the callback function</li>
+</ul>
+</div>
 <hr />
 <h2 id="route">Route</h2>
 <p>Routing object that processes messages received by the engine when
@@ -1001,7 +1042,7 @@ active.</p>
 </ul>
 <h3 id="route-1">Route()</h3>
 <div class="content">
-<p><i>Route()</i><br/></p>
+<p><i>Route(name)</i><br/></p>
 <p>Route object constructor.</p>
 <p><strong>Parameters</strong></p>
 <ul>

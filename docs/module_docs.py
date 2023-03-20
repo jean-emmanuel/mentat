@@ -20,6 +20,8 @@ for mod in [Engine, Module, Route]:
             source, start_line = getsourcelines(obj)
             if obj.__qualname__.split('.')[0] == 'Sequencer':
                 start_line += 10000
+            if obj.__qualname__.split('.')[0] == 'EventEmitter':
+                start_line += 20000
             if mod == Engine and obj.__qualname__.split('.')[0] != 'Engine':
                 continue
             methods.append([name, obj, start_line])
