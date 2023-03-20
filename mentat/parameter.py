@@ -292,15 +292,15 @@ class Mapping():
 
 
         if type(src) != list:
-            self.src = [(src)] if type(src) != tuple else [src]
+            self.src = [(src,)] if type(src) != tuple else [src]
         else:
-            self.src = [(x) if type(x) is not tuple else x for x in src]
+            self.src = [(x,) if type(x) is not tuple else x for x in src]
 
 
         if type(dest) != list:
-            self.dest = [(dest)] if type(dest) != tuple else [dest]
+            self.dest = [(dest,)] if type(dest) != tuple else [dest]
         else:
-            self.dest = [(x) if type(x) is not list else x for x in dest]
+            self.dest = [(x,) if type(x) is not list else x for x in dest]
 
         self.n_args = len(self.dest)
 
