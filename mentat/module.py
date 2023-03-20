@@ -426,8 +426,8 @@ class Module(Sequencer):
             same as `transform` but for updating source parameters when
             destination parameters update. If `transform` and `inverse`
             are inconsistent (e.g. `transform(inverse(x)) != x`), mappings
-            will not trigger each others indefinetely (a mapping run twice
-            during a cycle).
+            will not trigger each others indefinetely (a mapping cannot
+            run twice during a cycle).
 
         """
         mapping = Mapping(src, dest, transform)
@@ -527,11 +527,12 @@ class Module(Sequencer):
                 val = dest_values[i]
                 param = mapping.dest[i]
                 if type(val) == list:
-                    if self.set(*param, *val):
-                        mapping.unlock()
+                    self.set(*param, *val)
                 else:
-                    if self.set(*param, val):
-                        mapping.unlock()
+                    self.set(*param, val)
+
+            if not self.dirty:
+                mapping.unlock()
 
 
     def update_meta_parameter(self, name):
