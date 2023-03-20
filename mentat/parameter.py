@@ -281,3 +281,35 @@ class MetaParameter(Parameter):
             return Parameter.set(self, *value)
         else:
             return Parameter.set(self, value)
+
+class Mapping():
+
+    def __init__(self, src, dest, transform):
+
+        if type(src) != list:
+            self.src = [[src]]
+        else:
+            self.src = [[x] if type(x) is not list else x for x in src]
+        if type(dest) != list:
+            self.dest = [[dest]]
+        else:
+            self.dest = [[x] if type(x) is not list else x for x in dest]
+
+        self.n_args = len(self.dest)
+
+        self.transform = transform
+        self.locked = False
+
+    def compute(self, *args):
+        #check nargs
+        return self.transform(*args)
+
+    def lock(self):
+        if self.locked:
+            return False
+        else:
+            self.locked = True
+            return True
+
+    def unlock(self):
+        self.locked = False

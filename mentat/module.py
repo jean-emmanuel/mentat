@@ -6,7 +6,7 @@ import logging
 from queue import Queue
 
 from .utils import *
-from .parameter import Parameter, MetaParameter
+from .parameter import Parameter, MetaParameter, Mapping
 from .sequencer import Sequencer
 
 class Module(Sequencer):
@@ -74,6 +74,7 @@ class Module(Sequencer):
         self.parameters = {}
         self.animations = []
         self.meta_parameters = {}
+        self.mappings = []
 
         self.dirty_parameters = Queue()
         self.dirty = False
@@ -396,6 +397,51 @@ class Module(Sequencer):
                 self.animations.remove(name)
 
     @public_method
+    def add_mapping(self, src, dest, transform, inverse=None):
+        """
+        add_mapping(self, src, dest, transform, inverse=None)
+
+        Add a value mapping between two or more parameters owned by
+        the module or one of its submodules. Whenever a value change
+        occurs in one of the source parameters, `transform` will be
+        called and its result will be dispatched to the destination parameters.
+
+        **Parameters**
+
+        - `src`:
+            source parameter(s), can be
+            - `string` if there's only one source parameter owned
+            by the module itself
+            - `list` of `string` if the source parameter is owned
+            by a submodule  (e.g. `['submodule_name', 'parameter_name']`)
+            - `list` containing either of the above if there are multiple
+            source parameters.
+        - `dest`:
+            destination parameter(s), see `src`
+        - `transform`:
+            function that takes one argument per source parameter and
+            returns a value for the destination parameters or a list if
+            there are multiple destination parameters.
+        - `inverse`:
+            same as `transform` but for updating source parameters when
+            destination parameters update. If `transform` and `inverse`
+            are inconsistent (e.g. `transform(inverse(x)) != x`), mappings
+            will not trigger each others indefinetely (a mapping run twice
+            during a cycle).
+
+        """
+        mapping = Mapping(src, dest, transform)
+        self.mappings.append(mapping)
+        if inverse is not None:
+            self.add_mapping(dest, src, inverse, None)
+        for p in mapping.src + mapping.dest:
+            # avoid updating mapping the first time if
+            # dependencies don't exist they may be not ready yet
+            if not self.has(*p):
+                return
+        self.update_mapping(mapping)
+
+    @public_method
     def add_meta_parameter(self, name, parameters, getter, setter):
         """
         add_meta_parameter(name, parameters, getter, setter)
@@ -449,12 +495,44 @@ class Module(Sequencer):
                 if updated_parameter in self.meta_parameters[name].parameters:
                     self.update_meta_parameter(name)
 
+        if self.mappings:
+            if type(updated_parameter) is not list:
+                updated_parameter = [updated_parameter]
+            for mapping in self.mappings:
+                if updated_parameter in mapping.src:
+                    self.update_mapping(mapping)
+
         # pass meta_parameter update to parent module
         if self.parent_module is not None:
             if type(updated_parameter) is not list:
                 updated_parameter = [updated_parameter]
             updated_parameter.insert(0, self.name)
             self.parent_module.check_meta_parameters(updated_parameter)
+
+    def update_mapping(self, mapping):
+        """
+        update_mapping(mapping)
+
+        Update parameter mapping. Execute transform function with
+        source parameters' values as arguments and set destination
+        parameters to returned values.
+
+        """
+        if mapping.lock():
+            src_values = [self.get(*param) for param in mapping.src]
+            dest_values = mapping.compute(*src_values)
+            if mapping.n_args == 1:
+                dest_values = [dest_values]
+            for i in range(mapping.n_args):
+                val = dest_values[i]
+                param = mapping.dest[i]
+                if type(val) == list:
+                    if self.set(*param, *val):
+                        mapping.unlock()
+                else:
+                    if self.set(*param, val):
+                        mapping.unlock()
+
 
     def update_meta_parameter(self, name):
         """
@@ -682,6 +760,8 @@ class Module(Sequencer):
                 self.engine.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
                 self.check_meta_parameters(parameter.name)
             parameter.dirty = False
+        for mapping in self.mappings:
+            mapping.unlock()
 
         self.dirty = False
 
