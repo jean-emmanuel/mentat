@@ -15,6 +15,7 @@ class EventEmitter():
         add_event_callback(event, callback)
 
         Bind a callback function to an event.
+        See [Module](#module) and [Engine](#engine) for existing events.
 
         **Parameters**
 
