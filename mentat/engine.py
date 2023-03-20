@@ -42,6 +42,16 @@ class Engine(Module):
     - `port`: osc (udp) input port number
     - `tcp_port`: osc (tcp) input port number
     - `unix_port`: osc (unix) input socket path
+
+    **Events**
+
+    - `started`: emitted when the engine starts.
+    - `stopping`: emitted before the engine stops
+    - `stopped`: emitted when the engine is stopped
+    - `route_added`: emitted when a route is added to the engine. Arguments:
+        - `route`: route instance
+    - `route_changed`: emitted when the engine's active route changes. Arguments:
+        - `name`: active route instance
     """
 
     INSTANCE = None
@@ -109,7 +119,6 @@ class Engine(Module):
         self.folder = Path(folder).expanduser().resolve()
 
         self.modules = {}
-        self.event_callbacks = {}
         self.message_queue = Queue()
 
         self.dirty_modules = Queue()
@@ -831,30 +840,3 @@ class Engine(Module):
         self.fastforward_frames = 100
         self.fastforward_frametime = duration / self.fastforward_frames
         self.fastforwarding = True
-
-    def register_event_callback(self, event, callback):
-        """
-        register_event_callback(event, callback)
-
-        See module.add_event_callback()
-        """
-        if event not in self.event_callbacks:
-            self.event_callbacks[event] = []
-        if callback not in self.event_callbacks[event]:
-            self.event_callbacks[event].append(callback)
-
-    @public_method
-    def dispatch_event(self, event, *args):
-        """
-        dispatch_event(event, *args)
-
-        Dispatch event to bound callback functions.
-
-        **Parameters**
-
-        - `event`: name of event
-        - `*args`: arguments for the callback function
-        """
-        if event in self.event_callbacks:
-            for callback in self.event_callbacks[event]:
-                callback(*args)

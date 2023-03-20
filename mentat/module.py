@@ -8,8 +8,9 @@ from queue import Queue
 from .utils import *
 from .parameter import Parameter, MetaParameter, Mapping
 from .sequencer import Sequencer
+from .eventemitter import EventEmitter
 
-class Module(Sequencer):
+class Module(Sequencer, EventEmitter):
     """
     Interface between a software / hardware and the engine.
 
@@ -23,6 +24,19 @@ class Module(Sequencer):
     - `submodules`: `dict` containing submodules added to the module with names as keys
     - `parameters`: `dict` containing parameters (including meta parameters) added to the module with names as keys
     - `meta_parameters`: `dict` containing meta parameters added to the module with names as keys
+
+    **Events**
+
+    - `module_added`: emitted when a submodule is added to a module. Arguments:
+        - `module`: instance of parent module
+        - `submodule`: instace of child module
+    - `parameter_added`: emitted when a parameter is added to a module. Arguments:
+        - `module`: instance of module that emitted the event
+        - `name`: name of parameter
+    - `parameter_changed`: emitted when a module's parameter changes. Arguments:
+        - `module`: instance of module that emitted the event
+        - `name`: name of parameter
+        - `value`: value of parameter or list of values
     """
 
     @public_method
@@ -97,6 +111,7 @@ class Module(Sequencer):
             self.load(state_name, preload=True)
 
         Sequencer.__init__(self, 'module/' + '/'.join(self.module_path))
+        EventEmitter.__init__(self)
 
     @public_method
     def add_submodule(self, *modules):
@@ -127,7 +142,7 @@ class Module(Sequencer):
             if module.port is None:
                 module.port = self.port
             module.parent_module = self
-            self.engine.dispatch_event('module_added', self, module)
+            self.dispatch_event('module_added', self, module)
 
     @public_method
     def set_aliases(self, aliases):
@@ -162,7 +177,7 @@ class Module(Sequencer):
         if name not in self.parameters:
             self.parameters[name] = Parameter(name, address, types, static_args, default)
             self.reset(name)
-            self.engine.dispatch_event('parameter_added', self, name)
+            self.dispatch_event('parameter_added', self, name)
         else:
             self.logger.error('could not add parameter "%s" (parameter already exists)' % name)
 
@@ -474,7 +489,7 @@ class Module(Sequencer):
                 if not self.has(*p):
                     return
             self.update_meta_parameter(name)
-            self.engine.dispatch_event('parameter_added', self, name)
+            self.dispatch_event('parameter_added', self, name)
         else:
             self.logger.error('could not add meta parameter "%s" (parameter already exists)' % name)
 
@@ -546,7 +561,7 @@ class Module(Sequencer):
         - `name`: name of meta parameter
         """
         if self.meta_parameters[name].update():
-            self.engine.dispatch_event('parameter_changed', self, name, self.meta_parameters[name].get())
+            self.dispatch_event('parameter_changed', self, name, self.meta_parameters[name].get())
 
     @public_method
     def add_alias_parameter(self, name, parameter):
@@ -758,7 +773,7 @@ class Module(Sequencer):
                 if parameter.address:
                     self.send(parameter.address, *parameter.get_message_args())
                 parameter.set_last_sent()
-                self.engine.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
+                self.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
                 self.check_meta_parameters(parameter.name)
             parameter.dirty = False
         for mapping in self.mappings:
@@ -788,39 +803,3 @@ class Module(Sequencer):
         if port:
             message = [proto, port, address, *args]
             self.engine.message_queue.put(message)
-
-    @public_method
-    def add_event_callback(self, event, callback):
-        """
-        add_event_callback(event, callback)
-
-        Bind a callback function to an event.
-
-        **Parameters**
-
-        - `event`: name of event
-        - `callback`: function or method.
-        The callback's signature must match the event's arguments.
-
-        **Events**
-
-        - `started`: emitted when the engine starts.
-        - `stopping`: emitted before the engine stops
-        - `stopped`: emitted when the engine is stopped
-        - `route_added`: emitted when a route is added to the engine
-            - `route`: route instance
-        - `route_changed`: emitted when the engine's active route changes
-            - `name`: active route instance
-        - `module_added`: emitted when a submodule is added to a module. Arguments:
-            - `module`: instance of parent module
-            - `submodule`: instace of child module
-        - `parameter_added`: emitted when a parameter is added to a module. Arguments:
-            - `module`: instance of module that emitted the event
-            - `name`: name of parameter
-        - `parameter_changed`: emitted when a module's parameter changes. Arguments:
-            - `module`: instance of module that emitted the event
-            - `name`: name of parameter
-            - `value`: value of parameter or list of values
-        """
-
-        self.engine.register_event_callback(event, callback)

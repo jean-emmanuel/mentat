@@ -17,7 +17,7 @@ class Route(Sequencer):
     @public_method
     def __init__(self, name):
         """
-        Route()
+        Route(name)
 
         Route object constructor.
 
