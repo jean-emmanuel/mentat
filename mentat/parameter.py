@@ -148,7 +148,11 @@ class Parameter():
         """
 
         if arg_type in self.cast_functions:
-            return self.cast_functions[arg_type](arg)
+            try:
+                return self.cast_functions[arg_type](arg)
+            except:
+                self.logger.warning('cannot cast value %s to type "%s", fallback to %s' % (arg, arg_type, 0))
+                return self.cast_functions[arg_type](0)
         else:
             return arg
 
