@@ -472,10 +472,8 @@ class Module(Sequencer, EventEmitter):
                     self.update_mapping(mapping)
 
         if self.meta_parameters:
-            if type(updated_parameter) is not list:
-                updated_parameter = [updated_parameter]
             for name in self.meta_parameters:
-                if updated_parameter in self.meta_parameters[name].parameters:
+                if self.meta_parameters[name].match(updated_parameter):
                     self.update_meta_parameter(name)
 
         # pass mapping update to parent module
@@ -522,9 +520,13 @@ class Module(Sequencer, EventEmitter):
 
         - `name`: name of meta parameter
         - `parameters`:
-            list of parameters involved in the meta parameter's definition. Each item in the list can be either:
-            - `string`: a parameter name
-            - `list`: one or multiple submodule names and one parameter name (`['submodule_name', 'parameter_name']`) if the parameter is owned by a submodule
+            parameters involved in the meta parameter's definition, can be
+            - `string` if there's only one source parameter owned
+            by the module itself
+            - `tuple` of `string` if the source parameter is owned
+            by a submodule  (e.g. `('submodule_name', 'parameter_name')`)
+            - `list` containing either of the above if there are multiple
+            source parameters.
         - `getter`:
             callback function that will be called with the values of each
             `parameters` as arguments whenever one these parameters changes.

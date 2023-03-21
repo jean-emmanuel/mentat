@@ -248,17 +248,20 @@ class Mapping():
 
     def match(self, param):
         """
-        Check if provided should trigger this mapping
+        Check if provided parameter should trigger this mapping
         """
         if type(param) == str :
             for s in self.src:
                 if len(s) == 1 and s[0] == param:
                     return True
         else:
-            param = tuple(param)
             for s in self.src:
-                if param == s:
-                    return True
+                if len(s) == len(param):
+                    for i in range(len(s)):
+                        if s[i] != param[i]:
+                            break
+                    else:
+                        return True
 
         return False
 
@@ -282,6 +285,12 @@ class MetaParameter(Parameter):
     def __init__(self, name, parameters, getter, setter, module):
 
         self.module = module
+
+        if type(parameters) != list:
+            self.parameters = [(parameters,)] if type(parameters) != tuple else [parameters]
+        else:
+            self.parameters = [(x,) if type(x) is not tuple else x for x in parameters]
+
         self.parameters = [[x] if type(x) is not list else x for x in parameters]
         self.getter = getter
         self.setter = setter
@@ -290,6 +299,25 @@ class MetaParameter(Parameter):
         types = '*' * len(signature(setter).parameters)
 
         super().__init__(name, address='', types=types)
+
+    def match(self, param):
+        """
+        Check if provided parameter should trigger this mapping
+        """
+        if type(param) == str :
+            for s in self.parameters:
+                if len(s) == 1 and s[0] == param:
+                    return True
+        else:
+            for s in self.parameters:
+                if len(s) == len(param):
+                    for i in range(len(s)):
+                        if s[i] != param[i]:
+                            break
+                    else:
+                        return True
+
+        return False
 
     def set(self, *args):
         """
