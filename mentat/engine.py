@@ -21,7 +21,7 @@ from .midi import osc_to_midi, midi_to_osc
 from .thread import KillableThread as Thread
 from .timer import Timer
 from .module import Module
-from .gui import Gui
+# from .gui import Gui
 
 class Engine(Module):
     """
