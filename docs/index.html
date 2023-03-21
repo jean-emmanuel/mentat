@@ -177,6 +177,8 @@
                         <li><a
                         href="#module.add_mapping">Module.add_mapping()</a></li>
                         <li><a
+                        href="#module.add_meta_parameter">Module.add_meta_parameter()</a></li>
+                        <li><a
                         href="#module.add_alias_parameter">Module.add_alias_parameter()</a></li>
                         <li><a
                         href="#module.get_state">Module.get_state()</a></li>
@@ -523,6 +525,8 @@ matters)</li>
 added to the module with names as keys</li>
 <li><code>parameters</code>: <code>dict</code> containing parameters
 added to the module with names as keys</li>
+<li><code>meta_parameters</code>: <code>dict</code> containing meta
+parameters added to the module with names as keys</li>
 </ul>
 <p><strong>Events</strong></p>
 <ul>
@@ -743,6 +747,32 @@ updating source parameters when destination parameters update. If
 (e.g. <code>transform(inverse(x)) != x</code>), mappings will not
 trigger each others indefinetely (a mapping cannot run twice during a
 cycle).</li>
+</ul>
+</div>
+<h3 id="module.add_meta_parameter">Module.add_meta_parameter()</h3>
+<div class="content">
+<p><i>add_meta_parameter(name, parameters, getter, setter)</i><br/></p>
+<p>Add a special parameter whose value depends on the state of one or
+several parameters owned by the module or its submodules.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>name</code>: name of meta parameter</li>
+<li><code>parameters</code>: list of parameters involved in the meta
+parameter’s definition. Each item in the list can be either:
+<ul>
+<li><code>string</code>: a parameter name</li>
+<li><code>list</code>: one or multiple submodule names and one parameter
+name (<code>['submodule_name', 'parameter_name']</code>) if the
+parameter is owned by a submodule</li>
+</ul></li>
+<li><code>getter</code>: callback function that will be called with the
+values of each <code>parameters</code> as arguments whenever one these
+parameters changes. Its return value will define the meta parameter’s
+value.</li>
+<li><code>setter</code>: callback function used to set the value of each
+<code>parameters</code> when <code>set()</code> is called to change the
+meta parameter’s value. The function’s signature must not use *args or
+**kwargs arguments.</li>
 </ul>
 </div>
 <h3 id="module.add_alias_parameter">Module.add_alias_parameter()</h3>
