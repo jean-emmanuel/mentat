@@ -6,7 +6,7 @@ import logging
 from queue import Queue
 
 from .utils import *
-from .parameter import Parameter, Mapping
+from .parameter import Parameter, MetaParameter, Mapping
 from .sequencer import Sequencer
 from .eventemitter import EventEmitter
 
@@ -23,6 +23,7 @@ class Module(Sequencer, EventEmitter):
     - `module_path`: list of module names, from topmost parent (engine) to submodule
     - `submodules`: `dict` containing submodules added to the module with names as keys
     - `parameters`: `dict` containing parameters added to the module with names as keys
+    - `meta_parameters`: `dict` containing meta parameters added to the module with names as keys
 
     **Events**
 
@@ -86,6 +87,7 @@ class Module(Sequencer, EventEmitter):
 
         self.parameters = {}
         self.animations = []
+        self.meta_parameters = {}
         self.mappings = []
 
         self.dirty_parameters = Queue()
@@ -196,6 +198,8 @@ class Module(Sequencer, EventEmitter):
             return
         if name in self.parameters:
             del self.parameters[name]
+        if name in self.meta_parameters:
+            del self.meta_parameters[name]
         if name in self.animations:
             self.animations.remove(name)
 
@@ -467,6 +471,13 @@ class Module(Sequencer, EventEmitter):
                 if mapping.match(updated_parameter):
                     self.update_mapping(mapping)
 
+        if self.meta_parameters:
+            if type(updated_parameter) is not list:
+                updated_parameter = [updated_parameter]
+            for name in self.meta_parameters:
+                if updated_parameter in self.meta_parameters[name].parameters:
+                    self.update_meta_parameter(name)
+
         # pass mapping update to parent module
         if self.parent_module is not None:
             if type(updated_parameter) is not list:
@@ -498,6 +509,57 @@ class Module(Sequencer, EventEmitter):
 
             if not self.dirty:
                 mapping.unlock()
+
+    @public_method
+    def add_meta_parameter(self, name, parameters, getter, setter):
+        """
+        add_meta_parameter(name, parameters, getter, setter)
+
+        Add a special parameter whose value depends on the state of one
+        or several parameters owned by the module or its submodules.
+
+        **Parameters**
+
+        - `name`: name of meta parameter
+        - `parameters`:
+            list of parameters involved in the meta parameter's definition. Each item in the list can be either:
+            - `string`: a parameter name
+            - `list`: one or multiple submodule names and one parameter name (`['submodule_name', 'parameter_name']`) if the parameter is owned by a submodule
+        - `getter`:
+            callback function that will be called with the values of each
+            `parameters` as arguments whenever one these parameters changes.
+            Its return value will define the meta parameter's value.
+        - `setter`:
+            callback function used to set the value of each `parameters` when `set()` is called to change the meta parameter's value.
+            The function's signature must not use *args or **kwargs arguments.
+        """
+        if name not in self.parameters:
+            meta_parameter = MetaParameter(name, parameters, getter, setter, module=self)
+            self.meta_parameters[name] = meta_parameter
+            self.parameters[name] = meta_parameter
+            for p in meta_parameter.parameters:
+                # avoid updating meta parameter the first time if
+                # dependencies don't exist they may be not ready yet
+                if self.get_parameter(*p) == None:
+                    return
+            self.update_meta_parameter(name)
+            self.dispatch_event('parameter_added', self, name)
+        else:
+            self.logger.error('could not add meta parameter "%s" (parameter already exists)' % name)
+
+    def update_meta_parameter(self, name):
+        """
+        update_meta_parameter(name)
+
+        Update meta parameter state and emit appropriate event if it changed.
+
+        **Parameters**
+
+        - `name`: name of meta parameter
+        """
+        if self.meta_parameters[name].update():
+            self.dispatch_event('parameter_changed', self, name, self.meta_parameters[name].get())
+
 
     @public_method
     def add_alias_parameter(self, name, parameter):

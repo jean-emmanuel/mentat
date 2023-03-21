@@ -25,6 +25,8 @@ mod.add_mapping(['x', 'y'], 'xy', lambda x, y: [x, y])
 mod.add_mapping('xy', 'x', lambda xy: xy[0])
 mod.add_mapping('xy', 'y', lambda xy: xy[1])
 
+mod.add_meta_parameter('test', ['x', 'y'], getter=lambda x,y: x+y, setter=lambda t: [mod.set('x', t/2),mod.set('y', t/2)])
+
 # add module to engine
 engine.add_module(mod)
 

@@ -274,3 +274,67 @@ class Mapping():
 
     def unlock(self):
         self.locked = False
+
+
+
+class MetaParameter(Parameter):
+
+    def __init__(self, name, parameters, getter, setter, module):
+
+        self.module = module
+        self.parameters = [[x] if type(x) is not list else x for x in parameters]
+        self.getter = getter
+        self.setter = setter
+        self.lock = False
+
+        types = '*' * len(signature(setter).parameters)
+
+        super().__init__(name, address='', types=types)
+
+    def set(self, *args):
+        """
+        Call user-defined setter function
+
+        **Parameters**
+
+        - `*args`: values for the setter function
+
+        **Return**
+
+        `True` if the value changed, `False` otherwise.
+        """
+
+        if len(args) != self.n_args:
+            self.logger.error('wrong number of arguments for %s. %i expected, %i provided' % (self.name, self.n_args, len(args)))
+            return False
+
+        value = self.get()
+
+        self.lock = True
+        self.setter(*args)
+        self.lock = False
+
+        return self.update()
+
+    def update(self):
+        """
+        Call user-defined getter function to determine the meta parameter's own value
+
+        **Return**
+
+        `True` if the value changed, `False` otherwise.
+        """
+
+        if self.lock:
+            return False
+
+        # get current value of linked parameters
+        values = [self.module.get(*x) for x in self.parameters]
+        # compute meta parameter value
+        value = self.getter(*values)
+
+        # update internal value and check if it changed
+        if type(value) is list:
+            return Parameter.set(self, *value)
+        else:
+            return Parameter.set(self, value)
