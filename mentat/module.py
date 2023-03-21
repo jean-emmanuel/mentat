@@ -6,7 +6,7 @@ import logging
 from queue import Queue
 
 from .utils import *
-from .parameter import Parameter, MetaParameter, Mapping
+from .parameter import Parameter, Mapping
 from .sequencer import Sequencer
 from .eventemitter import EventEmitter
 
@@ -22,8 +22,7 @@ class Module(Sequencer, EventEmitter):
     - `parent_module`: parent module instance, `None` if the module is not a submodule
     - `module_path`: list of module names, from topmost parent (engine) to submodule
     - `submodules`: `dict` containing submodules added to the module with names as keys
-    - `parameters`: `dict` containing parameters (including meta parameters) added to the module with names as keys
-    - `meta_parameters`: `dict` containing meta parameters added to the module with names as keys
+    - `parameters`: `dict` containing parameters added to the module with names as keys
 
     **Events**
 
@@ -87,7 +86,6 @@ class Module(Sequencer, EventEmitter):
 
         self.parameters = {}
         self.animations = []
-        self.meta_parameters = {}
         self.mappings = []
 
         self.dirty_parameters = Queue()
@@ -198,8 +196,6 @@ class Module(Sequencer, EventEmitter):
             return
         if name in self.parameters:
             del self.parameters[name]
-        if name in self.meta_parameters:
-            del self.meta_parameters[name]
         if name in self.animations:
             self.animations.remove(name)
 
@@ -231,12 +227,12 @@ class Module(Sequencer, EventEmitter):
             self.logger.error('get: parameter or submodule "%s" not found' % name)
 
     @submodule_method(pattern_matching=False)
-    def has(self, *args):
+    def get_parameter(self, *args):
         """
-        has(parameter_name)
-        has(submodule_name, param_name)
+        get_parameter(parameter_name)
+        get_parameter(submodule_name, param_name)
 
-        Check if module has parameter
+        Check if module has parameter and return it.
 
         **Parameters**
 
@@ -245,10 +241,10 @@ class Module(Sequencer, EventEmitter):
 
         **Return**
 
-        `True` if module
+        Parameter object or None
         """
         name = args[0]
-        return name in self.parameters
+        return self.parameters[name] if name in self.parameters else None
 
     @public_method
     @force_mainthread
@@ -452,77 +448,31 @@ class Module(Sequencer, EventEmitter):
         for p in mapping.src + mapping.dest:
             # avoid updating mapping the first time if
             # dependencies don't exist they may be not ready yet
-            if not self.has(*p):
+            if self.get_parameter(*p) == None:
                 return
         self.update_mapping(mapping)
 
-    @public_method
-    def add_meta_parameter(self, name, parameters, getter, setter):
+    def check_mappings(self, updated_parameter):
         """
-        add_meta_parameter(name, parameters, getter, setter)
+        check_mappings(updated_parameter)
 
-        Add a special parameter whose value depends on the state of one
-        or several parameters owned by the module or its submodules.
-
-        **Parameters**
-
-        - `name`: name of meta parameter
-        - `parameters`:
-            list of parameters involved in the meta parameter's definition. Each item in the list can be either:
-            - `string`: a parameter name
-            - `list`: one or multiple submodule names and one parameter name (`['submodule_name', 'parameter_name']`) if the parameter is owned by a submodule
-        - `getter`:
-            callback function that will be called with the values of each
-            `parameters` as arguments whenever one these parameters changes.
-            Its return value will define the meta parameter's value.
-        - `setter`:
-            callback function used to set the value of each `parameters`when when `set()` is called to change the meta parameter's value.
-            The function's signature must not use *args or **kwargs arguments.
-        """
-        if name not in self.parameters:
-            meta_parameter = MetaParameter(name, parameters, getter, setter, module=self)
-            self.meta_parameters[name] = meta_parameter
-            self.parameters[name] = meta_parameter
-            for p in meta_parameter.parameters:
-                # avoid updating meta parameter the first time if
-                # dependencies don't exist they may be not ready yet
-                if not self.has(*p):
-                    return
-            self.update_meta_parameter(name)
-            self.dispatch_event('parameter_added', self, name)
-        else:
-            self.logger.error('could not add meta parameter "%s" (parameter already exists)' % name)
-
-    def check_meta_parameters(self, updated_parameter):
-        """
-        check_meta_parameters(updated_parameter)
-
-        Update meta parameters in which updated parameter is involved.
+        Update mappings in which updated parameter is involved.
 
         **Parameters**
 
         - `updated_parameter`: parameter name, may be a list if owned by a submodule.
         """
-        if self.meta_parameters:
-            if type(updated_parameter) is not list:
-                updated_parameter = [updated_parameter]
-            for name in self.meta_parameters:
-                if updated_parameter in self.meta_parameters[name].parameters:
-                    self.update_meta_parameter(name)
-
         if self.mappings:
-            if type(updated_parameter) is not list:
-                updated_parameter = [updated_parameter]
             for mapping in self.mappings:
-                if updated_parameter in mapping.src:
+                if mapping.match(updated_parameter):
                     self.update_mapping(mapping)
 
-        # pass meta_parameter update to parent module
+        # pass mapping update to parent module
         if self.parent_module is not None:
             if type(updated_parameter) is not list:
                 updated_parameter = [updated_parameter]
             updated_parameter.insert(0, self.name)
-            self.parent_module.check_meta_parameters(updated_parameter)
+            self.parent_module.check_mappings(updated_parameter)
 
     def update_mapping(self, mapping):
         """
@@ -535,7 +485,7 @@ class Module(Sequencer, EventEmitter):
         """
         if mapping.lock():
             src_values = [self.get(*param) for param in mapping.src]
-            dest_values = mapping.compute(*src_values)
+            dest_values = mapping.transform(*src_values)
             if mapping.n_args == 1:
                 dest_values = [dest_values]
             for i in range(mapping.n_args):
@@ -549,41 +499,36 @@ class Module(Sequencer, EventEmitter):
             if not self.dirty:
                 mapping.unlock()
 
-
-    def update_meta_parameter(self, name):
-        """
-        update_meta_parameter(name)
-
-        Update meta parameter state and emit appropriate event if it changed.
-
-        **Parameters**
-
-        - `name`: name of meta parameter
-        """
-        if self.meta_parameters[name].update():
-            self.dispatch_event('parameter_changed', self, name, self.meta_parameters[name].get())
-
     @public_method
     def add_alias_parameter(self, name, parameter):
         """
         add_alias_parameter(name, parameter)
 
         Add a special parameter that just mirrors another parameter owned by the module or its submodules.
-        Under the hood, this creates a meta parameter with the simplest getter and setters possible.
+        Under the hood, this creates a parameter and a 1:1 mapping between them.
 
         **Parameters**
 
         - `name`: name of alias parameter
         - `parameter`:
-            name of parameter to mirror, may a be list if the parameter are owned by a submodule (`['submodule_name', 'parameter_name']`)
+            name of parameter to mirror, may a be tuple if the parameter are owned by a submodule (`('submodule_name', 'parameter_name')`)
         """
-        getter = lambda val: val
-        if type(parameter) is list:
-            setter = lambda val: self.set(*parameter, val)
+        if type(parameter) != tuple:
+            parameter = (parameter)
+        if (p := self.get_parameter(*parameter)) == None:
+            self.logger.error('could not create alias parameter %s for %s (parameter doesn\'t exist)' % (name, parameter))
+            return
+        elif self.get_parameter(name) != None:
+            self.logger.error('could not create alias parameter %s for %s (parameter %s already exists)' % (name, parameter, name))
+            return
         else:
-            setter = lambda val: self.set(parameter, val)
-
-        self.add_meta_parameter(name, [parameter], getter, setter)
+            self.parameters[name] = Parameter(name, address=None, types=p.types[-p.n_args-1:], static_args=[], default=None)
+            if p.n_args == 1:
+                self.parameters[name].set(p.get())
+            else:
+                self.parameters[name].set(*p.get())
+            self.add_mapping(parameter, name, lambda x: x, lambda y: y)
+            self.dispatch_event('parameter_added', self, name)
 
     @public_method
     def get_state(self, omit_defaults=False):
@@ -774,7 +719,7 @@ class Module(Sequencer, EventEmitter):
                     self.send(parameter.address, *parameter.get_message_args())
                 parameter.set_last_sent()
                 self.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
-                self.check_meta_parameters(parameter.name)
+                self.check_mappings(parameter.name)
             parameter.dirty = False
         for mapping in self.mappings:
             mapping.unlock()
