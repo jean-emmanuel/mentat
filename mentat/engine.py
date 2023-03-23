@@ -1,6 +1,5 @@
 import time
 import liblo
-import queue
 import fnmatch
 import atexit
 import sys
@@ -13,10 +12,9 @@ from pyalsa import alsaseq
 from signal import signal, SIGINT, SIGTERM
 from queue import Queue
 from pathlib import Path
-from contextlib import contextmanager
 
-from .config import *
-from .utils import *
+from .config import MAINLOOP_PERIOD, MAINLOOP_PERIOD_NS, ANIMATION_PERIOD_NS
+from .utils import public_method, force_mainthread
 from .midi import osc_to_midi, midi_to_osc
 from .thread import KillableThread as Thread
 from .timer import Timer
@@ -698,7 +696,6 @@ class Engine(Module):
                 self.scenes[name].kill()
             else:
                 self.logger.debug('cleaning scene %s' % name)
-            id = self.scenes[name].ident
             del self.scenes[name]
             del self.scenes_timers[name]
 

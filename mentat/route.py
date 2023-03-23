@@ -1,6 +1,6 @@
 import logging
 
-from .utils import *
+from .utils import public_method
 from .sequencer import Sequencer
 from .engine import Engine
 

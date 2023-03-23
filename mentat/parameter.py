@@ -1,12 +1,10 @@
 import logging
 from inspect import signature
 
-from .utils import *
 from .easing import EASING_FUNCTIONS
 
 class Parameter():
 
-    @public_method
     def __init__(self, name, address, types, static_args=[], default=None):
         """
         Parameter(name, address, types, static_args=[], default=None)
@@ -52,7 +50,6 @@ class Parameter():
         self.dirty = False
         self.last_sent = None
 
-    @public_method
     def get(self):
         """
         get()
@@ -70,7 +67,6 @@ class Parameter():
         return val[0] if len(val) == 1 else val
 
 
-    @public_method
     def set(self, *args):
         """
         set(*args)
@@ -335,8 +331,6 @@ class MetaParameter(Parameter):
         if len(args) != self.n_args:
             self.logger.error('wrong number of arguments for %s. %i expected, %i provided' % (self.name, self.n_args, len(args)))
             return False
-
-        value = self.get()
 
         self.lock = True
         self.setter(*args)

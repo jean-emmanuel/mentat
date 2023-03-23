@@ -1,5 +1,6 @@
 from pyalsa import alsaseq
-from pyalsa.alsaseq import *
+from pyalsa.alsaseq import (SEQ_EVENT_NOTEON, SEQ_EVENT_NOTEOFF, SEQ_EVENT_CONTROLLER,
+                            SEQ_EVENT_PGMCHANGE, SEQ_EVENT_PITCHBEND,SEQ_EVENT_SYSEX)
 
 MIDI_TO_OSC = {
     SEQ_EVENT_NOTEON: '/note_on',

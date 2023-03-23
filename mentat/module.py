@@ -5,7 +5,7 @@ import re
 import logging
 from queue import Queue
 
-from .utils import *
+from .utils import public_method, force_mainthread, submodule_method
 from .parameter import Parameter, MetaParameter, Mapping
 from .sequencer import Sequencer
 from .eventemitter import EventEmitter

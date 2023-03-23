@@ -1,4 +1,4 @@
-from .utils import *
+from .utils import public_method
 
 class Sequencer():
     """

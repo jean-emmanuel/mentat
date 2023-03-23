@@ -1,11 +1,11 @@
 import logging
-LOGGER = logging.getLogger(__name__)
-
 import time
 
-from .config import *
+from .config import MAINLOOP_PERIOD, MAINLOOP_PERIOD_NS
 
 class Timer():
+
+    logger = logging.getLogger(__name__)
 
     def __init__(self, engine):
 
@@ -54,7 +54,7 @@ class Timer():
         elif mode == 'ns':
             pass
         else:
-            LOGGER.error('unrecognized mode "%s" for wait()' % mode)
+            self.logger.error('unrecognized mode "%s" for wait()' % mode)
             return
 
         self.end_time = self.start_time + duration

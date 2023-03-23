@@ -1,12 +1,9 @@
-import sys
 import logging
 import traceback
 import threading
 import fnmatch
 
-from queue import Queue
 from functools import wraps
-from contextlib import contextmanager
 
 def public_method(method):
     """
@@ -66,7 +63,6 @@ class TraceLogger(logging.Logger):
     Add backtrace to error logs
     """
     def get_formatted_stack(self):
-        exc_info = sys.exc_info()
         stack = traceback.extract_stack()[:-3]
         trace = traceback.format_list(stack)
         formatted = ''
