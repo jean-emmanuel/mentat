@@ -6,9 +6,9 @@ import fnmatch
 from functools import wraps
 
 from typing import Callable, TypeVar, ParamSpec
+
 T = TypeVar('T')
 P = ParamSpec('P')
-
 type_callback = Callable
 
 def public_method(method: Callable[P, T])-> Callable[P, T]:
@@ -94,6 +94,3 @@ class TraceLogger(logging.Logger):
         raise SystemExit
 
 logging.setLoggerClass(TraceLogger)
-
-
-t_mapping_params = str|tuple[str, ...]|list[str|tuple[str, ...]]
