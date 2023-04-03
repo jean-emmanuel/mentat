@@ -1,4 +1,4 @@
-from .utils import public_method
+from .utils import public_method, type_callback
 
 class Sequencer():
     """
@@ -9,7 +9,11 @@ class Sequencer():
         self.scene_namespace = namespace
 
     @public_method
-    def start_scene(self, name, scene, *args, **kwargs):
+    def start_scene(self,
+                    name: str,
+                    scene: type_callback,
+                    *args,
+                    **kwargs):
         """
         start_scene(name, scene, *args, **kwargs)
 
@@ -36,7 +40,7 @@ class Sequencer():
         self.engine.start_scene_thread('/%s/%s' % (self.scene_namespace, name), scene, *args, **kwargs)
 
     @public_method
-    def restart_scene(self, name):
+    def restart_scene(self, name: str):
         """
         restart_scene(name)
 
@@ -50,7 +54,7 @@ class Sequencer():
         self.engine.restart_scene_thread('/%s/%s' % (self.scene_namespace, name))
 
     @public_method
-    def stop_scene(self, name):
+    def stop_scene(self, name: str):
         """
         stop_scene(name)
 
@@ -63,7 +67,7 @@ class Sequencer():
         self.engine.stop_scene_thread('/%s/%s' % (self.scene_namespace, name))
 
     @public_method
-    def wait(self, duration, mode='beats'):
+    def wait(self, duration: int|float, mode: str = 'beats'):
         """
         wait(duration, mode='beats')
 
@@ -132,8 +136,11 @@ class Sequencer():
         return self.engine.get_main_loop_lock()
 
 
+    _type_bar = dict[int|float|str, type_callback|str]
     @public_method
-    def play_sequence(self, sequence, loop=True):
+    def play_sequence(self,
+                      sequence: _type_bar|list[_type_bar, ...],
+                      loop: bool = True):
         """
         play_sequence(sequence, loop=True)
 
@@ -184,6 +191,10 @@ class Sequencer():
         ])
         ```
         """
+        if not self.engine.is_scene_thread():
+            self.logger.critical('play_sequence() can only be called in a scene')
+            return
+
         while True:
 
             if type(sequence) is dict:

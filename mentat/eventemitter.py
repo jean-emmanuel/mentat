@@ -1,9 +1,15 @@
+"""
+EventEmitter class
+"""
+
 from .utils import public_method
 
 class EventEmitter():
     """
     Simple event emitter
     """
+
+    parent_module = None
 
     def __init__(self):
 
@@ -46,7 +52,7 @@ class EventEmitter():
 
         if event in self.event_callbacks:
             for callback in self.event_callbacks[event]:
-                if callback(*args) == False:
+                if callback(*args) is False:
                     bubble = False
 
         if bubble and self.parent_module is not None:

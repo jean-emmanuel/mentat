@@ -1,5 +1,9 @@
-import math
-from random import random as _rand
+"""
+Easing functions for parameter animations
+"""
+
+from math import sin, pi
+from random import random as rand
 
 def lerp(start, end, p):
     """
@@ -10,9 +14,12 @@ def lerp(start, end, p):
     - `end`: end value
     - `p`: progress between 0.0 and 1.0
     """
-    return (start + (end - start) * p)
+    return start + (end - start) * p
 
 def flip(p):
+    """
+    Flip a function between 0.0 and 1.0
+    """
     return 1 - p
 
 def create_easing(ease_in):
@@ -55,7 +62,7 @@ def create_easing(ease_in):
 
 
 
-    e = {
+    easings = {
         'in': ease_in,
         'out': ease_out,
         'inout': ease_in_out,
@@ -67,7 +74,7 @@ def create_easing(ease_in):
 
     def ease(start, end, p, mode='in'):
 
-        return lerp(start, end, e[mode](p))
+        return lerp(start, end, easings[mode](p))
 
     return ease
 
@@ -75,19 +82,26 @@ def create_easing(ease_in):
 
 EASING_FUNCTIONS = {
     'linear':      create_easing(lambda p: p),
-    'sine':        create_easing(lambda p: math.sin((p - 1) * math.pi / 2) + 1),
+    'sine':        create_easing(lambda p: sin((p - 1) * pi / 2) + 1),
     'quadratic':   create_easing(lambda p: p * p),
     'cubic':       create_easing(lambda p: p * p * p),
     'quartic':     create_easing(lambda p: p * p * p * p),
     'quintic':     create_easing(lambda p: p * p * p * p * p),
-    'exponential': create_easing(lambda p: 0 if p == 0 else math.pow(2, 10 * (p - 1))),
-    'random':      create_easing(lambda p: p if p == 0 or p == 1 else _rand()),
-    'elastic':     create_easing(lambda p: math.sin(13 * math.pi / 2 * p) * math.pow(2, 10 * (p - 1)))
+    'exponential': create_easing(lambda p: 0 if p == 0 else pow(2, 10 * (p - 1))),
+    'random':      create_easing(lambda p: p if p in (0, 1) else rand()),
+    'elastic':     create_easing(lambda p: sin(13 * pi / 2 * p) * pow(2, 10 * (p - 1)))
 }
 
 
 
-if __name__ == '__main__':
+def main():
+    """
+    Simple test (print easing values)
+    """
     for name, interp in EASING_FUNCTIONS.items():
         for mode in ['in', 'out', 'inout', 'mirror-in', 'mirror-out', 'mirror-inout']:
-            print(name, mode, '\n', ',\t'.join(['%.1f' % interp(0, 10, x / 10, mode) for x in range(11)]))
+            points = ',\t'.join([f'{interp(0, 10, x / 10, mode):.1f}' for x in range(11)])
+            print(f'{name} {mode}\n{points}')
+
+if __name__ == '__main__':
+    main()

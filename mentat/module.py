@@ -5,7 +5,9 @@ import re
 import logging
 from queue import Queue
 
-from .utils import public_method, force_mainthread, submodule_method
+from typing import TYPE_CHECKING
+
+from .utils import public_method, force_mainthread, submodule_method, type_callback
 from .parameter import Parameter, MetaParameter, Mapping
 from .sequencer import Sequencer
 from .eventemitter import EventEmitter
@@ -38,9 +40,16 @@ class Module(Sequencer, EventEmitter):
         - `name`: name of parameter
         - `value`: value of parameter or list of values
     """
+    if TYPE_CHECKING:
+        from .engine import Engine
+        engine: Engine
 
     @public_method
-    def __init__(self, name, protocol=None, port=None, parent=None):
+    def __init__(self,
+                 name: str,
+                 protocol: str|None = None,
+                 port: int|str|None = None,
+                 parent: 'Module|None' = None):
         """
         Module(name, protocol=None, port=None, parent=None)
 
@@ -114,7 +123,7 @@ class Module(Sequencer, EventEmitter):
         EventEmitter.__init__(self)
 
     @public_method
-    def add_submodule(self, *modules):
+    def add_submodule(self, *modules: 'Module'):
         """
         add_submodule(*modules)
 
@@ -145,7 +154,7 @@ class Module(Sequencer, EventEmitter):
             self.dispatch_event('module_added', self, module)
 
     @public_method
-    def set_aliases(self, aliases):
+    def set_aliases(self, aliases: dict[str, str]):
         """
         set_aliases(aliases)
 
@@ -159,7 +168,12 @@ class Module(Sequencer, EventEmitter):
         self.aliases = aliases
 
     @public_method
-    def add_parameter(self, name, address, types, static_args=[], default=None):
+    def add_parameter(self,
+                      name: str,
+                      address: str|None,
+                      types: str,
+                      static_args: list = [],
+                      default = None):
         """
         add_parameter(name, address, types, static_args=[], default=None)
 
@@ -168,7 +182,7 @@ class Module(Sequencer, EventEmitter):
         **Parameters**
 
         - `name`: name of parameter
-        - `address`: osc address of parameter. Can be `None` if the parameter should not send any message.
+        - `address`: osc address of parameter (`None` if the parameter should not send any message)
         - `types`: osc typetags string, one letter per value, including static values
         (character '*' can be used for arguments that should not be explicitely typed)
         - `static_args`: list of static values before the ones that can be modified
@@ -182,7 +196,7 @@ class Module(Sequencer, EventEmitter):
             self.logger.error('could not add parameter "%s" (parameter already exists)' % name)
 
     @public_method
-    def remove_parameter(self, name):
+    def remove_parameter(self, name: str):
         """
         remove_parameter(name)
 
@@ -205,7 +219,7 @@ class Module(Sequencer, EventEmitter):
 
     @public_method
     @submodule_method(pattern_matching=False)
-    def get(self, *args):
+    def get(self, parameter_name: str, *args):
         """
         get(parameter_name)
         get(submodule_name, param_name)
@@ -221,14 +235,12 @@ class Module(Sequencer, EventEmitter):
 
         List of values
         """
-        name = args[0]
+        if parameter_name in self.parameters:
 
-        if name in self.parameters:
-
-            return self.parameters[name].get()
+            return self.parameters[parameter_name].get()
 
         else:
-            self.logger.error('get: parameter or submodule "%s" not found' % name)
+            self.logger.error('get: parameter or submodule "%s" not found' % parameter_name)
 
     @submodule_method(pattern_matching=False)
     def get_parameter(self, *args):
@@ -253,10 +265,14 @@ class Module(Sequencer, EventEmitter):
     @public_method
     @force_mainthread
     @submodule_method(pattern_matching=True)
-    def set(self, *args, force_send=False, preserve_animation=False):
+    def set(self,
+            parameter_name: str,
+            *args,
+            force_send: bool = False,
+            preserve_animation: bool = False):
         """
         set(parameter_name, *args, force_send=False, preserve_animation=False)
-        set(submodule_name, param_nam, *args, force_send=False, preserve_animation=False)
+        set(submodule_name, parameter_name, *args, force_send=False, preserve_animation=False)
 
         Set value of parameter.
 
@@ -275,59 +291,58 @@ class Module(Sequencer, EventEmitter):
         - `preserve_animation`: by default, animations are automatically stopped when `set()` is called, set
         to `True` to prevent that
         """
-        name = args[0]
 
-        if name in self.parameters:
+        if parameter_name in self.parameters:
 
-            parameter = self.parameters[name]
+            parameter = self.parameters[parameter_name]
             if parameter.animate_running and not preserve_animation:
                 parameter.stop_animation()
 
             if force_send and parameter.address:
-                parameter.set(*args[1:])
+                parameter.set(*args)
                 self.send(parameter.address, *parameter.get_message_args())
                 parameter.set_last_sent()
 
             else:
 
-                if parameter.set(*args[1:]) and not parameter.dirty:
+                if parameter.set(*args) and not parameter.dirty:
                     parameter.dirty = True
                     self.dirty_parameters.put(parameter)
                     self.set_dirty()
 
         else:
-            self.logger.error('set: parameter or submodule "%s" not found' % name)
+            self.logger.error('set: parameter or submodule "%s" not found' % parameter_name)
 
     @public_method
     @force_mainthread
-    def reset(self, name=None):
+    def reset(self, parameter_name: str|None = None):
         """
-        reset(name=None)
+        reset(parameter_name=None)
 
         Reset parameter to its default values.
 
         **Parameters**
 
-        - `name`: name of parameter. If omitted, affects all parameters including submodules'
+        - `parameter_name`: name of parameter. If omitted, affects all parameters including submodules'
         """
-        if name is None:
+        if parameter_name is None:
             for sname in self.submodules:
                 self.submodules[sname].reset()
-            for name in self.parameters:
-                self.reset(name)
+            for parameter_name in self.parameters:
+                self.reset(parameter_name)
 
-        elif name in self.parameters:
-            if (default := self.parameters[name].default) is not None:
+        elif parameter_name in self.parameters:
+            if (default := self.parameters[parameter_name].default) is not None:
                 if type(default) == list:
-                    self.set(name, *default)
+                    self.set(parameter_name, *default)
                 else:
-                    self.set(name, default)
+                    self.set(parameter_name, default)
 
 
     @public_method
     @force_mainthread
     @submodule_method(pattern_matching=True)
-    def animate(self, *args, **kwargs):
+    def animate(self, parameter_name: str, *args, **kwargs):
         """
         animate(parameter_name, start, end, duration, mode='beats', easing='linear', loop=False)
         animate(submodule_name, parameter_name, start, end, duration, mode='beats', easing='linear', loop=False)
@@ -348,23 +363,21 @@ class Module(Sequencer, EventEmitter):
             - easing name can be suffixed with `-out` (inverted and flipped easing) or `-inout` (linear interpolation between default and `-out`). Example: `exponential-mirror-inout`.
         - `loop`: if set to `True`, the animation will start over when `duration` is reached (use mirror easing for back-and-forth loop)
         """
-        name = args[0]
+        if parameter_name in self.parameters:
 
-        if name in self.parameters:
-
-            parameter = self.parameters[name]
-            parameter.start_animation(self.engine, *args[1:], **kwargs)
+            parameter = self.parameters[parameter_name]
+            parameter.start_animation(self.engine, *args, **kwargs)
             if parameter.animate_running:
-                if name not in self.animations:
-                    self.animations.append(name)
+                if parameter_name not in self.animations:
+                    self.animations.append(parameter_name)
                 self.set_animating()
         else:
-            self.logger.error('animate: parameter or submodule "%s" not found' % name)
+            self.logger.error('animate: parameter or submodule "%s" not found' % parameter_name)
 
     @public_method
     @force_mainthread
     @submodule_method(pattern_matching=False)
-    def stop_animate(self, *args):
+    def stop_animate(self, parameter_name: str, *args):
         """
         stop_animate(parameter_name)
         stop_animate(submodule_name, param_name)
@@ -376,18 +389,17 @@ class Module(Sequencer, EventEmitter):
         - `parameter_name`: name of parameter, can be '*' to stop all animations including submodules'.
         - `submodule_name`: name of submodule
         """
-        name = args[0]
 
-        if name == '*':
+        if parameter_name == '*':
 
             for sname in self.submodules:
                 self.submodules[sname].stop_animation('*')
             for name in self.animations:
                 self.parameters[name].stop_animation()
 
-        elif name in self.animations:
+        elif parameter_name in self.animations:
 
-            self.parameters[name].stop_animation()
+            self.parameters[parameter_name].stop_animation()
 
 
     def update_animations(self):
@@ -411,8 +423,13 @@ class Module(Sequencer, EventEmitter):
             else:
                 self.animations.remove(name)
 
+
     @public_method
-    def add_mapping(self, src, dest, transform, inverse=None):
+    def add_mapping(self,
+                    src: str|tuple[str, ...]|list[str|tuple[str, ...], ...],
+                    dest: str|tuple[str, ...]|list[str|tuple[str, ...], ...],
+                    transform: type_callback,
+                    inverse: type_callback|None = None):
         """
         add_mapping(self, src, dest, transform, inverse=None)
 
@@ -509,7 +526,11 @@ class Module(Sequencer, EventEmitter):
                 mapping.unlock()
 
     @public_method
-    def add_meta_parameter(self, name, parameters, getter, setter):
+    def add_meta_parameter(self,
+                           name: str,
+                           parameters: str|tuple[str, ...]|list[str|tuple[str, ...], ...],
+                           getter: type_callback,
+                           setter: type_callback):
         """
         add_meta_parameter(name, parameters, getter, setter)
 
@@ -564,7 +585,7 @@ class Module(Sequencer, EventEmitter):
 
 
     @public_method
-    def add_alias_parameter(self, name, parameter):
+    def add_alias_parameter(self, name: str, parameter: str):
         """
         add_alias_parameter(name, parameter)
 
@@ -595,7 +616,7 @@ class Module(Sequencer, EventEmitter):
             self.dispatch_event('parameter_added', self, name)
 
     @public_method
-    def get_state(self, omit_defaults=False):
+    def get_state(self, omit_defaults: bool = False) -> list[list, ...]:
         """
         get_state()
 
@@ -632,7 +653,7 @@ class Module(Sequencer, EventEmitter):
 
     @public_method
     @force_mainthread
-    def set_state(self, state, force_send=False):
+    def set_state(self, state: list[list, ...], force_send: bool = False):
         """
         set_state(state)
 
@@ -657,7 +678,7 @@ class Module(Sequencer, EventEmitter):
         self.set_state(self.get_state(), force_send=True)
 
     @public_method
-    def save(self, name, omit_defaults=False):
+    def save(self, name: str, omit_defaults: bool = False):
         """
         save(name, omit_defaults=False)
 
@@ -681,7 +702,7 @@ class Module(Sequencer, EventEmitter):
         self.logger.info('state "%s" saved to %s' % (name, file))
 
     @public_method
-    def load(self, name, force_send=False, preload=False):
+    def load(self, name: str, force_send: bool = False, preload: bool = False):
         """
         load(name, force_send=False)
 
@@ -733,7 +754,7 @@ class Module(Sequencer, EventEmitter):
                 self.logger.error('state "%s" not found' % name)
 
     @public_method
-    def route(self, address, args):
+    def route(self, address: str, args: list):
         """
         route(address, args)
 
@@ -791,7 +812,7 @@ class Module(Sequencer, EventEmitter):
         self.dirty = False
 
     @public_method
-    def send(self, address, *args):
+    def send(self, address: str, *args):
         """
         send(address, *args)
 

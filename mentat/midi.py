@@ -1,3 +1,7 @@
+"""
+MIDI <-> OSC converter
+"""
+
 from pyalsa import alsaseq
 from pyalsa.alsaseq import (SEQ_EVENT_NOTEON, SEQ_EVENT_NOTEOFF, SEQ_EVENT_CONTROLLER,
                             SEQ_EVENT_PGMCHANGE, SEQ_EVENT_PITCHBEND,SEQ_EVENT_SYSEX)
@@ -21,6 +25,9 @@ OSC_TO_MIDI = {
 }
 
 def midi_to_osc(event):
+    """
+    Convert SeqEvent to OSC
+    """
 
     mtype = event.type
 
@@ -36,7 +43,7 @@ def midi_to_osc(event):
         osc['args'] = [data['note.channel'], data['note.note'], data['note.velocity']]
     elif mtype == SEQ_EVENT_NOTEOFF:
         osc['args'] = [data['note.channel'], data['note.note'], 0]
-    elif mtype == SEQ_EVENT_PITCHBEND or mtype == SEQ_EVENT_PGMCHANGE:
+    elif mtype in (SEQ_EVENT_PITCHBEND, SEQ_EVENT_PGMCHANGE):
         osc['args'] = [data['control.channel'], data['control.value']]
     elif mtype == SEQ_EVENT_SYSEX:
         osc['args'] = data['ext']
@@ -48,30 +55,50 @@ def midi_to_osc(event):
     return osc
 
 def osc_to_midi(address, args):
+    """
+    Convert OSC message to SeqEvent
+    """
 
     if address not in OSC_TO_MIDI:
         return None
 
-    args = [arg[1] if type(arg) is tuple else arg for arg in args]
-
-    if None in args:
-        return None
-
-    if not all(isinstance(e, int) for e in args):
-        args = [int(x) for x in args]
+    iargs = []
+    for arg in args:
+        if isinstance(arg, tuple):
+            arg = arg[1]
+        if arg is None:
+            return None
+        if not isinstance(arg, int):
+            arg = int(arg)
+        iargs.append(arg)
 
     mtype = OSC_TO_MIDI[address]
     event = alsaseq.SeqEvent(mtype)
 
     if mtype == SEQ_EVENT_NOTEON:
-        event.set_data({'note.channel': args[0], 'note.note': args[1], 'note.velocity': args[2]})
+
+        event.set_data({'note.channel': iargs[0],
+                        'note.note': iargs[1],
+                        'note.velocity': iargs[2]})
+
     elif mtype == SEQ_EVENT_NOTEOFF:
-        event.set_data({'note.channel': args[0], 'note.note': args[1]})
-    elif mtype == SEQ_EVENT_PITCHBEND or mtype == SEQ_EVENT_PGMCHANGE:
-        event.set_data({'control.channel': args[0], 'control.value': args[1]})
+
+        event.set_data({'note.channel': iargs[0],
+                        'note.note': iargs[1]})
+
+    elif mtype in (SEQ_EVENT_PITCHBEND, SEQ_EVENT_PGMCHANGE):
+
+        event.set_data({'control.channel': iargs[0],
+                        'control.value': iargs[1]})
+
     elif mtype == SEQ_EVENT_SYSEX:
-        event.set_data({'ext': list(args)})
+
+        event.set_data({'ext': iargs})
+
     elif mtype == SEQ_EVENT_CONTROLLER:
-        event.set_data({'control.channel': args[0], 'control.param': args[1], 'control.value': args[2]})
+
+        event.set_data({'control.channel': iargs[0],
+                        'control.param': iargs[1],
+                        'control.value': iargs[2]})
 
     return event

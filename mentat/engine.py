@@ -1,17 +1,24 @@
+"""
+Engine class
+"""
+
 import time
-import liblo
 import fnmatch
 import atexit
 import sys
 import os
-import pyinotify
 import logging
 import threading
 
-from pyalsa import alsaseq
-from signal import signal, SIGINT, SIGTERM
 from queue import Queue
 from pathlib import Path
+from signal import signal, SIGINT, SIGTERM
+from typing import TYPE_CHECKING
+
+import pyinotify
+import liblo
+
+from pyalsa import alsaseq
 
 from .config import MAINLOOP_PERIOD, MAINLOOP_PERIOD_NS, ANIMATION_PERIOD_NS
 from .utils import public_method, force_mainthread
@@ -19,7 +26,9 @@ from .midi import osc_to_midi, midi_to_osc
 from .thread import KillableThread as Thread
 from .timer import Timer
 from .module import Module
-# from .gui import Gui
+
+if TYPE_CHECKING:
+    from .route import Route
 
 class Engine(Module):
     """
@@ -55,7 +64,13 @@ class Engine(Module):
     INSTANCE = None
 
     @public_method
-    def __init__(self, name, port, folder, debug=False, tcp_port=None, unix_port=None):
+    def __init__(self,
+                 name: str,
+                 port: int,
+                 folder: str,
+                 debug: bool = False,
+                 tcp_port: int|None = None,
+                 unix_port: int|None = None):
         """
         Engine(name, port, folder, debug=False, tcp_port=None, unix_port=None)
 
@@ -142,14 +157,6 @@ class Engine(Module):
 
         Module.__init__(self, name)
 
-        # self.add_module(Gui())
-
-    # backward compat
-    def get_root_module(self):
-        self.logger.warning('root_module property is deprecated, use engine instance directly instead')
-        return self
-    root_module = property(get_root_module)
-
     def start_servers(self):
         """
         start_servers()
@@ -170,7 +177,11 @@ class Engine(Module):
 
         self.midi_server = alsaseq.Sequencer(clientname=self.name)
         for module_name in self.midi_ports:
-            self.midi_ports[module_name] = self.midi_server.create_simple_port(module_name, alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC | alsaseq.SEQ_PORT_TYPE_APPLICATION, alsaseq.SEQ_PORT_CAP_WRITE | alsaseq.SEQ_PORT_CAP_SUBS_WRITE | alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
+            port_type = alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC | alsaseq.SEQ_PORT_TYPE_APPLICATION
+            port_caps = (alsaseq.SEQ_PORT_CAP_WRITE | alsaseq.SEQ_PORT_CAP_SUBS_WRITE |
+                         alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
+            port_id = self.midi_server.create_simple_port(module_name, port_type, port_caps)
+            self.midi_ports[module_name] = port_id
 
     def stop_servers(self):
         """
@@ -210,8 +221,8 @@ class Engine(Module):
         # process midi messages
         if self.midi_server:
             midi_events = self.midi_server.receive_events()
-            for e in midi_events:
-                self.route_midi(e)
+            for event in midi_events:
+                self.route_midi(event)
 
     @public_method
     def start(self):
@@ -295,10 +306,10 @@ class Engine(Module):
                             if stat == 'exec_time':
                                 peak_time = self.statistics['exec_time'][0] / 1000000
                                 average_time = self.statistics['exec_time'][1] / self.statistics['exec_time'][2] / 1000000
-                                self.logger.info('statistic: main loop exec time: peak %.3fms, average %.3fms' % (peak_time, average_time))
+                                self.logger.info(f'statistic: main loop exec time: peak {peak_time:.3f}ms, average {average_time:.3f}ms')
                                 self.statistics['exec_time'] = [0, 0, 0]
                             elif self.statistics[stat] != 0:
-                                self.logger.info('statistic: %s: %i in 1s' % (stat, self.statistics[stat]))
+                                self.logger.info(f'statistic: {stat}: %i in {self.statistics[stat]:i}s')
                                 self.statistics[stat] = 0
                         self.statistics_time = current_time
 
@@ -361,22 +372,22 @@ class Engine(Module):
         and all imported modules that are located in the same directoty.
         Whenever a file is modified, the engine is restarted.
         """
-        wm = pyinotify.WatchManager()
-        self.notifier = pyinotify.ThreadedNotifier(wm)
-        base_dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
+        watcher = pyinotify.WatchManager()
+        self.notifier = pyinotify.ThreadedNotifier(watcher)
+        base_dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__)) # pylint: disable=no-member
         # add watches for imported modules
-        for m in sys.modules.values():
+        for module in sys.modules.values():
             # builtin modules don't have a __file__ attribute
-            if hasattr(m, '__file__') and m.__file__ is not None:
-                f = os.path.abspath(m.__file__)
+            if hasattr(module, '__file__') and module.__file__ is not None:
+                filename = os.path.abspath(module.__file__)
                 # only watch file if it's in the same directory as the main script
                 # + module src files
-                if f.startswith(base_dir)  or 'mentat' in m.__name__:
-                    wm.add_watch(f, pyinotify.IN_MODIFY, lambda e: self.restart())
+                if filename.startswith(base_dir)  or 'mentat' in module.__name__:
+                    watcher.add_watch(filename, pyinotify.IN_MODIFY, lambda event: self.restart())
         self.notifier.start()
 
     @public_method
-    def add_module(self, module):
+    def add_module(self, module: Module):
         """
         add_module(module)
 
@@ -424,7 +435,11 @@ class Engine(Module):
             self.midi_server.sync_output_queue()
 
     @public_method
-    def send(self, protocol, port, address, *args):
+    def send(self,
+             protocol: str,
+             port: str|int,
+             address: str,
+             *args):
         """
         send(protocol, port, address, *args)
 
@@ -434,7 +449,8 @@ class Engine(Module):
 
         - `protocol`: 'osc', 'osc.tcp', 'osc.unix' or 'midi'
         - `port`:
-            module name, port number ('osc' protocol only) or unix socket path ('osc.unix' protocol only)
+            module name, port number ('osc' protocol only) or
+            unix socket path ('osc.unix' protocol only)
         - `address`: osc address
         - `args`: values or (typetag, value) tuples
         """
@@ -467,8 +483,8 @@ class Engine(Module):
 
                 try:
                     midi_event = osc_to_midi(address, args)
-                except Exception as e:
-                    self.logger.error('failed to generate midi event %s %s\n%s' % (address, args, e))
+                except Exception as error:
+                    self.logger.error(f'failed to generate midi event {address} {args}\n{error}')
                     midi_event = None
 
                 if midi_event:
@@ -480,10 +496,10 @@ class Engine(Module):
 
         else:
 
-            self.logger.error('unknown protocol %s' % protocol)
+            self.logger.error(f'unknown protocol {protocol}')
 
     @public_method
-    def add_route(self, route):
+    def add_route(self, route: 'Route'):
         """
         add_route(route)
 
@@ -498,7 +514,7 @@ class Engine(Module):
 
     @public_method
     @force_mainthread
-    def set_route(self, name):
+    def set_route(self, name: str):
         """
         set_route(name)
 
@@ -514,13 +530,17 @@ class Engine(Module):
             self.active_route = self.routes[name]
             if self.is_running:
                 self.active_route.activate()
-            self.logger.info('active route set to "%s"' % name)
+            self.logger.info(f'active route set to "{name}"')
             self.dispatch_event('route_changed', self.active_route)
         else:
-            self.logger.error('route "%s" not found' % name)
+            self.logger.error('route "{name}" not found')
 
     @public_method
-    def route(self, protocol, port, address, args):
+    def route(self,
+              protocol: str,
+              port: str|int,
+              address: str,
+              args: list|tuple):
         """
         route(protocol, port, address, args)
 
@@ -545,17 +565,17 @@ class Engine(Module):
         - `args`: list of values
         """
         if port in self.modules:
-            if self.modules[port].route(address, args) == False:
+            if self.modules[port].route(address, args) is False:
                 return
 
         if protocol != 'midi':
-            if self.route_generic_osc_api(address, args) == False:
+            if self.route_generic_osc_api(address, args) is False:
                 return
 
         if self.active_route:
             self.active_route.route(protocol, port, address, args)
 
-    def route_osc(self, address, args, types, src):
+    def route_osc(self, address, args, types, src): # pylint: disable=unused-argument
         """
         Route incoming raw osc events.
         """
@@ -609,9 +629,9 @@ class Engine(Module):
             module_name = module_path[1]
             if module_name in self.modules:
                 module = self.modules[module_name]
-                for n in module_path[2:]:
-                    if n in module.submodules:
-                        module = module.submodules[n]
+                for name in module_path[2:]:
+                    if name in module.submodules:
+                        module = module.submodules[name]
                     else:
                         module = None
                         break
@@ -625,7 +645,10 @@ class Engine(Module):
                 # only allow public methods and user-defined methods
                 if callable(method) and (
                         hasattr(method, '_public_method') or
-                        method.__qualname__.split('.')[0] not in ['Engine', 'Module', 'Route', 'Sequencer']
+                        method.__qualname__.split('.')[0] not in ('Engine',
+                                                                  'Module',
+                                                                  'Route',
+                                                                  'Sequencer')
                     ):
                     method(*args)
 
@@ -654,7 +677,7 @@ class Engine(Module):
         self.scenes_timers[name] = Timer(self)
         self.scenes[name] = Thread(target=scene, name=name, args=args, kwargs=kwargs)
         self.scenes[name].start()
-        self.logger.debug('starting scene %s' % name)
+        self.logger.debug(f'starting scene {name}')
 
     def restart_scene_thread(self, name):
         """
@@ -668,13 +691,13 @@ class Engine(Module):
         - `name`: scene name, with wildcard support
         """
         if '*' in name or '[' in name:
-            for n in fnmatch.filter(self.scenes.keys(), name):
-                self.restart_scene_thread(n)
+            for match in fnmatch.filter(self.scenes.keys(), name):
+                self.restart_scene_thread(match)
         elif name in self.scenes and self.scenes[name].is_alive():
             self.scenes[name].kill()
             self.scenes_timers[name].reset()
             self.scenes[name].start()
-            self.logger.debug('restarting scene %s' % name)
+            self.logger.debug(f'restarting scene {name}')
 
     def stop_scene_thread(self, name):
         """
@@ -688,16 +711,24 @@ class Engine(Module):
         - `scene`: function or method
         """
         if '*' in name or '[' in name:
-            for n in fnmatch.filter(self.scenes.keys(), name):
-                self.stop_scene_thread(n)
+            for match in fnmatch.filter(self.scenes.keys(), name):
+                self.stop_scene_thread(match)
         elif name in self.scenes:
             if self.scenes[name].is_alive():
-                self.logger.debug('stopping scene %s' % name)
+                self.logger.debug(f'stopping scene {name}')
                 self.scenes[name].kill()
             else:
-                self.logger.debug('cleaning scene %s' % name)
+                self.logger.debug(f'cleaning scene {name}')
             del self.scenes[name]
             del self.scenes_timers[name]
+
+    def is_scene_thread(self):
+        """
+        is_scene_threa()
+
+        Return True if we are in a scene
+        """
+        return Thread.get_current().name in self.scenes_timers
 
     def get_scene_timer(self):
         """
@@ -732,7 +763,7 @@ class Engine(Module):
             return memoryview(b'')
 
     @public_method
-    def set_tempo(self, bpm):
+    def set_tempo(self, bpm: int|float):
         """
         set_tempo(bpm)
 
@@ -758,7 +789,7 @@ class Engine(Module):
 
 
     @public_method
-    def set_cycle_length(self, quarter_notes):
+    def set_cycle_length(self, quarter_notes: int|float):
         """
         set_cycle_length(quarter_notes)
 
@@ -781,7 +812,7 @@ class Engine(Module):
         return float(beats) * mutliplier
 
     @public_method
-    def set_time_signature(self, signature):
+    def set_time_signature(self, signature: str):
         """
         set_time_signature(signature)
 
@@ -806,11 +837,11 @@ class Engine(Module):
         self.update_tempo_map()
 
     @public_method
-    def fastforward(self, duration, mode='beats'):
+    def fastforward(self, duration: int|float, mode: str = 'beats'):
         """
         fastforward(amount, mode='beats')
 
-        `/!\ Experimental /!\`
+        `/!\\ Experimental /!\\`
 
         Increment current time by a number of beats or seconds.
         All parameter animations and wait() calls will be affected.
@@ -821,10 +852,10 @@ class Engine(Module):
         - `mode`: 'beats' or 'seconds' (only the first letter matters)
         """
         if type(duration) not in (int, float) or duration <= 0:
-            self.error('fastforward: duration must be a positive number')
+            self.logger.error('fastforward: duration must be a positive number')
             return
         if self.fastforwarding:
-            self.error('fastforward: already busy')
+            self.logger.error('fastforward: already busy')
             return
 
 

@@ -1,5 +1,7 @@
 import logging
 
+from typing import TYPE_CHECKING
+
 from .utils import public_method
 from .sequencer import Sequencer
 from .engine import Engine
@@ -13,9 +15,12 @@ class Route(Sequencer):
     - `engine`: Engine instance
     - `logger`: python logger
     """
-
+    if TYPE_CHECKING:
+        from .engine import Engine
+        engine: Engine
+        
     @public_method
-    def __init__(self, name):
+    def __init__(self, name: str):
         """
         Route(name)
 
@@ -54,7 +59,11 @@ class Route(Sequencer):
         self.stop_scene('*')
 
     @public_method
-    def route(self, protocol, port, address, args):
+    def route(self,
+              protocol: str,
+              port: str|int,
+              address: str,
+              args: list|tuple):
         """
         route(protocol, port, address, args)
 

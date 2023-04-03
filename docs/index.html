@@ -602,8 +602,8 @@ default=None)</i><br/></p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of parameter</li>
-<li><code>address</code>: osc address of parameter. Can be
-<code>None</code> if the parameter should not send any message.</li>
+<li><code>address</code>: osc address of parameter (<code>None</code> if
+the parameter should not send any message)</li>
 <li><code>types</code>: osc typetags string, one letter per value,
 including static values (character ’*’ can be used for arguments that
 should not be explicitely typed)</li>
@@ -639,8 +639,9 @@ param_name)</i><br/></p>
 <h3 id="module.set">Module.set()</h3>
 <div class="content">
 <p><i>set(parameter_name, <em>args, force_send=False,
-preserve_animation=False)</i><br/> <i>set(submodule_name, param_nam,
-</em>args, force_send=False, preserve_animation=False)</i><br/></p>
+preserve_animation=False)</i><br/> <i>set(submodule_name,
+parameter_name, </em>args, force_send=False,
+preserve_animation=False)</i><br/></p>
 <p>Set value of parameter.</p>
 <p>The engine will apply the new value only at the end of current
 processing cycle and send a message if the new value differs from the
@@ -663,12 +664,12 @@ automatically stopped when <code>set()</code> is called, set to
 </div>
 <h3 id="module.reset">Module.reset()</h3>
 <div class="content">
-<p><i>reset(name=None)</i><br/></p>
+<p><i>reset(parameter_name=None)</i><br/></p>
 <p>Reset parameter to its default values.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>name</code>: name of parameter. If omitted, affects all
-parameters including submodules’</li>
+<li><code>parameter_name</code>: name of parameter. If omitted, affects
+all parameters including submodules’</li>
 </ul>
 </div>
 <h3 id="module.animate">Module.animate()</h3>
@@ -757,13 +758,16 @@ several parameters owned by the module or its submodules.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of meta parameter</li>
-<li><code>parameters</code>: list of parameters involved in the meta
-parameter’s definition. Each item in the list can be either:
+<li><code>parameters</code>: parameters involved in the meta parameter’s
+definition, can be
 <ul>
-<li><code>string</code>: a parameter name</li>
-<li><code>list</code>: one or multiple submodule names and one parameter
-name (<code>['submodule_name', 'parameter_name']</code>) if the
-parameter is owned by a submodule</li>
+<li><code>string</code> if there’s only one source parameter owned by
+the module itself</li>
+<li><code>tuple</code> of <code>string</code> if the source parameter is
+owned by a submodule
+(e.g. <code>('submodule_name', 'parameter_name')</code>)</li>
+<li><code>list</code> containing either of the above if there are
+multiple source parameters.</li>
 </ul></li>
 <li><code>getter</code>: callback function that will be called with the
 values of each <code>parameters</code> as arguments whenever one these

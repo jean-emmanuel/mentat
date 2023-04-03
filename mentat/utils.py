@@ -5,22 +5,28 @@ import fnmatch
 
 from functools import wraps
 
-def public_method(method):
+from typing import Callable, TypeVar, ParamSpec
+T = TypeVar('T')
+P = ParamSpec('P')
+
+type_callback = Callable
+
+def public_method(method: Callable[P, T])-> Callable[P, T]:
     """
     Decorator for methods that should appear in the documentation.
     """
     method._public_method = True
     return method
 
-def submodule_method(pattern_matching):
+def submodule_method(pattern_matching: bool) -> Callable[[Callable[P, T]], Callable[P, T] ]:
     """
     Decorator for Module methods that can be passed to submodules
     by passing the submodule's name as first argument instead
     of the usual first argument (ie parameter_name)
     """
-    def decorate(method):
+    def decorate(method: Callable[P, T]) -> Callable[P, T]:
         @wraps(method)
-        def decorated(self, *args, **kwargs):
+        def decorated(self: int, *args: P.args, **kwargs: P.kwargs) -> T:
             name = args[0]
             if pattern_matching and ('*' in name or '[' in name):
                 for n in fnmatch.filter(self.submodules.keys(), name):
@@ -42,7 +48,7 @@ def submodule_method(pattern_matching):
     return decorate
 
 
-def force_mainthread(method):
+def force_mainthread(method: Callable[P, T]) -> Callable[P, T]:
     """
     Decorator for methods that should be run only in the main thread:
     when called from another thread, the method is put in a queue and
@@ -88,3 +94,6 @@ class TraceLogger(logging.Logger):
         raise SystemExit
 
 logging.setLoggerClass(TraceLogger)
+
+
+t_mapping_params = str|tuple[str, ...]|list[str|tuple[str, ...]]
