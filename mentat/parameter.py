@@ -290,7 +290,6 @@ class MetaParameter(Parameter):
         else:
             self.parameters = [(x,) if type(x) is not tuple else x for x in parameters]
 
-        self.parameters = [[x] if type(x) is not list else x for x in parameters]
         self.getter = getter
         self.setter = setter
         self.lock = False
