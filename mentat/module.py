@@ -606,7 +606,7 @@ class Module(Sequencer, EventEmitter):
         - `parameter`:
             name of parameter to mirror, may a be tuple if the parameter are owned by a submodule (`('submodule_name', 'parameter_name')`)
         """
-        if isinstance(parameter, tuple):
+        if not isinstance(parameter, tuple):
             parameter = (parameter,)
         if (p := self.get_parameter(*parameter)) is None:
             self.logger.error(f'could not create alias parameter {name} for {parameter} (parameter doesn\'t exist)')
