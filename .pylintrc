@@ -2,12 +2,14 @@
 ignored-modules=liblo,pyinotify,pyalsa
 
 [FORMAT]
-good-names=p
+good-names=p,i,x,f
 disable=no-else-return,
-	too-many-public-methods,
-	too-many-instance-attributes,
-	too-many-arguments,
-	too-many-branches,
-	too-many-statements,
-	consider-using-dict-items,
-	bare-except,broad-exception-caught
+    too-many-public-methods,
+    too-many-instance-attributes,
+    too-many-arguments,
+    too-many-branches,
+    too-many-statements,
+    consider-using-dict-items,
+    bare-except,broad-exception-caught,
+    no-name-in-module,
+    import-outside-toplevel

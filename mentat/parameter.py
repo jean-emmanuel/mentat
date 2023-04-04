@@ -5,7 +5,7 @@ from .easing import EASING_FUNCTIONS
 
 class Parameter():
 
-    def __init__(self, name, address, types, static_args=[], default=None):
+    def __init__(self, name, address, types, static_args=None, default=None):
         """
         Parameter(name, address, types, static_args=[], default=None)
 
@@ -23,6 +23,9 @@ class Parameter():
 
         if '*' in name or '[' in name:
             self.logger.critical('characters "*" and "[" are forbidden in parameter name')
+
+        if static_args is None:
+            static_args = []
 
         self.name = name
         self.address = address

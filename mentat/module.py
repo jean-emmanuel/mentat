@@ -1,3 +1,7 @@
+"""
+Module class
+"""
+
 import glob
 import json
 import pathlib
@@ -114,8 +118,12 @@ class Module(Sequencer, EventEmitter):
 
         self.states = {}
         self.states_folder = ''
-        self.states_folder = '%s/states/%s' % (self.engine.folder, '/'.join(self.module_path[1:]) if self != Engine.INSTANCE else '')
-        for file in glob.glob('%s/*.json' % self.states_folder):
+
+        if self != Engine.INSTANCE:
+            state_path = '/'.join(self.module_path[1:])
+            self.states_folder = f'{self.engine.folder}/states/{state_path}'
+
+        for file in glob.glob(f'{self.states_folder}/*.json'):
             state_name = file.split('/')[-1].rpartition('.')[0]
             self.load(state_name, preload=True)
 
@@ -144,7 +152,7 @@ class Module(Sequencer, EventEmitter):
         """
         for module in modules:
             if module.parent_module != self:
-                self.logger.critical('incorrect value for argument "parent" of submodule "%s".' % module.name)
+                self.logger.critical(f'incorrect value for argument "parent" of submodule "{module.name}"')
             self.submodules[module.name] = module
             if module.protocol is None:
                 module.protocol = self.protocol
@@ -172,7 +180,7 @@ class Module(Sequencer, EventEmitter):
                       name: str,
                       address: str|None,
                       types: str,
-                      static_args: list = [],
+                      static_args: list|None = None,
                       default = None):
         """
         add_parameter(name, address, types, static_args=[], default=None)
@@ -193,7 +201,7 @@ class Module(Sequencer, EventEmitter):
             self.reset(name)
             self.dispatch_event('parameter_added', self, name)
         else:
-            self.logger.error('could not add parameter "%s" (parameter already exists)' % name)
+            self.logger.error(f'could not add parameter "{name}" (parameter already exists)')
 
     @public_method
     def remove_parameter(self, name: str):
@@ -207,8 +215,8 @@ class Module(Sequencer, EventEmitter):
         - `name`: name of parameter, '*' to delete all parameters
         """
         if name == '*':
-            for name in list(self.parameters.keys()):
-                self.remove_parameter(name)
+            for param in list(self.parameters.keys()):
+                self.remove_parameter(param)
             return
         if name in self.parameters:
             del self.parameters[name]
@@ -236,11 +244,11 @@ class Module(Sequencer, EventEmitter):
         List of values
         """
         if parameter_name in self.parameters:
-
             return self.parameters[parameter_name].get()
 
         else:
-            self.logger.error('get: parameter or submodule "%s" not found' % parameter_name)
+            self.logger.error(f'get: parameter or submodule "{parameter_name}" not found')
+            return None
 
     @submodule_method(pattern_matching=False)
     def get_parameter(self, *args):
@@ -269,7 +277,7 @@ class Module(Sequencer, EventEmitter):
             parameter_name: str,
             *args,
             force_send: bool = False,
-            preserve_animation: bool = False):
+            preserve_animation: bool = False) -> None:
         """
         set(parameter_name, *args, force_send=False, preserve_animation=False)
         set(submodule_name, parameter_name, *args, force_send=False, preserve_animation=False)
@@ -311,7 +319,7 @@ class Module(Sequencer, EventEmitter):
                     self.set_dirty()
 
         else:
-            self.logger.error('set: parameter or submodule "%s" not found' % parameter_name)
+            self.logger.error(f'set: parameter or submodule "{parameter_name}" not found')
 
     @public_method
     @force_mainthread
@@ -328,12 +336,12 @@ class Module(Sequencer, EventEmitter):
         if parameter_name is None:
             for sname in self.submodules:
                 self.submodules[sname].reset()
-            for parameter_name in self.parameters:
-                self.reset(parameter_name)
+            for param in self.parameters:
+                self.reset(param)
 
         elif parameter_name in self.parameters:
             if (default := self.parameters[parameter_name].default) is not None:
-                if type(default) == list:
+                if isinstance(default, list):
                     self.set(parameter_name, *default)
                 else:
                     self.set(parameter_name, default)
@@ -372,7 +380,7 @@ class Module(Sequencer, EventEmitter):
                     self.animations.append(parameter_name)
                 self.set_animating()
         else:
-            self.logger.error('animate: parameter or submodule "%s" not found' % parameter_name)
+            self.logger.error(f'animate: parameter or submodule "{parameter_name}" not found')
 
     @public_method
     @force_mainthread
@@ -469,7 +477,7 @@ class Module(Sequencer, EventEmitter):
         for p in mapping.src + mapping.dest:
             # avoid updating mapping the first time if
             # dependencies don't exist they may be not ready yet
-            if self.get_parameter(*p) == None:
+            if self.get_parameter(*p) is None:
                 return
         self.update_mapping(mapping)
 
@@ -495,7 +503,7 @@ class Module(Sequencer, EventEmitter):
 
         # pass mapping update to parent module
         if self.parent_module is not None:
-            if type(updated_parameter) is not list:
+            if not isinstance(updated_parameter, list):
                 updated_parameter = [updated_parameter]
             updated_parameter.insert(0, self.name)
             self.parent_module.check_mappings(updated_parameter)
@@ -517,7 +525,7 @@ class Module(Sequencer, EventEmitter):
             for i in range(mapping.n_args):
                 val = dest_values[i]
                 param = mapping.dest[i]
-                if type(val) == list:
+                if isinstance(val, list):
                     self.set(*param, *val)
                 else:
                     self.set(*param, val)
@@ -563,12 +571,12 @@ class Module(Sequencer, EventEmitter):
             for p in meta_parameter.parameters:
                 # avoid updating meta parameter the first time if
                 # dependencies don't exist they may be not ready yet
-                if self.get_parameter(*p) == None:
+                if self.get_parameter(*p) is None:
                     return
             self.update_meta_parameter(name)
             self.dispatch_event('parameter_added', self, name)
         else:
-            self.logger.error('could not add meta parameter "%s" (parameter already exists)' % name)
+            self.logger.error(f'could not add meta parameter "{name}" (parameter already exists)')
 
     def update_meta_parameter(self, name):
         """
@@ -598,13 +606,13 @@ class Module(Sequencer, EventEmitter):
         - `parameter`:
             name of parameter to mirror, may a be tuple if the parameter are owned by a submodule (`('submodule_name', 'parameter_name')`)
         """
-        if type(parameter) != tuple:
-            parameter = (parameter)
-        if (p := self.get_parameter(*parameter)) == None:
-            self.logger.error('could not create alias parameter %s for %s (parameter doesn\'t exist)' % (name, parameter))
+        if isinstance(parameter, tuple):
+            parameter = (parameter,)
+        if (p := self.get_parameter(*parameter)) is None:
+            self.logger.error(f'could not create alias parameter {name} for {parameter} (parameter doesn\'t exist)')
             return
-        elif self.get_parameter(name) != None:
-            self.logger.error('could not create alias parameter %s for %s (parameter %s already exists)' % (name, parameter, name))
+        elif self.get_parameter(name) is not None:
+            self.logger.error(f'could not create alias parameter {name} for {parameter} (parameter {name} already exists)')
             return
         else:
             self.parameters[name] = Parameter(name, address=None, types=p.types[-p.n_args-1:], static_args=[], default=None)
@@ -639,7 +647,7 @@ class Module(Sequencer, EventEmitter):
             if omit_defaults and val == self.parameters[name].default:
                 continue
 
-            if type(val) is list:
+            if isinstance(val, list):
                 state.append([name, *val])
             else:
                 state.append([name, val])
@@ -665,7 +673,7 @@ class Module(Sequencer, EventEmitter):
         - `force_send`: see `set()`
         """
         for data in state:
-            if type(data) == list:
+            if isinstance(data, list):
                 self.set(*data, force_send=force_send)
 
     @public_method
@@ -689,17 +697,17 @@ class Module(Sequencer, EventEmitter):
         - `name`: name of state save (without file extension)
         - `omit_defaults`: set to `True` to only save parameters that differ from their default values.
         """
-        file = '%s/%s.json' % (self.states_folder, name)
+        file = f'{self.states_folder}/{name}.json'
         self.states[name] = self.get_state(omit_defaults)
         pathlib.Path(self.states_folder).mkdir(parents=True, exist_ok=True)
-        f = open(file, 'w')
-        s = json.dumps(self.states[name], indent=2)
-        s = re.sub(r'\n\s\s\s\s', ' ', s)
-        s = re.sub(r'\n\s\s(\],?)', r'\1', s)
-        s = re.sub(r'\s\s\[\s', '  [', s)
-        f.write(s)
-        f.close()
-        self.logger.info('state "%s" saved to %s' % (name, file))
+        with open(file, 'w') as f:
+            s = json.dumps(self.states[name], indent=2)
+            s = re.sub(r'\n\s\s\s\s', ' ', s)
+            s = re.sub(r'\n\s\s(\],?)', r'\1', s)
+            s = re.sub(r'\s\s\[\s', '  [', s)
+            f.write(s)
+
+        self.logger.info(f'state "{name}" saved to {f}')
 
     @public_method
     def load(self, name: str, force_send: bool = False, preload: bool = False):
@@ -725,7 +733,7 @@ class Module(Sequencer, EventEmitter):
         """
         if name not in self.states and preload:
 
-            file = '%s/%s.json' % (self.states_folder, name)
+            file = f'{self.states_folder}/{name}.json'
 
             try:
                 f = open(file)
@@ -733,25 +741,25 @@ class Module(Sequencer, EventEmitter):
                 try:
                     self.states[name] = json.loads(f.read())
                 except Exception as e:
-                    self.logger.info('failed to parse state file "%s"\n%s' % (file, e))
+                    self.logger.info(f'failed to parse state file "{file}"\n{e}')
                 finally:
                     f.close()
 
             except Exception as e:
-                self.logger.info('failed to open state file "%s"\n%s' % (file, e))
+                self.logger.info(f'failed to open state file "{file}"\n{e}')
 
-            self.logger.info('state "%s" preloaded from %s' % (name, file))
+            self.logger.info(f'state "{name}" preloaded from {file}')
 
         if not preload:
 
             if name in self.states:
                 try:
                     self.set_state(self.states[name], force_send=force_send)
-                    self.logger.info('state "%s" loaded' % name)
+                    self.logger.info(f'state "{name}" loaded')
                 except Exception as e:
-                    self.logger.info('failed to load state "%s"\n%s' % (name, e))
+                    self.logger.info(f'failed to load state "{name}"\n{e}')
             else:
-                self.logger.error('state "%s" not found' % name)
+                self.logger.error(f'state "{name}" not found')
 
     @public_method
     def route(self, address: str, args: list):
