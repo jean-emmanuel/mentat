@@ -41,7 +41,7 @@ class EventEmitter():
 
         Dispatch event to bound callback functions.
         Unless the callback returns `False`, the event will be passed
-        to the module's parent until
+        to the parent module until it reaches the engine module.
 
         **Parameters**
 
