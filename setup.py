@@ -15,6 +15,7 @@ class PostInstallCommand(install):
 setup(
     name='mentat',
     packages=['mentat'],
+    package_data={'mentat': ['py.typed']},
     version=__version__,
     description='HUB / Router / Conductor for OSC / MIDI capable softwares',
     url='https://github.com/jean-emmanuel/mentat',
