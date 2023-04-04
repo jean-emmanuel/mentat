@@ -664,10 +664,13 @@ automatically stopped when <code>set()</code> is called, set to
 </div>
 <h3 id="module.reset">Module.reset()</h3>
 <div class="content">
-<p><i>reset(parameter_name=None)</i><br/></p>
+<p><i>reset(parameter_name=None)</i><br/> <i>reset(submodule_name,
+parameter_name=None)</i><br/></p>
 <p>Reset parameter to its default values.</p>
 <p><strong>Parameters</strong></p>
 <ul>
+<li><code>submodule_name</code>: name of submodule, with wildcard (’*‘)
+and range (’[]’) support</li>
 <li><code>parameter_name</code>: name of parameter. If omitted, affects
 all parameters including submodules’</li>
 </ul>
@@ -1027,8 +1030,8 @@ must match the event’s arguments.</li>
 <div class="content">
 <p><i>dispatch_event(event, *args)</i><br/></p>
 <p>Dispatch event to bound callback functions. Unless the callback
-returns <code>False</code>, the event will be passed to the module’s
-parent until</p>
+returns <code>False</code>, the event will be passed to the parent
+module until it reaches the engine module.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>event</code>: name of event</li>
