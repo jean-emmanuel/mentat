@@ -426,12 +426,11 @@ class Engine(Module):
 
         Send messages in queue.
         """
+        while self.is_running and not self.message_queue.empty():
+            message = self.message_queue.get()
+            self.send(*message)
+
         if self.is_running:
-
-            while not self.message_queue.empty():
-                message = self.message_queue.get()
-                self.send(*message)
-
             self.midi_server.sync_output_queue()
 
     @public_method
