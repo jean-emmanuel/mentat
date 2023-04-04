@@ -323,14 +323,17 @@ class Module(Sequencer, EventEmitter):
 
     @public_method
     @force_mainthread
-    def reset(self, parameter_name: str|None = None):
+    @submodule_method(pattern_matching=True)
+    def reset(self, parameter_name: str|None = None, *args):
         """
         reset(parameter_name=None)
+        reset(submodule_name, parameter_name=None)
 
         Reset parameter to its default values.
 
         **Parameters**
-
+        
+        - `submodule_name`: name of submodule, with wildcard ('*') and range ('[]') support
         - `parameter_name`: name of parameter. If omitted, affects all parameters including submodules'
         """
         if parameter_name is None:
