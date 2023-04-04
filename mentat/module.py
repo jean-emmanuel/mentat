@@ -523,15 +523,23 @@ class Module(Sequencer, EventEmitter):
         if mapping.lock():
             src_values = [self.get(*param) for param in mapping.src]
             dest_values = mapping.transform(*src_values)
+
+            animating = False
+            for param in mapping.src:
+                # preserve animation if src parameter is animating
+                if self.get_parameter(*param).animate_running is not None:
+                    animating = True
+                    break
+
             if mapping.n_args == 1:
                 dest_values = [dest_values]
             for i in range(mapping.n_args):
                 val = dest_values[i]
                 param = mapping.dest[i]
                 if isinstance(val, list):
-                    self.set(*param, *val)
+                    self.set(*param, *val, preserve_animation=animating)
                 else:
-                    self.set(*param, val)
+                    self.set(*param, val, preserve_animation=animating)
 
             if not self.dirty:
                 mapping.unlock()
