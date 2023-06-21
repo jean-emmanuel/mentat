@@ -426,9 +426,14 @@ class Engine(Module):
 
         Send messages in queue.
         """
-        while self.is_running and not self.message_queue.empty():
-            message = self.message_queue.get()
-            self.send(*message)
+        messages = []
+        while not self.message_queue.empty():
+            messages.append(self.message_queue.get())
+        if messages:
+            # sort by timestamp
+            for message in sorted(messages, key=lambda message: message[0]):
+                if self.is_running:
+                    self.send(*message[1:])
 
         if self.is_running:
             self.midi_server.sync_output_queue()
@@ -438,7 +443,8 @@ class Engine(Module):
              protocol: str,
              port: str|int,
              address: str,
-             *args):
+             *args,
+             timestamp=0):
         """
         send(protocol, port, address, *args)
 
@@ -456,7 +462,7 @@ class Engine(Module):
         if not self.is_running:
             # in case a module calls this method directly
             # before the server is started
-            message = [protocol, port, address, *args]
+            message = [time.time() if timestamp == 0 else timestamp, protocol, port, address, *args]
             self.message_queue.put(message)
             return
 

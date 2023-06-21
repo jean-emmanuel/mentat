@@ -51,6 +51,7 @@ class Parameter():
         self.default = default
 
         self.dirty = False
+        self.dirty_timestamp = 0
         self.last_sent = None
 
     def get(self):
