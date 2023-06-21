@@ -309,7 +309,7 @@ class Engine(Module):
                                 self.logger.info(f'statistic: main loop exec time: peak {peak_time:.3f}ms, average {average_time:.3f}ms')
                                 self.statistics['exec_time'] = [0, 0, 0]
                             elif self.statistics[stat] != 0:
-                                self.logger.info(f'statistic: {stat}: %i in {self.statistics[stat]:i}s')
+                                self.logger.info(f'statistic: {stat}: {self.statistics[stat]} in 1s')
                                 self.statistics[stat] = 0
                         self.statistics_time = current_time
 
