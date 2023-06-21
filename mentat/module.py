@@ -2,6 +2,7 @@
 Module class
 """
 
+import time
 import glob
 import json
 import pathlib
@@ -315,6 +316,7 @@ class Module(Sequencer, EventEmitter):
 
                 if parameter.set(*args) and not parameter.dirty:
                     parameter.dirty = True
+                    parameter.dirty_timestamp = time.time()
                     self.dirty_parameters.put(parameter)
                     self.set_dirty()
 
@@ -429,6 +431,7 @@ class Module(Sequencer, EventEmitter):
             if parameter.animate_running:
                 if parameter.update_animation(self.engine.current_time) and not parameter.dirty:
                     parameter.dirty = True
+                    parameter.dirty_timestamp = time.time()
                     self.dirty_parameters.put(parameter)
                     self.set_dirty()
             else:
@@ -820,7 +823,7 @@ class Module(Sequencer, EventEmitter):
             parameter = self.dirty_parameters.get()
             if parameter.should_send():
                 if parameter.address:
-                    self.send(parameter.address, *parameter.get_message_args())
+                    self.send(parameter.address, *parameter.get_message_args(), timestamp=parameter.dirty_timestamp)
                 parameter.set_last_sent()
                 self.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
                 self.check_mappings(parameter.name)
@@ -831,7 +834,7 @@ class Module(Sequencer, EventEmitter):
         self.dirty = False
 
     @public_method
-    def send(self, address: str, *args):
+    def send(self, address: str, *args, timestamp=0):
         """
         send(address, *args)
 
@@ -844,11 +847,12 @@ class Module(Sequencer, EventEmitter):
         """
         proto = self.protocol
         port = self.port
-
         if not port and self.parent_module:
             proto = self.parent_module.protocol
             port = self.parent_module.port
 
         if port:
-            message = [proto, port, address, *args]
+            # timestamp is used to preserve the sending order between
+            # parameter changes and direct calls to send()
+            message = [time.time() if timestamp == 0 else timestamp, proto, port, address, *args]
             self.engine.message_queue.put(message)
