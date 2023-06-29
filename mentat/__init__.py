@@ -7,7 +7,7 @@ from .engine import Engine
 from .module import Module
 from .route import Route
 
-__version__ = '1.4.0-dev'
+__version__ = '1.5.0'
 
 __all__ = [
     'Engine',

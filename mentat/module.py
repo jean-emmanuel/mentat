@@ -459,7 +459,7 @@ class Module(Sequencer, EventEmitter):
             - `string` if there's only one source parameter owned
             by the module itself
             - `tuple` of `string` if the source parameter is owned
-            by a submodule  (e.g. `['submodule_name', 'parameter_name']`)
+            by a submodule  (e.g. `('submodule_name', 'parameter_name')`)
             - `list` containing either of the above if there are multiple
             source parameters.
         - `dest`:
