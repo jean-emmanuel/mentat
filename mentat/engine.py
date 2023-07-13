@@ -182,6 +182,7 @@ class Engine(Module):
                          alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
             port_id = self.midi_server.create_simple_port(module_name, port_type, port_caps)
             self.midi_ports[module_name] = port_id
+        self.midi_drain_pending = False
 
     def stop_servers(self):
         """
@@ -436,6 +437,12 @@ class Engine(Module):
                     self.send(*message[1:])
 
         if self.is_running:
+            if self.midi_drain_pending:
+                try:
+                    self.midi_server.drain_output()
+                    self.midi_drain_pending = False
+                except:
+                    pass
             self.midi_server.sync_output_queue()
 
     @public_method
@@ -495,7 +502,10 @@ class Engine(Module):
                 if midi_event:
                     midi_event.source = (self.midi_server.client_id, self.midi_ports[port])
                     self.midi_server.output_event(midi_event)
-                    self.midi_server.drain_output()
+                    try:
+                        self.midi_server.drain_output()
+                    except:
+                        self.midi_drain_pending = True
                     if self.log_statistics:
                         self.statistics['midi_out'] += 1
 
