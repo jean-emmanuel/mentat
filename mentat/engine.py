@@ -108,6 +108,7 @@ class Engine(Module):
 
         self.midi_server = None
         self.midi_ports = {}
+        self.midi_drain_pending = False
 
         self.routes = {}
         self.active_route = None
@@ -182,7 +183,6 @@ class Engine(Module):
                          alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
             port_id = self.midi_server.create_simple_port(module_name, port_type, port_caps)
             self.midi_ports[module_name] = port_id
-        self.midi_drain_pending = False
 
     def stop_servers(self):
         """
