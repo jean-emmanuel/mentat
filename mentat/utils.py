@@ -27,23 +27,25 @@ def submodule_method(pattern_matching: bool) -> Callable[[Callable[P, T]], Calla
     def decorate(method: Callable[P, T]) -> Callable[P, T]:
         @wraps(method)
         def decorated(self: int, *args: P.args, **kwargs: P.kwargs) -> T:
-            name = args[0]
-            if pattern_matching and ('*' in name or '[' in name):
-                for n in fnmatch.filter(self.submodules.keys(), name):
-                    return [getattr(self.submodules[n], method.__name__)(*args[1:], **kwargs) for n in fnmatch.filter(self.submodules.keys(), name)]\
-                         + [getattr(self.submodules[self.aliases[n]], method.__name__)(*args[1:], **kwargs) for n in fnmatch.filter(self.aliases.keys(), name)]
+            if len(args) > 0:
+                name = args[0]
+                if pattern_matching and ('*' in name or '[' in name):
+                    for n in fnmatch.filter(self.submodules.keys(), name):
+                        return [getattr(self.submodules[n], method.__name__)(*args[1:], **kwargs) for n in fnmatch.filter(self.submodules.keys(), name)]\
+                             + [getattr(self.submodules[self.aliases[n]], method.__name__)(*args[1:], **kwargs) for n in fnmatch.filter(self.aliases.keys(), name)]
 
-            elif name in self.submodules or name in self.aliases:
+                elif name in self.submodules or name in self.aliases:
 
-                if name in self.aliases:
-                    name = self.aliases[name]
+                    if name in self.aliases:
+                        name = self.aliases[name]
 
-                return getattr(self.submodules[name], method.__name__)(*args[1:], **kwargs)
+                    return getattr(self.submodules[name], method.__name__)(*args[1:], **kwargs)
 
+                else:
+
+                    return method(self, *args, **kwargs)
             else:
-
                 return method(self, *args, **kwargs)
-
         return decorated
     return decorate
 
