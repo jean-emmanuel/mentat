@@ -442,6 +442,7 @@ class Engine(Module):
                     self.midi_server.drain_output()
                     self.midi_drain_pending = False
                 except:
+                    self.logger.warning('midi pool unnavailable, trying again')
                     pass
             self.midi_server.sync_output_queue()
 
@@ -506,6 +507,7 @@ class Engine(Module):
                         self.midi_server.drain_output()
                     except:
                         self.midi_drain_pending = True
+                        self.logger.warning('midi pool unnavailable, trying again')
                     if self.log_statistics:
                         self.statistics['midi_out'] += 1
 
