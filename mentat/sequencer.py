@@ -141,7 +141,7 @@ class Sequencer():
                   *args,
                   **kwargs):
         """
-        run(callback)
+        run(callback, *args, **kwargs)
 
         Run callback in the mainthread.
 
