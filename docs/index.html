@@ -206,6 +206,7 @@
                         href="#module.wait_next_cycle">Module.wait_next_cycle()</a></li>
                         <li><a
                         href="#module.lock">Module.lock()</a></li>
+                        <li><a href="#module.run">Module.run()</a></li>
                         <li><a
                         href="#module.play_sequence">Module.play_sequence()</a></li>
                         <li><a
@@ -232,6 +233,7 @@
                         <li><a
                         href="#route.wait_next_cycle">Route.wait_next_cycle()</a></li>
                         <li><a href="#route.lock">Route.lock()</a></li>
+                        <li><a href="#route.run">Route.run()</a></li>
                         <li><a
                         href="#route.play_sequence">Route.play_sequence()</a></li>
                         </ul></li>
@@ -241,7 +243,7 @@
         <main>
 <h2 id="mentat">Mentat</h2>
 <div class="version">
-<p>Version: 1.5.0 (29/06/2023) <br/> License: GNU/GPL v3 (© 2022
+<p>Version: 1.6.0 (09/10/2023) <br/> License: GNU/GPL v3 (© 2022
 Jean-Emmanuel Doucet)</p>
 </div>
 <h3 id="overview">Overview</h3>
@@ -962,6 +964,17 @@ with self.lock():
     module_a.set(&#39;some_param&#39;, 1)
 </code></pre>
 </div>
+<h3 id="module.run">Module.run()</h3>
+<div class="content">
+<p><i>run(callback)</i><br/></p>
+<p>Run callback in the mainthread.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>callback</code>: function or method</li>
+<li><code>*args</code>: arguments for the scene function</li>
+<li><code>**kwargs</code>: keyword arguments for the scene function</li>
+</ul>
+</div>
 <h3 id="module.play_sequence">Module.play_sequence()</h3>
 <div class="content">
 <p><i>play_sequence(sequence, loop=True)</i><br/></p>
@@ -1160,6 +1173,17 @@ with self.lock():
     # no message will be sent
     module_a.set(&#39;some_param&#39;, 1)
 </code></pre>
+</div>
+<h3 id="route.run">Route.run()</h3>
+<div class="content">
+<p><i>run(callback)</i><br/></p>
+<p>Run callback in the mainthread.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>callback</code>: function or method</li>
+<li><code>*args</code>: arguments for the scene function</li>
+<li><code>**kwargs</code>: keyword arguments for the scene function</li>
+</ul>
 </div>
 <h3 id="route.play_sequence">Route.play_sequence()</h3>
 <div class="content">
