@@ -1,4 +1,4 @@
-from .utils import public_method, type_callback
+from .utils import public_method, type_callback, force_mainthread
 
 class Sequencer():
     """
@@ -135,6 +135,26 @@ class Sequencer():
         """
         return self.engine.get_main_loop_lock()
 
+    @public_method
+    @force_mainthread
+    def run(self, callback: type_callback,
+                  *args,
+                  **kwargs):
+        """
+        run(callback)
+
+        Run callback in the mainthread.
+
+        **Parameters**
+
+        - `callback`: function or method
+        - `*args`: arguments for the scene function
+        - `**kwargs`: keyword arguments for the scene function
+        """
+        if not callable(callback):
+            self.logger.critical('callback "%s" must be a function (%s provided)' % (name, type(callback).__name__))
+
+        callback(*args, **kwargs)
 
     _type_bar = dict[int|float|str, type_callback|str]
     @public_method
