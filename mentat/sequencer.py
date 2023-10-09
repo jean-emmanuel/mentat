@@ -144,6 +144,7 @@ class Sequencer():
         run(callback, *args, **kwargs)
 
         Run callback in the mainthread.
+        Can only be called in scenes.
 
         **Parameters**
 
