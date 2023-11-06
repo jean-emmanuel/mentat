@@ -14,6 +14,13 @@ Mentat is a module for [python 3](https://www.python.org/) and requires writing 
 
 Mentat has been designed to coordinate the live setup of the rap-in-opposition band [Plagiat](https://plagiat.org/clips) (see the project's [source repository](https://github.com/PlagiatBros/PlagiatSetupII/)).
 
+### Requirements
+
+```
+python3 python3-pyalsa
+```
+
+
 ### Install
 
 ```
