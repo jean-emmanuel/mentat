@@ -17,7 +17,7 @@ Mentat has been designed to coordinate the live setup of the rap-in-opposition b
 ### Requirements
 
 ```
-python3 python3-pyalsa
+python3 python3-pyalsa python3-pyinotify
 ```
 
 
