@@ -57,8 +57,10 @@ def midi_to_osc(event):
         osc['args'] = data['ext']
     elif mtype is SEQ_EVENT_CONTROLLER:
         osc['args'] = [data['control.channel'], data['control.param'], data['control.value']]
-    else:
+    elif mtype in (SEQ_EVENT_START, SEQ_EVENT_CONTINUE, SEQ_EVENT_STOP):
         osc['args'] = []
+    else:
+        return None
 
     return osc
 
