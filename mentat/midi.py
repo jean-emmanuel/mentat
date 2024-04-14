@@ -4,7 +4,8 @@ MIDI <-> OSC converter
 
 from pyalsa import alsaseq
 from pyalsa.alsaseq import (SEQ_EVENT_NOTEON, SEQ_EVENT_NOTEOFF, SEQ_EVENT_CONTROLLER,
-                            SEQ_EVENT_PGMCHANGE, SEQ_EVENT_PITCHBEND,SEQ_EVENT_SYSEX)
+                            SEQ_EVENT_PGMCHANGE, SEQ_EVENT_PITCHBEND,SEQ_EVENT_SYSEX,
+                            SEQ_EVENT_START, SEQ_EVENT_CONTINUE, SEQ_EVENT_STOP)
 
 MIDI_TO_OSC = {
     SEQ_EVENT_NOTEON: '/note_on',
@@ -13,6 +14,10 @@ MIDI_TO_OSC = {
     SEQ_EVENT_PGMCHANGE: '/program_change',
     SEQ_EVENT_PITCHBEND: '/pitch_bend',
     SEQ_EVENT_SYSEX: '/sysex',
+    SEQ_EVENT_START: '/start',
+    SEQ_EVENT_CONTINUE: '/continue',
+    SEQ_EVENT_STOP: '/stop'
+    
 }
 
 OSC_TO_MIDI = {
@@ -22,6 +27,9 @@ OSC_TO_MIDI = {
     '/program_change': SEQ_EVENT_PGMCHANGE,
     '/pitch_bend': SEQ_EVENT_PITCHBEND,
     '/sysex': SEQ_EVENT_SYSEX,
+    '/start': SEQ_EVENT_START,
+    '/continue': SEQ_EVENT_CONTINUE,
+    '/stop': SEQ_EVENT_STOP
 }
 
 def midi_to_osc(event):
@@ -39,16 +47,18 @@ def midi_to_osc(event):
     osc = {}
     osc['address'] = MIDI_TO_OSC[mtype]
 
-    if mtype == SEQ_EVENT_NOTEON:
+    if mtype is SEQ_EVENT_NOTEON:
         osc['args'] = [data['note.channel'], data['note.note'], data['note.velocity']]
-    elif mtype == SEQ_EVENT_NOTEOFF:
+    elif mtype is SEQ_EVENT_NOTEOFF:
         osc['args'] = [data['note.channel'], data['note.note'], 0]
     elif mtype in (SEQ_EVENT_PITCHBEND, SEQ_EVENT_PGMCHANGE):
         osc['args'] = [data['control.channel'], data['control.value']]
-    elif mtype == SEQ_EVENT_SYSEX:
+    elif mtype is SEQ_EVENT_SYSEX:
         osc['args'] = data['ext']
-    elif mtype == SEQ_EVENT_CONTROLLER:
+    elif mtype is SEQ_EVENT_CONTROLLER:
         osc['args'] = [data['control.channel'], data['control.param'], data['control.value']]
+    elif mtype in (SEQ_EVENT_START, SEQ_EVENT_CONTINUE, SEQ_EVENT_STOP):
+        osc['args'] = []
     else:
         return None
 
