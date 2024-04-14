@@ -47,17 +47,17 @@ def midi_to_osc(event):
     osc = {}
     osc['address'] = MIDI_TO_OSC[mtype]
 
-    if mtype == SEQ_EVENT_NOTEON:
+    if mtype is SEQ_EVENT_NOTEON:
         osc['args'] = [data['note.channel'], data['note.note'], data['note.velocity']]
-    elif mtype == SEQ_EVENT_NOTEOFF:
+    elif mtype is SEQ_EVENT_NOTEOFF:
         osc['args'] = [data['note.channel'], data['note.note'], 0]
     elif mtype in (SEQ_EVENT_PITCHBEND, SEQ_EVENT_PGMCHANGE):
         osc['args'] = [data['control.channel'], data['control.value']]
-    elif mtype == SEQ_EVENT_SYSEX:
+    elif mtype is SEQ_EVENT_SYSEX:
         osc['args'] = data['ext']
-    elif mtype == SEQ_EVENT_CONTROLLER:
+    elif mtype is SEQ_EVENT_CONTROLLER:
         osc['args'] = [data['control.channel'], data['control.param'], data['control.value']]
-    elif mtype == (SEQ_EVENT_START, SEQ_EVENT_CONTINUE, SEQ_EVENT_STOP):
+    elif mtype in (SEQ_EVENT_START, SEQ_EVENT_CONTINUE, SEQ_EVENT_STOP):
         osc['args'] = []
     else:
         return None
