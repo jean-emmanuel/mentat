@@ -218,8 +218,8 @@ class Parameter():
                 t = self.animate_duration
                 self.stop_animation()
 
-
-        value = [self.easing_function(self.animate_from[i], self.animate_to[i], t / self.animate_duration, self.easing_mode) for i in range(self.n_args)]
+        progress = t / self.animate_duration if self.animate_duration > 0 else 1.0
+        value = [self.easing_function(self.animate_from[i], self.animate_to[i], progress, self.easing_mode) for i in range(self.n_args)]
 
         return self.set(*value)
 
