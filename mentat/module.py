@@ -285,8 +285,9 @@ class Module(Sequencer, EventEmitter):
 
         Set value of parameter.
 
-        The engine will apply the new value only at the end of current processing cycle
-        and send a message if the new value differs from the one that was previously sent.
+        The engine will trigger events related to the value change only at the end of current
+        processing cycle and send a message if the new value differs from the one that was
+        previously sent.
 
         When in a scene, subsequent calls to `set()` are not guaranteed to be executed
         within the same processing cycle. (see `lock()`)
@@ -296,7 +297,7 @@ class Module(Sequencer, EventEmitter):
         - `parameter_name`: name of parameter
         - `submodule_name`: name of submodule, with wildcard ('*') and range ('[]') support
         - `*args`: value(s)
-        - `force_send`: send a message regardless of the last sent value
+        - `force_send`: send a message even if the parameter's value has not changed
         - `preserve_animation`: by default, animations are automatically stopped when `set()` is called, set
         to `True` to prevent that
         """
@@ -307,18 +308,19 @@ class Module(Sequencer, EventEmitter):
             if parameter.animate_running and not preserve_animation:
                 parameter.stop_animation()
 
-            if force_send and parameter.address:
-                parameter.set(*args)
-                self.send(parameter.address, *parameter.get_message_args())
+            parameter_changed = parameter.set(*args)
+
+            if parameter_changed and not parameter.dirty:
+                parameter.dirty = True
+                parameter.dirty_timestamp = time.time()
+                self.dirty_parameters.put(parameter)
+                self.set_dirty()
+
+            elif force_send and parameter.address:
+                self.send(parameter.address, *parameter.get_message_args(), timestamp=time.time())
                 parameter.set_last_sent()
 
-            else:
 
-                if parameter.set(*args) and not parameter.dirty:
-                    parameter.dirty = True
-                    parameter.dirty_timestamp = time.time()
-                    self.dirty_parameters.put(parameter)
-                    self.set_dirty()
 
         else:
             self.logger.error(f'set: parameter or submodule "{parameter_name}" not found')
