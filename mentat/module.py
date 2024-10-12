@@ -447,7 +447,7 @@ class Module(Sequencer, EventEmitter):
                     transform: type_callback,
                     inverse: type_callback|None = None):
         """
-        add_mapping(self, src, dest, transform, inverse=None)
+        add_mapping(src, dest, transform, inverse=None)
 
         Add a value mapping between two or more parameters owned by
         the module or one of its submodules. Whenever a value change
