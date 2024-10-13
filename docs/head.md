@@ -1,9 +1,9 @@
 ## Mentat
 
 <div class="version">
-Version: 1.6.0 (09/10/2023)
+Version: 1.6.1 (13/10/2024)
 <br/>
-License: GNU/GPL v3 (© 2022 Jean-Emmanuel Doucet)
+License: GNU/GPL v3 (© 2024 Jean-Emmanuel Doucet)
 </div>
 
 ### Overview
