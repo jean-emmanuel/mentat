@@ -104,7 +104,8 @@ class Module(Sequencer, EventEmitter):
                 self.port = name
             else:
                 if type(port) is str and '://' in port and port[-1] != '/':
-                    port = port[:-1]
+                    # append slash to port-as-url to match liblo's url scheme
+                    port = port + '/'
                 self.port = port
 
         self.parameters = {}
