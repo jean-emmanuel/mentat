@@ -481,7 +481,8 @@ class Engine(Module):
             if protocol == 'osc':
                 self.osc_server.send(port, address, *args)
             elif protocol == 'osc.tcp':
-                self.osc_tcp_server.send(port, address, *args)
+                # liblo doesn't actually send from the tcp server and opens a random port
+                self.osc_tcp_server.send('osc.tcp://127.0.0.1:%s' % port, address, *args)
             elif protocol == 'osc.unix':
                 self.osc_unix_server.send(port, address, *args)
             else:
