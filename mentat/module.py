@@ -65,12 +65,18 @@ class Module(Sequencer, EventEmitter):
         - `name`: module name
         - `protocol`: 'osc', 'osc.tcp', 'osc.unix' or 'midi'
         - `port`: port used by the software / hardware to send and receive messages
-            - port number if protocol is 'osc' or 'osc.tcp'
-            - unix socket path if protocol is 'osc.unix'
+            - port number if protocol is 'osc' or 'osc.tcp', or liblo url for non-local host
+              (e.g. 'osc.udp://192.168.1.2:6666')
+            - unix socket path if protocol is 'osc.unix' (e.g. '/tmp/mysocket')
             - `None` if protocol is 'midi' or if no port is needed
         - `parent`:
             if the module is a submodule, this must be set
             to the parent module's instance
+
+        **Notes**
+
+        - 'osc.tcp' protocol should be avoided (as of now the sender's port can't be
+        determined when using tcp, thus breaking Mentat's Module<->Software relationship
         """
         logger_name = name
         if parent is not None:
@@ -97,6 +103,8 @@ class Module(Sequencer, EventEmitter):
             if protocol == 'midi':
                 self.port = name
             else:
+                if type(port) is str and '://' in port and port[-1] != '/':
+                    port = port[:-1]
                 self.port = port
 
         self.parameters = {}

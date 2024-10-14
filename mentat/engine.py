@@ -482,7 +482,10 @@ class Engine(Module):
                 self.osc_server.send(port, address, *args)
             elif protocol == 'osc.tcp':
                 # liblo doesn't actually send from the tcp server and opens a random port
-                self.osc_tcp_server.send('osc.tcp://127.0.0.1:%s' % port, address, *args)
+                if '://' in port:
+                    self.osc_tcp_server.send(port, address, *args)
+                else:
+                    self.osc_tcp_server.send('osc.tcp://127.0.0.1:%s' % port, address, *args)
             elif protocol == 'osc.unix':
                 self.osc_unix_server.send('osc.unix://%s' % port, address, *args)
             else:
@@ -578,7 +581,8 @@ class Engine(Module):
         **Parameters**
 
         - `protocol`: 'osc', 'osc.tcp' or 'midi'
-        - `port`: name of module or port number if unknown
+        - `port`: name of module, port number if unknown and local,
+                  url if unknown and non-local
         - `address`: osc address
         - `args`: list of values
         """
@@ -597,14 +601,27 @@ class Engine(Module):
         """
         Route incoming raw osc events.
         """
-        proto = 'osc'
-        port = src.port
+
         if src.protocol == liblo.TCP:
             proto = 'osc.tcp'
         elif src.protocol == liblo.UNIX:
             proto = 'osc.unix'
-        if src.port in self.osc_inputs[proto]:
+        else:
+            proto = 'osc'
+
+        if src.url in self.osc_inputs[proto]:
+            # non-local port (by url)
+            port = self.osc_inputs[proto][src.url]
+        elif src.port in self.osc_inputs[proto]:
+            # local port (by number or socket path)
             port = self.osc_inputs[proto][src.port]
+        elif 'localhost' not in src.url and '127.0.0.1' not in src.url:
+            # non-local & unknown -> url
+            port = src.url
+        else:
+            # local & unknown -> port number
+            port = src.port
+
         self.route(proto, port, address, args)
         if self.log_statistics:
             self.statistics['osc_in'] += 1
