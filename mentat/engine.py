@@ -615,7 +615,7 @@ class Engine(Module):
         elif src.port in self.osc_inputs[proto]:
             # local port (by number or socket path)
             port = self.osc_inputs[proto][src.port]
-        elif 'localhost' not in src.url and '127.0.0.1' not in src.url:
+        elif src.hostname not in ['localhost', '127.0.0.1']:
             # non-local & unknown -> url
             port = src.url
         else:
