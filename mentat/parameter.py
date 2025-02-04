@@ -5,9 +5,9 @@ from .easing import EASING_FUNCTIONS
 
 class Parameter():
 
-    def __init__(self, name, address, types, static_args=None, default=None):
+    def __init__(self, name, address, types, static_args=None, default=None, filter=None, transform=None):
         """
-        Parameter(name, address, types, static_args=[], default=None)
+        Parameter(name, address, types, static_args=[], default=None, transform=None)
 
         Parameter constructor.
 
@@ -18,6 +18,7 @@ class Parameter():
         - `types`: osc typetags string, one letter per value, including static values
         - `static_args`: list of static values before the ones that can be modified
         - `default`: default value
+        - `transform`: transform function
         """
         self.logger = logging.getLogger(__name__).getChild(name)
 
@@ -49,6 +50,7 @@ class Parameter():
         self.easing_mode = 'in'
 
         self.default = default
+        self.transform = transform
 
         self.dirty = False
         self.dirty_timestamp = 0
@@ -93,6 +95,10 @@ class Parameter():
             return False
 
         changed = False
+
+        if self.transform:
+            args = self.transform(*args)
+
         for i in range(self.n_args):
             value = self.cast(args[i], self.types[i - self.n_args])
             if value != self.args[i - self.n_args]:

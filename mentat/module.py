@@ -191,9 +191,10 @@ class Module(Sequencer, EventEmitter):
                       address: str|None,
                       types: str,
                       static_args: list|None = None,
-                      default = None):
+                      default = None,
+                      transform: type_callback = None):
         """
-        add_parameter(name, address, types, static_args=[], default=None)
+        add_parameter(name, address, types, static_args=[], default=None, transform=None)
 
         Add parameter to module.
 
@@ -205,9 +206,14 @@ class Module(Sequencer, EventEmitter):
         (character '*' can be used for arguments that should not be explicitely typed)
         - `static_args`: list of static values before the ones that can be modified
         - `default`: value or list of values if the parameter has multiple dynamic values
+        - `transform`:
+            function that takes one argument per parameter value (excluding static args)
+            and returns a list or tuple of values, it is called whenever the parameter's value
+            is set (right before type casting) and its result will be used as the new value.
+            This may be used to apply custom roundings or boundaries.
         """
         if name not in self.parameters:
-            self.parameters[name] = Parameter(name, address, types, static_args, default)
+            self.parameters[name] = Parameter(name, address, types, static_args, default, transform)
             self.reset(name)
             self.dispatch_event('parameter_added', self, name)
         else:
