@@ -16,7 +16,11 @@ from signal import signal, SIGINT, SIGTERM
 from typing import TYPE_CHECKING
 
 import pyinotify
-import liblo
+
+try:
+    import pyliblo3 as liblo
+except:
+    import liblo
 
 from pyalsa import alsaseq
 
