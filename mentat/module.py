@@ -777,7 +777,7 @@ class Module(Sequencer, EventEmitter):
                     f.close()
 
             except Exception as e:
-                self.logger.info(f'failed to open state file "{file}"\n{e}')
+                self.logger.erro(f'failed to open state file "{file}"\n{e}')
 
             self.logger.info(f'state "{name}" preloaded from {file}')
 
@@ -788,7 +788,7 @@ class Module(Sequencer, EventEmitter):
                     self.set_state(self.states[name], force_send=force_send)
                     self.logger.info(f'state "{name}" loaded')
                 except Exception as e:
-                    self.logger.info(f'failed to load state "{name}"\n{e}')
+                    self.logger.error(f'failed to load state "{name}"\n{e}')
             else:
                 self.logger.error(f'state "{name}" not found')
 
