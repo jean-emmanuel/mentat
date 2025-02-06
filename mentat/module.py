@@ -221,7 +221,7 @@ class Module(Sequencer, EventEmitter):
         Parameter object or None if parameter already exists
         """
         if name not in self.parameters:
-            self.parameters[name] = Parameter(name, address, types, static_args, default, transform)
+            self.parameters[name] = Parameter(name, address, types, static_args, default, transform, **metadata)
             self.reset(name)
             self.dispatch_event('parameter_added', self, name)
             return self.parameters[name]

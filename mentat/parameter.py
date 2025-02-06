@@ -52,6 +52,7 @@ class Parameter():
 
         self.default = default
         self.transform = transform
+        self.metadata = metadata
 
         self.dirty = False
         self.dirty_timestamp = 0
