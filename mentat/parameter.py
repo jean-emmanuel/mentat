@@ -5,9 +5,9 @@ from .easing import EASING_FUNCTIONS
 
 class Parameter():
 
-    def __init__(self, name, address, types, static_args=None, default=None, filter=None, transform=None):
+    def __init__(self, name, address, types, static_args=None, default=None, filter=None, transform=None, **metadata):
         """
-        Parameter(name, address, types, static_args=[], default=None, transform=None)
+        Parameter(name, address, types, static_args=[], default=None, transform=None, **metadata)
 
         Parameter constructor.
 
@@ -19,6 +19,7 @@ class Parameter():
         - `static_args`: list of static values before the ones that can be modified
         - `default`: default value
         - `transform`: transform function
+        - `metadata`: extra keyword arguments will be storde in parameter.metadata (dict)
         """
         self.logger = logging.getLogger(__name__).getChild(name)
 

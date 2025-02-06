@@ -192,7 +192,8 @@ class Module(Sequencer, EventEmitter):
                       types: str,
                       static_args: list|None = None,
                       default = None,
-                      transform: type_callback = None):
+                      transform: type_callback = None,
+                      **metadata):
         """
         add_parameter(name, address, types, static_args=[], default=None, transform=None)
 
@@ -211,13 +212,22 @@ class Module(Sequencer, EventEmitter):
             and returns a list or tuple of values, it is called whenever the parameter's value
             is set (right before type casting) and its result will be used as the new value.
             This may be used to apply custom roundings or boundaries.
+        - `metadata`: 
+            extra keyword arguments will are stored in parameter.metadata (dict), this can
+            be used to store custom informations (range, min, max) for unspecified usages
+
+        **Return**
+
+        Parameter object or None if parameter already exists
         """
         if name not in self.parameters:
             self.parameters[name] = Parameter(name, address, types, static_args, default, transform)
             self.reset(name)
             self.dispatch_event('parameter_added', self, name)
+            return self.parameters[name]
         else:
             self.logger.error(f'could not add parameter "{name}" (parameter already exists)')
+            return None
 
     @public_method
     def remove_parameter(self, name: str):
@@ -266,6 +276,7 @@ class Module(Sequencer, EventEmitter):
             self.logger.error(f'get: parameter or submodule "{parameter_name}" not found')
             return None
 
+    @public_method
     @submodule_method(pattern_matching=False)
     def get_parameter(self, *args):
         """
