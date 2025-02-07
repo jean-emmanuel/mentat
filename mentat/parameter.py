@@ -294,13 +294,19 @@ class Mapping():
         """
         e = 0
 
+        # how much does self depend on other
         for param in other.dest:
             if self.match(param):
                 e += 1
 
+        # how much does other depend on self
         for param in self.dest:
             if other.match(param):
                 e -= 1
+
+        # in case of equality, resolve mapping with fewer src args first
+        if e == 0 and len(self.src) > len(other.src):
+            e += 1
 
         return e <= 0
 
