@@ -752,7 +752,7 @@ class Module(Sequencer, EventEmitter):
             s = re.sub(r'\s\s\[\s', '  [', s)
             f.write(s)
 
-        self.logger.info(f'state "{name}" saved to {f}')
+        self.logger.info(f'state "{name}" saved to {file}')
 
     @public_method
     def load(self, name: str, force_send: bool = False, preload: bool = False):
