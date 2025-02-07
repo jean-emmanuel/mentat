@@ -509,9 +509,8 @@ class Module(Sequencer, EventEmitter):
         if inverse is not None:
             self.add_mapping(dest, src, inverse, None)
         else:
-            # sort mapping by number of src parameters
-            # to mitigate some issues with multiple mappings
-            self.mappings.sort(key=lambda m: len(m.src))
+            # sort mappings (see Mapping.__lt__)
+            self.mappings.sort()
         for p in mapping.src + mapping.dest:
             # avoid updating mapping the first time if
             # dependencies don't exist they may be not ready yet

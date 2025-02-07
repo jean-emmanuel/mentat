@@ -287,6 +287,22 @@ class Mapping():
         self.locked = False
 
 
+    def __lt__(self, other):
+        """
+        Custom comparison operator for sorting.
+        Basically, if A depends on B's results, B should be resolved first.
+        """
+        e = 0
+
+        for param in other.dest:
+            if self.match(param):
+                e += 1
+
+        for param in self.dest:
+            if other.match(param):
+                e -= 1
+
+        return e <= 0
 
 class MetaParameter(Parameter):
 
