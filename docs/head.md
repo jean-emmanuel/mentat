@@ -1,9 +1,11 @@
 ## Mentat
 
 <div class="version">
-Version: 1.6.1 (13/10/2024)
+Version: 1.7.0 (07/02/2025)
 <br/>
 License: GNU/GPL v3 (© 2024 Jean-Emmanuel Doucet)
+<br/>
+Sources: [https://github.com/jean-emmanuel/mentat/](https://github.com/jean-emmanuel/mentat/)
 </div>
 
 ### Overview
@@ -17,7 +19,7 @@ Mentat has been designed to coordinate the live setup of the rap-in-opposition b
 ### Requirements
 
 ```
-python3 python3-pyalsa python3-pyinotify
+python3 python3-liblo python3-pyalsa python3-pyinotify
 ```
 
 

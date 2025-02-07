@@ -176,6 +176,8 @@
                         id="toc-module.remove_parameter">Module.remove_parameter()</a></li>
                         <li><a href="#module.get"
                         id="toc-module.get">Module.get()</a></li>
+                        <li><a href="#module.get_parameter"
+                        id="toc-module.get_parameter">Module.get_parameter()</a></li>
                         <li><a href="#module.set"
                         id="toc-module.set">Module.set()</a></li>
                         <li><a href="#module.reset"
@@ -258,8 +260,9 @@
         <main>
 <h2 id="mentat">Mentat</h2>
 <div class="version">
-<p>Version: 1.6.1 (13/10/2024) <br/> License: GNU/GPL v3 (© 2024
-Jean-Emmanuel Doucet)</p>
+<p>Version: 1.7.0 (07/02/2025) <br/> License: GNU/GPL v3 (© 2024
+Jean-Emmanuel Doucet) <br/> Sources: <a
+href="https://github.com/jean-emmanuel/mentat/">https://github.com/jean-emmanuel/mentat/</a></p>
 </div>
 <h3 id="overview">Overview</h3>
 <p>Mentat is a HUB / Conductor for OSC / MIDI capable softwares. It aims
@@ -276,7 +279,7 @@ rap-in-opposition band <a href="https://plagiat.org/clips">Plagiat</a>
 href="https://github.com/PlagiatBros/PlagiatSetupII/">source
 repository</a>).</p>
 <h3 id="requirements">Requirements</h3>
-<pre><code>python3 python3-pyalsa python3-pyinotify</code></pre>
+<pre><code>python3 python3-liblo python3-pyalsa python3-pyinotify</code></pre>
 <h3 id="install">Install</h3>
 <pre><code>git clone https://github.com/jean-emmanuel/mentat/
 cd mentat
@@ -475,7 +478,8 @@ method.</p></li>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>protocol</code>: ‘osc’, ‘osc.tcp’ or ‘midi’</li>
-<li><code>port</code>: name of module or port number if unknown</li>
+<li><code>port</code>: name of module, port number if unknown and local,
+url if unknown and non-local</li>
 <li><code>address</code>: osc address</li>
 <li><code>args</code>: list of values</li>
 </ul>
@@ -580,12 +584,20 @@ changes. Arguments:
 <li><code>port</code>: port used by the software / hardware to send and
 receive messages
 <ul>
-<li>port number if protocol is ‘osc’ or ‘osc.tcp’</li>
-<li>unix socket path if protocol is ‘osc.unix’</li>
+<li>port number if protocol is ‘osc’ or ‘osc.tcp’, or liblo url for
+non-local host (e.g. ‘osc.udp://192.168.1.2:6666’)</li>
+<li>unix socket path if protocol is ‘osc.unix’
+(e.g. ‘/tmp/mysocket’)</li>
 <li><code>None</code> if protocol is ‘midi’ or if no port is needed</li>
 </ul></li>
 <li><code>parent</code>: if the module is a submodule, this must be set
 to the parent module’s instance</li>
+</ul>
+<p><strong>Notes</strong></p>
+<ul>
+<li>‘osc.tcp’ protocol should be avoided (as of now the sender’s port
+can’t be determined when using tcp, thus breaking Mentat’s
+Module&lt;-&gt;Software relationship</li>
 </ul>
 </div>
 <h3 id="module.add_submodule">Module.add_submodule()</h3>
@@ -615,8 +627,8 @@ submodule_name argument in some methods.</p>
 </div>
 <h3 id="module.add_parameter">Module.add_parameter()</h3>
 <div class="content">
-<p><i>add_parameter(name, address, types, static_args=[],
-default=None)</i><br/></p>
+<p><i>add_parameter(name, address, types, static_args=[], default=None,
+transform=None)</i><br/></p>
 <p>Add parameter to module.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -630,7 +642,17 @@ should not be explicitely typed)</li>
 can be modified</li>
 <li><code>default</code>: value or list of values if the parameter has
 multiple dynamic values</li>
+<li><code>transform</code>: function that takes one argument per
+parameter value (excluding static args) and returns a list or tuple of
+values, it is called whenever the parameter’s value is set (right before
+type casting) and its result will be used as the new value. This may be
+used to apply custom roundings or boundaries.</li>
+<li><code>metadata</code>: extra keyword arguments will are stored in
+parameter.metadata (dict), this can be used to store custom informations
+(range, min, max) for unspecified usages</li>
 </ul>
+<p><strong>Return</strong></p>
+<p>Parameter object or None if parameter already exists</p>
 </div>
 <h3 id="module.remove_parameter">Module.remove_parameter()</h3>
 <div class="content">
@@ -654,6 +676,19 @@ param_name)</i><br/></p>
 </ul>
 <p><strong>Return</strong></p>
 <p>List of values</p>
+</div>
+<h3 id="module.get_parameter">Module.get_parameter()</h3>
+<div class="content">
+<p><i>get_parameter(parameter_name)</i><br/>
+<i>get_parameter(submodule_name, param_name)</i><br/></p>
+<p>Check if module has parameter and return it.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>parameter_name</code>: name of parameter</li>
+<li><code>submodule_name</code>: name of submodule</li>
+</ul>
+<p><strong>Return</strong></p>
+<p>Parameter object or None</p>
 </div>
 <h3 id="module.set">Module.set()</h3>
 <div class="content">
