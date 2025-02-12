@@ -112,6 +112,7 @@ class Module(Sequencer, EventEmitter):
         self.animations = []
         self.meta_parameters = {}
         self.mappings = []
+        self.mappings_need_sorting = False
 
         self.dirty_parameters = Queue()
         self.dirty = False
@@ -509,8 +510,7 @@ class Module(Sequencer, EventEmitter):
         if inverse is not None:
             self.add_mapping(dest, src, inverse, None)
         else:
-            # sort mappings (see Mapping.__lt__)
-            self.mappings.sort()
+            self.mappings_need_sorting = True
         for p in mapping.src + mapping.dest:
             # avoid updating mapping the first time if
             # dependencies don't exist they may be not ready yet
@@ -529,6 +529,10 @@ class Module(Sequencer, EventEmitter):
         - `updated_parameter`: parameter name, may be a list if owned by a submodule.
         """
         if self.mappings:
+            if self.mappings_need_sorting:
+                # sort mappings (see Mapping.__lt__)
+                self.mappings_need_sorting = False
+                self.mappings.sort()
             for mapping in self.mappings:
                 if mapping.match(updated_parameter):
                     self.update_mapping(mapping)
