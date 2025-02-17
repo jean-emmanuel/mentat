@@ -472,7 +472,8 @@ class Module(Sequencer, EventEmitter):
                     src: str|tuple[str, ...]|list[str|tuple[str, ...], ...],
                     dest: str|tuple[str, ...]|list[str|tuple[str, ...], ...],
                     transform: type_callback,
-                    inverse: type_callback|None = None):
+                    inverse: type_callback|None = None,
+                    condition: type_callback|None = None):
         """
         add_mapping(src, dest, transform, inverse=None)
 
@@ -503,18 +504,24 @@ class Module(Sequencer, EventEmitter):
             are inconsistent (e.g. `transform(inverse(x)) != x`), mappings
             will not trigger each others indefinetely (a mapping cannot
             run twice during a cycle).
+        - `condition`:
+            function returning True if the mapping should be active, False
+            otherwise. When left to None, the mapping is always active.
 
         """
-        mapping = Mapping(src, dest, transform)
+        mapping = Mapping(src, dest, transform, condition)
         self.mappings.append(mapping)
         if inverse is not None:
-            self.add_mapping(dest, src, inverse, None)
+            self.add_mapping(dest, src, inverse, None, condition)
         else:
             self.mappings_need_sorting = True
         for p in mapping.src + mapping.dest:
             # avoid updating mapping the first time if
             # dependencies don't exist they may be not ready yet
             if self.get_parameter(*p) is None:
+                return
+        if condition is not None:
+            if not condition():
                 return
         self.update_mapping(mapping)
 
