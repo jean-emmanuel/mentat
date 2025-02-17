@@ -259,12 +259,16 @@ class Mapping():
         """
         Check if provided parameter should trigger this mapping
         """
+        if self.locked:
+            return False
 
         m = False
+
         if type(param) == str :
             for s in self.src:
                 if len(s) == 1 and s[0] == param:
                     m = True
+                    break
         else:
             for s in self.src:
                 if len(s) == len(param):
@@ -273,10 +277,12 @@ class Mapping():
                             break
                     else:
                         m = True
+                        break
 
         if m and not ignore_condition and self.condition is not None:
             if not self.condition():
                 return False
+
         return m
 
     def lock(self):
