@@ -505,8 +505,11 @@ class Module(Sequencer, EventEmitter):
             will not trigger each others indefinetely (a mapping cannot
             run twice during a cycle).
         - `condition`:
-            function returning True if the mapping should be active, False
-            otherwise. When left to None, the mapping is always active.
+            condition parameter, disables the mapping if False / falsy, can be
+            - `string` if there's only one source parameter owned
+            by the module itself
+            - `tuple` of `string` if the source parameter is owned
+            by a submodule  (e.g. `('submodule_name', 'parameter_name')`)
 
         """
         mapping = Mapping(src, dest, transform, condition)
@@ -520,9 +523,7 @@ class Module(Sequencer, EventEmitter):
             # dependencies don't exist they may be not ready yet
             if self.get_parameter(*p) is None:
                 return
-        if condition is not None:
-            if not condition():
-                return
+
         self.update_mapping(mapping)
 
     def check_mappings(self, updated_parameter):
@@ -566,25 +567,34 @@ class Module(Sequencer, EventEmitter):
 
         """
         if mapping.lock():
-            src_values = [self.get(*param) for param in mapping.src]
-            dest_values = mapping.transform(*src_values)
 
-            animating = False
-            for param in mapping.src:
-                # preserve animation if src parameter is animating
-                if self.get_parameter(*param).animate_running is not None:
-                    animating = True
-                    break
+            src_params = mapping.src
+            condition = True
+            if mapping.has_condition:
+                condition = bool(self.get(*src_params[-1]))
+                src_params= src_params[0:-1]
 
-            if mapping.n_args == 1:
-                dest_values = [dest_values]
-            for i in range(mapping.n_args):
-                val = dest_values[i]
-                param = mapping.dest[i]
-                if isinstance(val, list):
-                    self.set(*param, *val, preserve_animation=animating)
-                else:
-                    self.set(*param, val, preserve_animation=animating)
+            if condition is True:
+
+                src_values = [self.get(*param) for param in src_params]
+                dest_values = mapping.transform(*src_values)
+
+                animating = False
+                for param in src_params:
+                    # preserve animation if src parameter is animating
+                    if self.get_parameter(*param).animate_running is not None:
+                        animating = True
+                        break
+
+                if mapping.n_args == 1:
+                    dest_values = [dest_values]
+                for i in range(mapping.n_args):
+                    val = dest_values[i]
+                    param = mapping.dest[i]
+                    if isinstance(val, list):
+                        self.set(*param, *val, preserve_animation=animating)
+                    else:
+                        self.set(*param, val, preserve_animation=animating)
 
             if not self.dirty:
                 mapping.unlock()

@@ -243,6 +243,13 @@ class Mapping():
         else:
             self.src = [(x,) if type(x) is not tuple else x for x in src]
 
+        self.has_condition = False
+        if condition:
+            self.has_condition = True
+            if type(condition) != tuple:
+                condition = (condition,)
+                self.src.append(condition)
+
 
         if type(dest) != list:
             self.dest = [(dest,)] if type(dest) != tuple else [dest]
@@ -252,7 +259,6 @@ class Mapping():
         self.n_args = len(self.dest)
 
         self.transform = transform
-        self.condition = condition
         self.locked = False
 
     def match(self, param, ignore_condition=False):
@@ -270,6 +276,7 @@ class Mapping():
                     m = True
                     break
         else:
+            # tuple param: path compararison
             for s in self.src:
                 if len(s) == len(param):
                     for i in range(len(s)):
@@ -278,10 +285,6 @@ class Mapping():
                     else:
                         m = True
                         break
-
-        if m and not ignore_condition and self.condition is not None:
-            if not self.condition():
-                return False
 
         return m
 
