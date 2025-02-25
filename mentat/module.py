@@ -112,6 +112,7 @@ class Module(Sequencer, EventEmitter):
         self.animations = []
         self.meta_parameters = {}
         self.mappings = []
+        self.mappings_srcs_map = []
         self.mappings_need_sorting = False
 
         self.dirty_parameters = Queue()
@@ -538,11 +539,23 @@ class Module(Sequencer, EventEmitter):
         """
         if self.mappings:
             if self.mappings_need_sorting:
-                # sort mappings (see Mapping.__lt__)
                 self.mappings_need_sorting = False
-                self.mappings.sort()
-            for mapping in self.mappings:
-                if mapping.match(updated_parameter):
+                # create a dict of (param_path,) vs list of mappings that depend on them
+                # to later avoid looping over all mappings when a parameter updates
+                self.mappings_srcs_map = {}
+                for m in self.mappings:
+                    for s in m.src:
+                        if s not in self.mappings_srcs_map:
+                            self.mappings_srcs_map[s] = []
+                        self.mappings_srcs_map[s].append(m)
+                # sort mappings (see Mapping.__lt__)
+                for s in self.mappings_srcs_map:
+                    self.mappings_srcs_map[s].sort()
+
+            tuple_param = tuple(updated_parameter) if type(updated_parameter) is list else (updated_parameter,)
+            if tuple_param in self.mappings_srcs_map:
+                for mapping in self.mappings_srcs_map[tuple_param]:
+                    # if mapping.match(updated_parameter):
                     self.update_mapping(mapping)
 
         if self.meta_parameters:
