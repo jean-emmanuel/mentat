@@ -180,7 +180,7 @@ class Engine(Module):
             self.osc_unix_server = liblo.Server(self.unix_port, proto=liblo.UNIX)
             self.osc_unix_server.add_method(None, None, self.route_osc)
 
-        self.midi_server = alsaseq.Sequencer(clientname=self.name)
+        self.midi_server = alsaseq.Sequencer(clientname=self.name, maxreceiveevents=1024)
         for module_name in self.midi_ports:
             port_type = alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC | alsaseq.SEQ_PORT_TYPE_APPLICATION
             port_caps = (alsaseq.SEQ_PORT_CAP_WRITE | alsaseq.SEQ_PORT_CAP_SUBS_WRITE |
