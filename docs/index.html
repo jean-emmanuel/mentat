@@ -260,7 +260,7 @@
         <main>
 <h2 id="mentat">Mentat</h2>
 <div class="version">
-<p>Version: 1.7.0 (07/02/2025) <br/> License: GNU/GPL v3 (© 2024
+<p>Version: 1.8.0 (06/05/2025) <br/> License: GNU/GPL v3 (© 2025
 Jean-Emmanuel Doucet) <br/> Sources: <a
 href="https://github.com/jean-emmanuel/mentat/">https://github.com/jean-emmanuel/mentat/</a></p>
 </div>
@@ -692,9 +692,9 @@ param_name)</i><br/></p>
 </div>
 <h3 id="module.set">Module.set()</h3>
 <div class="content">
-<p><i>set(parameter_name, <em>args, force_send=False,
+<p><i>set(parameter_name, <em>args, force=False, force_send=False,
 preserve_animation=False)</i><br/> <i>set(submodule_name,
-parameter_name, </em>args, force_send=False,
+parameter_name, </em>args, force=False, force_send=False,
 preserve_animation=False)</i><br/></p>
 <p>Set value of parameter.</p>
 <p>The engine will trigger events related to the value change only at
@@ -709,8 +709,12 @@ guaranteed to be executed within the same processing cycle. (see
 <li><code>submodule_name</code>: name of submodule, with wildcard (’*‘)
 and range (’[]’) support</li>
 <li><code>*args</code>: value(s)</li>
-<li><code>force_send</code>: send a message even if the parameter’s
-value has not changed</li>
+<li><code>force</code>: if <code>True</code>, the engine will act as if
+the parameter’s value has changed even if it has not, messages, will be
+sent, parameter_changed events will be emitted and mappings will be
+computed again</li>
+<li><code>force_send</code>: if <code>True</code>, the parameters value
+will be sent immediately, regardless of its state</li>
 <li><code>preserve_animation</code>: by default, animations are
 automatically stopped when <code>set()</code> is called, set to
 <code>True</code> to prevent that</li>
@@ -805,6 +809,15 @@ updating source parameters when destination parameters update. If
 (e.g. <code>transform(inverse(x)) != x</code>), mappings will not
 trigger each others indefinetely (a mapping cannot run twice during a
 cycle).</li>
+<li><code>condition</code>: condition parameter, disables the mapping if
+False / falsy, can be
+<ul>
+<li><code>string</code> if there’s only one source parameter owned by
+the module itself</li>
+<li><code>tuple</code> of <code>string</code> if the source parameter is
+owned by a submodule
+(e.g. <code>('submodule_name', 'parameter_name')</code>)</li>
+</ul></li>
 </ul>
 </div>
 <h3 id="module.add_meta_parameter">Module.add_meta_parameter()</h3>
@@ -870,7 +883,7 @@ retreive parameters that differ from their default values.</li>
 <ul>
 <li><code>state</code>: state object as returned by
 <code>get_state()</code></li>
-<li><code>force_send</code>: see <code>set()</code></li>
+<li><code>force</code>: see <code>set()</code></li>
 </ul>
 </div>
 <h3 id="module.send_state">Module.send_state()</h3>
@@ -891,7 +904,7 @@ parameters that differ from their default values.</li>
 </div>
 <h3 id="module.load">Module.load()</h3>
 <div class="content">
-<p><i>load(name, force_send=False)</i><br/></p>
+<p><i>load(name, force=False)</i><br/></p>
 <p>Load state from memory or from file if not preloaded already. The
 file must be valid a JSON file containing one list of lists as returned
 by <code>get_state()</code>. Comments may be added manually by inserting
@@ -905,7 +918,7 @@ string items in the main list:</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of state save (without file extension)</li>
-<li><code>force_send</code>: see <code>set()</code></li>
+<li><code>force</code>: see <code>set()</code></li>
 </ul>
 </div>
 <h3 id="module.route">Module.route()</h3>
