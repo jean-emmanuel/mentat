@@ -1,0 +1,319 @@
+mentat (1.8.0) unstable; urgency=medium
+
+  [ jean-emmanuel ]
+  * .gitignore
+  * work in progress
+  * midi: better alsa backend with pyalsa
+  * work in progress
+  * work in progress
+  * monotonic ns time
+  * early wip
+  * doc clean
+  * various fixes (state save/load, src module wactch, etc)
+  * doc update
+  * typo and logger message
+  * continue working on examples
+  * fix timer wait, implement cycle mechanism
+  * dont expose Paramater class
+  * timer: use engine time
+  * avoid loosing precision in wait_next_cycle()
+  * simplify example routing
+  * clean doc
+  * docs
+  * docs
+  * docs version
+  * typo
+  * many small changes
+  * common logger class
+  * missing file
+  * module: add send_state() method
+  * parameter init
+  * update docs
+  * module. add reset method
+  * allow submodule to have their own protocol & port
+  * missing inheritance
+  * fix logger display module name
+  * add scene methods to module class; always use message queue in module output
+  * delay active route activation until engine starts
+  * configure debug at engine init, allow launching example from anywhere
+  * typo
+  * use thread safe queue for outgoing messages
+  * add env variable if engine has been restarted
+  * add some doc
+  * missing arg in add_parameter
+  * rm old line
+  * always call restart in main thread
+  * call param notify callback once added
+  * prevent duplicating param update callbacks
+  * refactor events
+  * expose logger obj as class property instead of methods
+  * get rid of module initialize method
+  * module.set: always dispatch event when force_send is true, don't check self.port until send()
+  * add module conditions to create multi parameters bindings
+  * parameter: fix setting list values
+  * don't return param value as list unless there are multiple values
+  * module: state load fix
+  * docs fix
+  * docs formatting
+  * add license file
+  * rename condition to mapping and expose them like parameters
+  * docs
+  * doc: missing param
+  * rename mapping to meta parameters, fix some errors
+  * rm old file
+  * fix animation
+  * simplitfy meta param update routine
+  * add engine.root_module to expose all modules
+  * better scene namespace
+  * add method for restarting a scene if it's alive
+  * typo
+  * some more doc
+  * typo
+  * typo
+  * support module name pattern matching where possible
+  * doc: engine props
+  * some more docs
+  * misc changes
+  * engine: missing port attribute
+  * engine: public route()
+  * docs: update
+  * engine: instanciate osc server on start
+  * engine: port access
+  * misc: rm some redoundant log infos
+  * module: allow submodule to use parent proto/port if send is called in constructor
+  * module: last commit was garbage
+  * add osc.tcp support, rm osc.unix until there's a way to determine incoming messages src.port
+  * engine: add osc.unix support (requires liblo fix, unmerged yet) message: rm useless Message class
+  * docs: update
+  * clean: move module method decorator to utils
+  * docs: typo
+  * docs: formatting
+  * engine: statistics debug & osc.unix fix
+  * docs: update
+  * engine: statistics formatting
+  * module: add_alias_parameter method
+  * engine: differenciate osc ports for each protocol (prevent conflict for identical tcp & udp ports)
+  * logging: add error stack trace
+  * docs: expose some engine properties
+  * docs: little mistakes
+  * docs: easing names
+  * animation: rewrite easing
+  * animate: add some easing functions and fix animate (missing param)
+  * engine: fix statistic print period
+  * engine: prevent autorestart fail with some python libs installed
+  * midi: fix port init and sysex args parsing
+  * sequencer:  add play_sequence()
+  * docs: play_sequence
+  * docs: formatting
+  * docs: up
+  * sequence: allow passing multiple sequences/bars
+  * docs: better play sequence examples
+  * engine: set cycle length in quarter notes for consistency (with beat units from sequencer) engine: add set_time_signature() method
+  * sequencer: set bar signature in sequence dicts
+  * docs: formatting
+  * fix some errors
+  * minor update
+  * engine: warning if started in a thread
+  * midi: don't attempt to send if some args are not integers
+  * midi: rm useless line
+  * param: round floats when casting to int
+  * post merge clean
+  * repo: 1.0.0 release (4 gigs without errors already)
+  * repo: add readme
+  * docs: new line missing
+  * docs: date release
+  * parameter: don't break type() function
+  * doc: misc fix
+  * animation: add mirror easing and loop animation
+  * mirror easing issue
+  * module:add omit_defaut option to get_state() and save_state()
+  * module: state save omit_defaults fix
+  * state load bug
+  * module: add preserve_animation option to set() misc: some doc
+  * docs: update html
+  * docs: formatting bug
+  * bump versio
+  * update: date and version
+  * state: ignoree items that are not lists
+  * state: handle file errors
+  * docs: update
+  * docs: phrasing boom
+  * docs: missing definitions
+  * docs: missing backtick
+  * animation: allow end to be None
+  * docs: update
+  * logger: provide parent modules name in messages
+  * module: prevent adding parameter if name is already taken; add remove_parameter()
+  * docs: update
+  * example fix
+  * threading: use a shared lock for all modules to avoid possible deadlocks
+  * module: fix minor logic flaw
+  * module: don't empty self.animations forcefully in stop_animation(), let update_animations() do the work
+  * example: clean
+  * bump version
+  * midi: better fail
+  * early generic control api
+  * module: forbid "call" as name
+  * (BREAKING CHANGES) - engine now inherits from Module, this makes the module tree simpler - engine.root_module points to engine for backward compatibility (with deprecation msg) - module.module_path now includes the Engine's name as first item - provide better stacktraces and stop process upon critical log messages - complete generic osc control api
+  * docs: clean
+  * engine: fix generic control path resolve
+  * engine: resolve folder path properly
+  * engine: make generic control api truly generic
+  * engine: add_submodule points to add_module generic api: only expose public methods
+  * engine: add_module: cannot add self
+  * meta parameter: avoid errors at init if dependencies are not ready
+  * misc fixes
+  * parameters: send values with typetags (allows sending types such as doubles)
+  * midi: avoid error
+  * docs: words about midi
+  * docs: midi
+  * docs: scene dets
+  * generic api: module resolve issue
+  * 1.2.9
+  * engine: fix stopping scenes on shutdown
+  * module: strip engine name from state folder path
+  * sequencer: raise critical when scene is not callable
+  * engine: force set_route to run in mainthread
+  * doc: force_mainthread decorator
+  * module: emit critical if deadlock occurs
+  * module: lock timeout
+  * lock: debug
+  * lock: debug
+  * lock: debug
+  * lock: remove locks enterily and execute methods in main thread
+  * module: get() is thread safe
+  * module: run set_state in main thread
+  * doc: there's no more "root_module"
+  * engine: add "restarting" event
+  * engine: add experimental fastforward events: normalize event names sequencer: add lock()
+  * docs: update
+  * docs: missing method
+  * docs: missing method
+  * module: force reset() into main thread
+  * timer: take tempochanges into account, change wait_next_cycle implementation (takes tempo/cycle changes into account)
+  * engine: error when sending messages prior to engine start
+  * engine: init clock before activating 1st route
+  * engine: add tempo_map to keep track of tempo changes timer: adjust wait_next_cycle to tempo map
+  * timer: threading issue with tempo update
+  * engine: tweak init order at startup
+  * timer: aim for less delay
+  * engine: rm unused method
+  * doc: formatting
+  * engine: fix animation rate (was 1000hz...)
+  * parameter: fix logger init
+  * module: fix add_alias_parameter
+  * doc update
+  * doc: update
+  * module: add parameter mapping (should replace meta_parameters)
+  * mapping: logic error
+  * parameter: fallback to 0 when casting to number fails
+  * events: bubbling event system; allow subscribing to events directly on module objects
+  * doc: extra achor links
+  * mapping: disambiguate possible mapped param args
+  * example: rm unhelpful example
+  * mapping: tuple takes a coma
+  * examples: draft a 1st simple example
+  * docs: update
+  * example: readme
+  * parameter: remove meta parameters, mappings are better
+  * update docs
+  * docs:update version
+  * parameter: partial revert of 63bb9450d72e87232de1f78bc713fc8c764804c3 (meta parameters still useful for some edge cases)
+  * docs: update
+  * parameter: meta parameter args consistency + tuple vs list comparison tweak
+  * engine: comment out wip import line
+  * lint: proper imports & clean
+  * add some type hints and improve code quality
+  * add pylintrc
+  * continue linting
+  * module: error in add_alias_parameter
+  * parameter: log fallback cast as debug
+  * engine: prevent freeze on stop
+  * add py.typed
+  * metaparam: rm old line
+  * add py.typed
+  * mapping: preserve animations if src parameter is animating
+  * doc: dispatch event
+  * docs: update
+  * docs: typo
+  * misc: formatting error in statistics
+  * set/send: preserve call order when sending messages in the queue
+  * misc: formatting error in statistics
+  * set/send: preserve call order when sending messages in the queue
+  * bump version
+  * midi: cope with alsaseq pool  availability when sending a lot of messages at once; increasing the pool size might be better (not exposed by python-alsa)
+  * misc: wrong line for member init
+  * submodule_method: fix argless methods
+  * midi: log warning when pool is unnavailable
+  * sequence: add run() method to escape from scene context
+  * update docs & tag 1.6
+  * docs: missing args
+  * docs: Module.run can only be called in scenes
+  * docs: requirements
+  * docs: pyinotify requirement
+  * midi: revert is vs == change
+  * Revert "midi: revert is vs == change"
+  * animate: handle duration=0
+  * module: fix force_send mode in set() (didn't trigger events when the value was actually changed)
+  * doc: remove self from module.add_mapping() signature
+  * docs: update site
+  * bump version
+  * engine: fix tcp send (sort of, see comment)
+  * engine: fix sending to socket
+  * osc: attempt to support nonlocal ports
+  * module: fix non local port normalization
+  * engine: better non-local host check
+  * python: fix liblo loading
+  * parameter: add user transform function
+  * module: use log error instead of info when loading state fails
+  * parameter: store extra kwargs as metadata, make module.get_parameter() public
+  * module: sort parameters mapping to mitigate resolution issues
+  * package: bump version
+  * parameter: complete metadata support
+  * mapping: better sorting, less bugs
+  * doc update & minor version bump
+  * module: save: fix log message
+  * mapping: finer sort
+  * engine: fix tcp send with numeric port
+  * mapping: defer/dedupe sorting
+  * mapping: add condition option
+  * mapping: optimize Mapping.watch
+  * mapping: condition is now a parameter name, treated like src params
+  * mappings: optimize Module.check_mappings using pre-generated and sorted hash map
+  * midi: process more incoming events at each cycle (was default: 4)
+  * bump version
+  * update docs
+  * typo bug
+  * midi: prevent some errors
+  * module: make reset() submmdue method
+  * exec time statistics
+  * statistic format
+  * parameters: resolve parameter value updates once per processing cycle
+  * more efficient parameters and animation update routine
+  * thread safety first
+  * engine: clean unused method; peak exec time statistic
+  * module: expose force_send in set, etc
+  * threading: change strategy to avoid deadlocks
+  * module: meta parameter check fix
+  * avoid setting module as dirty when it's not
+  * scenes: log messaages as debug
+  * docs: update
+  * parameter: fix send deduping
+  * module: some threading issue with animation
+  * rlock 4 m wutson
+  * engine: emit event when route changes
+  * osc to midi: try parsing args as int
+  * Adding random and elastic easing
+  * easing inout without interpolation
+
+  [ Houston4444 ]
+  * add MIDI start/continue/stop signals sendable from a MIDI Module
+  * return None if midi_to_osc event type is not supported
+
+ -- bordun <jean-emmanuel@ammd.net>  Tue, 06 May 2025 17:52:59 +0200
+
+mentat (0.0.1) unstable; urgency=medium
+
+  * Initial release.
+
+  -- bordun <jean-emmanuel@ammd.net>  Tue, 06 May 2025 17:43:34 +0200

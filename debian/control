@@ -1,0 +1,23 @@
+Source: mentat
+Section: audio
+Priority: optional
+Maintainer: ORL <orl@ammd.net>
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               python3-all (>=3.8),
+               python3-setuptools,
+               python3-liblo,
+               python3-pyinotify,
+               python3-pyalsa
+Standards-Version: 4.5.0
+Vcs-Browser: https://github.com/jean-emmanuel/mentat
+Vcs-Git: https://github.com/jean-emmanuel/mentat.git
+Homepage: https://jean-emmanuel.github.io/mentat/
+Rules-Requires-Root: no
+
+Package: python3-mentat
+Architecture: all
+Depends: ${misc:Depends},
+         ${python3:Depends},
+Pre-Depends: ${misc:Pre-Depends}
+Description: python HUB / Conductor for OSC / MIDI capable softwares.
