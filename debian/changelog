@@ -310,10 +310,10 @@ mentat (1.8.0) unstable; urgency=medium
   * add MIDI start/continue/stop signals sendable from a MIDI Module
   * return None if midi_to_osc event type is not supported
 
- -- bordun <jean-emmanuel@ammd.net>  Tue, 06 May 2025 17:52:59 +0200
+ -- jean-emmanuel <jean-emmanuel@ammd.net>  Tue, 06 May 2025 17:52:59 +0200
 
 mentat (0.0.1) unstable; urgency=medium
 
   * Initial release.
 
-  -- bordun <jean-emmanuel@ammd.net>  Tue, 06 May 2025 17:43:34 +0200
+  -- jean-emmanuel <jean-emmanuel@ammd.net>  Tue, 06 May 2025 17:43:34 +0200
