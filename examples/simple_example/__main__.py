@@ -10,9 +10,15 @@ from mentat import Engine, Module, Route
 # create engine
 engine = Engine('Mentat', 5555, dirname(__file__) + '/../')
 
+
+class Test(Module):
+    def __init__(self, *a,**k):
+        super().__init__(*a,**k)
+        x = Module('testsub')
+
 # create a module that will talk with a software
 # listening on (and sending from) port 20000
-mod = Module('a', 'osc', 20000)
+mod = Test('a', 'osc', 20000)
 
 # add some parameters to it
 # whene their value change in mentat, a message is sent

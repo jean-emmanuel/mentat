@@ -260,7 +260,7 @@
         <main>
 <h2 id="mentat">Mentat</h2>
 <div class="version">
-<p>Version: 1.8.0 (06/05/2025) <br/> License: GNU/GPL v3 (© 2025
+<p>Version: 1.8.1 (13/05/2025) <br/> License: GNU/GPL v3 (© 2025
 Jean-Emmanuel Doucet) <br/> Sources: <a
 href="https://github.com/jean-emmanuel/mentat/">https://github.com/jean-emmanuel/mentat/</a></p>
 </div>
@@ -590,8 +590,11 @@ non-local host (e.g. ‘osc.udp://192.168.1.2:6666’)</li>
 (e.g. ‘/tmp/mysocket’)</li>
 <li><code>None</code> if protocol is ‘midi’ or if no port is needed</li>
 </ul></li>
-<li><code>parent</code>: if the module is a submodule, this must be set
-to the parent module’s instance</li>
+<li><code>parent</code>: when a module is instanciated it needs to know
+of its parent module right away in order to be initialized correctly. If
+omitted it will default to the calling module (ie when the module is
+instanciated from another module’s method) or to the engine
+instance.</li>
 </ul>
 <p><strong>Notes</strong></p>
 <ul>
@@ -608,8 +611,8 @@ Module&lt;-&gt;Software relationship</li>
 be inherited from their parent.</p>
 <p>A submodule can send messages but it will not receive messages
 through its route method.</p>
-<p>The submodule’s parent instance must be provided in its constructor
-function (<code>parent</code> argument).</p>
+<p>Will throw a critical error if the submodule’s parent (see
+constructor) does not match the module calling this method.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>modules</code>: Module objects (one module per argument)</li>
@@ -692,9 +695,9 @@ param_name)</i><br/></p>
 </div>
 <h3 id="module.set">Module.set()</h3>
 <div class="content">
-<p><i>set(parameter_name, <em>args, force=False, force_send=False,
+<p><i>set(parameter_name, <em>args, force_send=False,
 preserve_animation=False)</i><br/> <i>set(submodule_name,
-parameter_name, </em>args, force=False, force_send=False,
+parameter_name, </em>args, force_send=False,
 preserve_animation=False)</i><br/></p>
 <p>Set value of parameter.</p>
 <p>The engine will trigger events related to the value change only at
@@ -709,12 +712,8 @@ guaranteed to be executed within the same processing cycle. (see
 <li><code>submodule_name</code>: name of submodule, with wildcard (’*‘)
 and range (’[]’) support</li>
 <li><code>*args</code>: value(s)</li>
-<li><code>force</code>: if <code>True</code>, the engine will act as if
-the parameter’s value has changed even if it has not, messages, will be
-sent, parameter_changed events will be emitted and mappings will be
-computed again</li>
-<li><code>force_send</code>: if <code>True</code>, the parameters value
-will be sent immediately, regardless of its state</li>
+<li><code>force_send</code>: send a message even if the parameter’s
+value has not changed</li>
 <li><code>preserve_animation</code>: by default, animations are
 automatically stopped when <code>set()</code> is called, set to
 <code>True</code> to prevent that</li>
@@ -883,7 +882,7 @@ retreive parameters that differ from their default values.</li>
 <ul>
 <li><code>state</code>: state object as returned by
 <code>get_state()</code></li>
-<li><code>force</code>: see <code>set()</code></li>
+<li><code>force_send</code>: see <code>set()</code></li>
 </ul>
 </div>
 <h3 id="module.send_state">Module.send_state()</h3>
@@ -904,7 +903,7 @@ parameters that differ from their default values.</li>
 </div>
 <h3 id="module.load">Module.load()</h3>
 <div class="content">
-<p><i>load(name, force=False)</i><br/></p>
+<p><i>load(name, force_send=False)</i><br/></p>
 <p>Load state from memory or from file if not preloaded already. The
 file must be valid a JSON file containing one list of lists as returned
 by <code>get_state()</code>. Comments may be added manually by inserting
@@ -918,7 +917,7 @@ string items in the main list:</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>name</code>: name of state save (without file extension)</li>
-<li><code>force</code>: see <code>set()</code></li>
+<li><code>force_send</code>: see <code>set()</code></li>
 </ul>
 </div>
 <h3 id="module.route">Module.route()</h3>

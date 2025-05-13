@@ -226,7 +226,7 @@ class Module(Sequencer, EventEmitter):
             and returns a list or tuple of values, it is called whenever the parameter's value
             is set (right before type casting) and its result will be used as the new value.
             This may be used to apply custom roundings or boundaries.
-        - `metadata`: 
+        - `metadata`:
             extra keyword arguments will are stored in parameter.metadata (dict), this can
             be used to store custom informations (range, min, max) for unspecified usages
 
@@ -376,7 +376,7 @@ class Module(Sequencer, EventEmitter):
         Reset parameter to its default values.
 
         **Parameters**
-        
+
         - `submodule_name`: name of submodule, with wildcard ('*') and range ('[]') support
         - `parameter_name`: name of parameter. If omitted, affects all parameters including submodules'
         """
