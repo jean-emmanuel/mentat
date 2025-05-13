@@ -114,6 +114,9 @@ class Engine(Module):
         self.midi_ports = {}
         self.midi_drain_pending = False
 
+        self.osc_input_queue = Queue()
+        self.midi_input_queue = Queue()
+
         self.routes = {}
         self.active_route = None
 
@@ -137,7 +140,6 @@ class Engine(Module):
         self.folder = Path(folder).expanduser().resolve()
 
         self.modules = {}
-        self.message_queue = Queue()
 
         self.dirty_modules = Queue()
         self.animating_modules = []
@@ -169,16 +171,28 @@ class Engine(Module):
         Starts osc servers and open midi ports
         """
 
-        self.osc_server = liblo.Server(self.port, proto=liblo.UDP)
-        self.osc_server.add_method(None, None, self.route_osc)
+        def queue_osc(address, args, types, src):
+            self.osc_input_queue.put([address, args, types, src])
+
+        self.osc_server = liblo.ServerThread(self.port, proto=liblo.UDP)
+        self.osc_server.add_method(None, None, queue_osc)
+        self.osc_server.start()
 
         if self.tcp_port:
-            self.osc_tcp_server = liblo.Server(self.tcp_port, proto=liblo.TCP)
-            self.osc_tcp_server.add_method(None, None, self.route_osc)
+            self.osc_tcp_server = liblo.ServerThread(self.tcp_port, proto=liblo.TCP)
+            self.osc_tcp_server.add_method(None, None, queue_osc)
+            self.osc_tcp_server.start()
 
         if self.unix_port:
-            self.osc_unix_server = liblo.Server(self.unix_port, proto=liblo.UNIX)
-            self.osc_unix_server.add_method(None, None, self.route_osc)
+            self.osc_unix_server = liblo.ServerThread(self.unix_port, proto=liblo.UNIX)
+            self.osc_unix_server.add_method(None, None, queue_osc)
+            self.osc_unix_server.start()
+
+        def queue_midi():
+            while self.midi_server:
+                for event in self.midi_server.receive_events():
+                    self.midi_input_queue.put(event)
+                time.sleep(MAINLOOP_PERIOD)
 
         self.midi_server = alsaseq.Sequencer(clientname=self.name, maxreceiveevents=1024)
         for module_name in self.midi_ports:
@@ -187,6 +201,8 @@ class Engine(Module):
                          alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
             port_id = self.midi_server.create_simple_port(module_name, port_type, port_caps)
             self.midi_ports[module_name] = port_id
+        self.midi_thread = Thread(target=queue_midi)
+        self.midi_thread.start()
 
     def stop_servers(self):
         """
@@ -196,38 +212,22 @@ class Engine(Module):
         """
 
         if self.osc_server:
+            self.osc_server.stop()
             self.osc_server.free()
             self.osc_server = None
 
         if self.osc_tcp_server:
+            self.osc_tcp_server.stop()
             self.osc_tcp_server.free()
             self.osc_tcp_server = None
 
         if self.osc_unix_server:
+            self.osc_unix_server.stop()
             self.osc_unix_server.free()
             self.osc_unix_server = None
 
+        self.midi_thread.kill()
         self.midi_server = None
-
-    def poll_servers(self):
-        """
-        poll_servers()
-
-        Process incoming osc and midi messages
-        """
-        # process osc messages
-        while self.osc_server and self.osc_server.recv(0):
-            pass
-        while self.osc_tcp_server and self.osc_tcp_server.recv(0):
-            pass
-        while self.osc_unix_server and self.osc_unix_server.recv(0):
-            pass
-
-        # process midi messages
-        if self.midi_server:
-            midi_events = self.midi_server.receive_events()
-            for event in midi_events:
-                self.route_midi(event)
 
     @public_method
     def start(self):
@@ -275,7 +275,21 @@ class Engine(Module):
                     if self.fastforward_frames == 0:
                         self.fastforwarding = False
 
-                self.poll_servers()
+                # process incoming osc messages
+                while not self.osc_input_queue.empty():
+                    message = self.osc_input_queue.get()
+                    try:
+                        self.route_osc(*message)
+                    except Exception as error:
+                        self.logger.error(f'an error occured while routing osc message {message}\n{error}')
+
+                # process incoming midi messages
+                while not self.midi_input_queue.empty():
+                    event = self.midi_input_queue.get()
+                    try:
+                        self.route_midi(event)
+                    except Exception as error:
+                        self.logger.error(f'an error occured while routing midi event {event} {args}\n{error}')
 
                 # update animations
                 if self.current_time > last_animation + ANIMATION_PERIOD_NS - MAINLOOP_PERIOD_NS / 2:
