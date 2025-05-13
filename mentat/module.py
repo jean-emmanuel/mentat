@@ -2,6 +2,7 @@
 Module class
 """
 
+import inspect
 import time
 import glob
 import json
@@ -70,8 +71,10 @@ class Module(Sequencer, EventEmitter):
             - unix socket path if protocol is 'osc.unix' (e.g. '/tmp/mysocket')
             - `None` if protocol is 'midi' or if no port is needed
         - `parent`:
-            if the module is a submodule, this must be set
-            to the parent module's instance
+            when a module is instanciated it needs to know of its parent module right away
+            in order to be initialized correctly. If omitted it will default to the calling
+            module (ie when the module is instanciated from another module's method) or to
+            the engine instance.
 
         **Notes**
 
@@ -95,6 +98,15 @@ class Module(Sequencer, EventEmitter):
             self.engine = Engine.INSTANCE
         if self != Engine.INSTANCE and parent is None:
             parent = Engine.INSTANCE
+            # attempt to retreive parent module automatically
+            # for submodules instanciated in their parent's methods
+            frames = inspect.getouterframes(inspect.currentframe())[1:]
+            for f in frames:
+                f_locals = f[0].f_locals
+                if 'self' in f_locals and isinstance(f_locals['self'], Module) and f_locals['self'] != self:
+                    parent = f_locals['self']
+                    break
+
 
         self.parent_module = parent
 
@@ -155,8 +167,8 @@ class Module(Sequencer, EventEmitter):
         A submodule can send messages but it will not receive messages through
         its route method.
 
-        The submodule's parent instance must be provided in its constructor
-        function (`parent` argument).
+        Will throw a critical error if the submodule's parent (see constructor) does
+        not match the module calling this method.
 
         **Parameters**
 
