@@ -1,3 +1,16 @@
+mentat (1.8.2) unstable; urgency=medium
+
+  [ jean-emmanuel ]
+  * module: init: make 'parent' argument optional when submodule is instanciated from its (future) parent's method
+  * package: 1.8.1
+  * update docs
+  * package: bump
+  * engine: use threads and queues to receive osc/midi faster
+  * module: figure out parent module when instanciating submodule directly in add_submodule() for example: mod.add_submodule(Module('foo'))
+  * package: 1.8.2
+
+ -- bordun <jean-emmanuel.doucet@ammd.net>  Wed, 14 May 2025 11:55:00 +0200
+
 mentat (1.8.0) unstable; urgency=medium
 
   [ jean-emmanuel ]
