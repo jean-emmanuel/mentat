@@ -73,7 +73,7 @@ class Module(Sequencer, EventEmitter):
         - `parent`:
             when a module is instanciated it needs to know of its parent module right away
             in order to be initialized correctly. If omitted it will default to the calling
-            module (ie when the module is instanciated from another module's method) or to
+            module (ie when the module is instanciated from another module's method or directly in a call to `add_submodule()`) or to
             the engine instance.
 
         **Notes**
@@ -101,9 +101,21 @@ class Module(Sequencer, EventEmitter):
             # attempt to retreive parent module automatically
             # for submodules instanciated in their parent's methods
             frames = inspect.getouterframes(inspect.currentframe())[1:]
-            for f in frames:
+            for i,f in enumerate(frames):
                 f_locals = f[0].f_locals
-                if 'self' in f_locals and isinstance(f_locals['self'], Module) and f_locals['self'] != self:
+                if i == 0:
+                    # one liner mod.add_submodule(Module())
+                    # -> retreive "mod" value in context
+                    oneliner_found = False
+                    for line in f.code_context:
+                        if '.add_submodule' in line:
+                            modvar = line.split('.add_submodule')[0].strip()
+                            if modvar in f[0].f_locals:
+                                parent = f_locals[modvar]
+                                oneliner_found = True
+                                break
+                # otherwise, retreive first "self" found in the stack
+                if not oneliner_found and 'self' in f_locals and isinstance(f_locals['self'], Module) and f_locals['self'] != self:
                     parent = f_locals['self']
                     break
 
@@ -154,6 +166,11 @@ class Module(Sequencer, EventEmitter):
         Sequencer.__init__(self, 'module/' + '/'.join(self.module_path))
         EventEmitter.__init__(self)
 
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}("{self.name}")'
+
+
     @public_method
     def add_submodule(self, *modules: 'Module'):
         """
@@ -176,7 +193,7 @@ class Module(Sequencer, EventEmitter):
         """
         for module in modules:
             if module.parent_module != self:
-                self.logger.critical(f'incorrect value for argument "parent" of submodule "{module.name}"')
+                self.logger.critical(f'incorrect parent module mismatch for submodule {module} (added to {self}, initialized with parent={module.parent_module})')
             self.submodules[module.name] = module
             if module.protocol is None:
                 module.protocol = self.protocol
