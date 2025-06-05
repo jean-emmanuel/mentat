@@ -93,7 +93,7 @@ class Module(Sequencer, EventEmitter):
 
         from .engine import Engine
         if Engine.INSTANCE is None:
-            self.logger.critical('the engine must created before any module')
+            self.logger.critical('the engine must be created before any module')
         else:
             self.engine = Engine.INSTANCE
         if self != Engine.INSTANCE and parent is None:
@@ -193,7 +193,7 @@ class Module(Sequencer, EventEmitter):
         """
         for module in modules:
             if module.parent_module != self:
-                self.logger.critical(f'incorrect parent module mismatch for submodule {module} (added to {self}, initialized with parent={module.parent_module})')
+                self.logger.critical(f'parent module mismatch for submodule {module} (added to {self}, initialized with parent={module.parent_module})')
             self.submodules[module.name] = module
             if module.protocol is None:
                 module.protocol = self.protocol
