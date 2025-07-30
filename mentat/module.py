@@ -870,6 +870,26 @@ class Module(Sequencer, EventEmitter):
                 self.logger.error(f'state "{name}" not found')
 
     @public_method
+    def delete(self, name: str):
+        """
+        delete(name)
+
+        Delete state and associated JSON file.
+
+        **Parameters**
+
+        - `name`: name of state save (without file extension)
+        """
+        if name in self.states:
+            del self.states[name]
+            try:
+                pathlib.Path.unlink(f'{self.states_folder}/{name}.json')
+            except Exception as e:
+                self.logger.error(f'failed to delete state file "{self.states_folder}/{name}.json"\n{e}')
+        else:
+            self.logger.error(f'state "{name}" not found')
+
+    @public_method
     def route(self, address: str, args: list):
         """
         route(address, args)
