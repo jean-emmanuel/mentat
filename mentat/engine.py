@@ -351,7 +351,8 @@ class Engine(Module):
         Stop engine. This is called automatically when the process
         is terminated or when the engine restarts.
         """
-
+        if not self.is_running:
+            return
         self.logger.info('stopping...')
         self.dispatch_event('stopping')
         self.is_running = False
