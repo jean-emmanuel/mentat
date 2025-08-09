@@ -1,3 +1,16 @@
+mentat (1.8.3) unstable; urgency=medium
+
+  [ jean-emmanuel ]
+  * misc: typos
+  * state: add delete method to remove a saved state
+  * docs: update
+  * engine: fix logger name
+  * engine: allow only 1 stop
+  * deb: fix build vs runtime dependencies
+  * version bump
+
+ -- bordun <jean-emmanuel@ammd.net>  Sat, 09 Aug 2025 17:34:10 +0200
+
 mentat (1.8.2) unstable; urgency=medium
 
   [ jean-emmanuel ]
