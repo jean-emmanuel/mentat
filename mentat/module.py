@@ -81,17 +81,19 @@ class Module(Sequencer, EventEmitter):
         - 'osc.tcp' protocol should be avoided (as of now the sender's port can't be
         determined when using tcp, thus breaking Mentat's Module<->Software relationship
         """
-        logger_name = name
-        if parent is not None:
-            logger_name = parent.name + '.' + name
-        self.logger = logging.getLogger(__name__).getChild(logger_name)
+        from .engine import Engine
+
+        if self != Engine.INSTANCE:
+            logger_name = name
+            if parent is not None:
+                logger_name = parent.name + '.' + name
+            self.logger = logging.getLogger(__name__).getChild(logger_name)
 
         self.name = name
 
         if '*' in name or '[' in name:
             self.logger.critical('characters "*" and "[" are forbidden in module name')
 
-        from .engine import Engine
         if Engine.INSTANCE is None:
             self.logger.critical('the engine must be created before any module')
         else:
