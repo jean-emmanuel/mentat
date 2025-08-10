@@ -228,7 +228,7 @@ class Module(Sequencer, EventEmitter):
                       transform: type_callback = None,
                       **metadata):
         """
-        add_parameter(name, address, types, static_args=[], default=None, transform=None)
+        add_parameter(name, address, types, static_args=[], default=None, transform=None, **metadata)
 
         Add parameter to module.
 
@@ -703,9 +703,9 @@ class Module(Sequencer, EventEmitter):
 
 
     @public_method
-    def add_alias_parameter(self, name: str, parameter: str):
+    def add_alias_parameter(self, name: str, parameter: str, **metadata):
         """
-        add_alias_parameter(name, parameter)
+        add_alias_parameter(name, parameter, **metadata)
 
         Add a special parameter that just mirrors another parameter owned by the module or its submodules.
         Under the hood, this creates a parameter and a 1:1 mapping between them.
@@ -715,6 +715,13 @@ class Module(Sequencer, EventEmitter):
         - `name`: name of alias parameter
         - `parameter`:
             name of parameter to mirror, may a be tuple if the parameter are owned by a submodule (`('submodule_name', 'parameter_name')`)
+        - `metadata`:
+            extra keyword arguments will are stored in parameter.metadata (dict), this can
+            be used to store custom informations (range, min, max) for unspecified usages
+
+        **Return**
+
+        Parameter object or None if parameter already exists
         """
         if not isinstance(parameter, tuple):
             parameter = (parameter,)
@@ -725,13 +732,14 @@ class Module(Sequencer, EventEmitter):
             self.logger.error(f'could not create alias parameter {name} for {parameter} (parameter {name} already exists)')
             return
         else:
-            self.parameters[name] = Parameter(name, address=None, types=p.types[-p.n_args-1:], static_args=[], default=None)
+            self.parameters[name] = Parameter(name, address=None, types=p.types[-p.n_args-1:], static_args=[], default=None, metadata=metadata)
             if p.n_args == 1:
                 self.parameters[name].set(p.get())
             else:
                 self.parameters[name].set(*p.get())
             self.add_mapping(parameter, name, lambda x: x, lambda y: y)
             self.dispatch_event('parameter_added', self, name)
+            return self.parameters[name]
 
     @public_method
     def get_state(self, omit_defaults: bool = False) -> list[list, ...]:

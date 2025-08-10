@@ -633,7 +633,7 @@ submodule_name argument in some methods.</p>
 <h3 id="module.add_parameter">Module.add_parameter()</h3>
 <div class="content">
 <p><i>add_parameter(name, address, types, static_args=[], default=None,
-transform=None)</i><br/></p>
+transform=None, **metadata)</i><br/></p>
 <p>Add parameter to module.</p>
 <p><strong>Parameters</strong></p>
 <ul>
@@ -852,7 +852,7 @@ meta parameter’s value. The function’s signature must not use *args or
 </div>
 <h3 id="module.add_alias_parameter">Module.add_alias_parameter()</h3>
 <div class="content">
-<p><i>add_alias_parameter(name, parameter)</i><br/></p>
+<p><i>add_alias_parameter(name, parameter, **metadata)</i><br/></p>
 <p>Add a special parameter that just mirrors another parameter owned by
 the module or its submodules. Under the hood, this creates a parameter
 and a 1:1 mapping between them.</p>
@@ -862,7 +862,12 @@ and a 1:1 mapping between them.</p>
 <li><code>parameter</code>: name of parameter to mirror, may a be tuple
 if the parameter are owned by a submodule
 (<code>('submodule_name', 'parameter_name')</code>)</li>
+<li><code>metadata</code>: extra keyword arguments will are stored in
+parameter.metadata (dict), this can be used to store custom informations
+(range, min, max) for unspecified usages</li>
 </ul>
+<p><strong>Return</strong></p>
+<p>Parameter object or None if parameter already exists</p>
 </div>
 <h3 id="module.get_state">Module.get_state()</h3>
 <div class="content">
