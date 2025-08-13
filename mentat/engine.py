@@ -420,12 +420,17 @@ class Engine(Module):
         if module == self:
             self.logger.critical('cannot add self as module')
 
+        if module.name in self.modules:
+            self.logger.critical(f'could not add module {module.name} (a module with this name has already been added)')
+
         self.modules[module.name] = module
         self.submodules[module.name] = module
         module.parent_module = self
 
         if module.port is not None:
             if module.protocol in ['osc', 'osc.tcp', 'osc.unix']:
+                if module.port in self.osc_inputs[module.protocol]:
+                    self.logger.critical(f'could not add module {module.name} (port {module.port} already used by module {self.osc_inputs[module.protocol][module.port]})')
                 self.osc_inputs[module.protocol][module.port] = module.name
                 self.osc_outputs[module.protocol][module.name] = module.port
             elif module.protocol == 'midi':
