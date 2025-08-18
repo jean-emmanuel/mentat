@@ -732,6 +732,8 @@ class Engine(Module):
         - `*args`: arguments for the scene function
         - `*kwargs`: keyword arguments for the scene function
         """
+        if not self.is_running:
+            return
         self.stop_scene_thread(name)
         self.scenes_timers[name] = Timer(self)
         self.scenes[name] = Thread(target=scene, name=name, args=args, kwargs=kwargs)
@@ -749,6 +751,8 @@ class Engine(Module):
 
         - `name`: scene name, with wildcard support
         """
+        if not self.is_running:
+            return
         if '*' in name or '[' in name:
             for match in fnmatch.filter(self.scenes.keys(), name):
                 self.restart_scene_thread(match)
