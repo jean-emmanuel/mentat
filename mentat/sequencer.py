@@ -152,8 +152,13 @@ class Sequencer():
         - `*args`: arguments for the scene function
         - `**kwargs`: keyword arguments for the scene function
         """
+        if not self.engine.is_scene_thread():
+            self.logger.critical('run() can only be called in a scene')
+            return
+
         if not callable(callback):
             self.logger.critical('callback "%s" must be a function (%s provided)' % (name, type(callback).__name__))
+            return
 
         callback(*args, **kwargs)
 
