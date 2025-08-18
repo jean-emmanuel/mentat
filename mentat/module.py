@@ -743,10 +743,6 @@ class Module(Sequencer, EventEmitter):
             return
         else:
             self.parameters[name] = Parameter(name, address=None, types=p.types[-p.n_args-1:], static_args=[], default=p.default, metadata=metadata)
-            if p.n_args == 1:
-                self.parameters[name].set(p.get())
-            else:
-                self.parameters[name].set(*p.get())
             self.add_mapping(parameter, name, lambda x: x, lambda y: y)
             self.dispatch_event('parameter_added', self, name)
             return self.parameters[name]
