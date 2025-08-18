@@ -175,19 +175,23 @@ class Engine(Module):
         def queue_osc(address, args, types, src):
             self.osc_input_queue.put([address, args, types, src])
 
-        self.osc_server = liblo.ServerThread(self.port, proto=liblo.UDP)
+        def receive_osc(server):
+            while True:
+                server.recv(100)
+
+        self.osc_server = liblo.Server(self.port, proto=liblo.UDP)
         self.osc_server.add_method(None, None, queue_osc)
-        self.osc_server.start()
+        self.start_scene_thread('osc_server', receive_osc, self.osc_server)
 
         if self.tcp_port:
-            self.osc_tcp_server = liblo.ServerThread(self.tcp_port, proto=liblo.TCP)
+            self.osc_tcp_server = liblo.Server(self.tcp_port, proto=liblo.TCP)
             self.osc_tcp_server.add_method(None, None, queue_osc)
-            self.osc_tcp_server.start()
+            self.start_scene_thread('osc_tcp_server', receive_osc, self.osc_tcp_server)
 
         if self.unix_port:
-            self.osc_unix_server = liblo.ServerThread(self.unix_port, proto=liblo.UNIX)
+            self.osc_unix_server = liblo.Server(self.unix_port, proto=liblo.UNIX)
             self.osc_unix_server.add_method(None, None, queue_osc)
-            self.osc_unix_server.start()
+            self.start_scene_thread('osc_unix_server', receive_osc, self.osc_unix_server)
 
         def queue_midi():
             while self.midi_server:
@@ -213,17 +217,14 @@ class Engine(Module):
         """
 
         if self.osc_server:
-            self.osc_server.stop()
             self.osc_server.free()
             self.osc_server = None
 
         if self.osc_tcp_server:
-            self.osc_tcp_server.stop()
             self.osc_tcp_server.free()
             self.osc_tcp_server = None
 
         if self.osc_unix_server:
-            self.osc_unix_server.stop()
             self.osc_unix_server.free()
             self.osc_unix_server = None
 
