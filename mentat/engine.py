@@ -124,6 +124,7 @@ class Engine(Module):
         self.scenes_timers = {}
 
         self.is_running = False
+        self.is_stopping = False
         self.is_restarting = False
 
         self.current_time = time.monotonic_ns()
@@ -351,10 +352,11 @@ class Engine(Module):
         Stop engine. This is called automatically when the process
         is terminated or when the engine restarts.
         """
-        if not self.is_running:
+        if self.is_stopping:
             self.logger.info('force quitting')
             os._exit(1)
             return
+        self.is_stopping = True
         self.logger.info('stopping...')
         self.dispatch_event('stopping')
         self.is_running = False
@@ -734,7 +736,7 @@ class Engine(Module):
         - `*args`: arguments for the scene function
         - `*kwargs`: keyword arguments for the scene function
         """
-        if not self.is_running:
+        if self.is_stopping:
             return
         self.stop_scene_thread(name)
         self.scenes_timers[name] = Timer(self)
@@ -753,7 +755,7 @@ class Engine(Module):
 
         - `name`: scene name, with wildcard support
         """
-        if not self.is_running:
+        if self.is_stopping:
             return
         if '*' in name or '[' in name:
             for match in fnmatch.filter(self.scenes.keys(), name):
