@@ -727,7 +727,9 @@ class Module(Sequencer, EventEmitter):
             name of parameter to mirror, may a be tuple if the parameter are owned by a submodule (`('submodule_name', 'parameter_name')`)
         - `metadata`:
             extra keyword arguments will are stored in parameter.metadata (dict), this can
-            be used to store custom informations (range, min, max) for unspecified usages
+            be used to store custom informations (range, min, max) for unspecified usages;
+            all metadatas from the parameter to mirror well be copied (unless explicitely overriden) and
+            an extra "alias_parameter" metadata flag will be added
 
         **Return**
 
@@ -742,8 +744,8 @@ class Module(Sequencer, EventEmitter):
             self.logger.error(f'could not create alias parameter {name} for {parameter} (parameter {name} already exists)')
             return
         else:
-            self.parameters[name] = Parameter(name, address=None, types=p.types[-p.n_args-1:], static_args=[], default=p.default, metadata=metadata)
-            self.add_mapping(parameter, name, lambda x: x, lambda y: y)
+            self.add_parameter(name, address=None, types=p.types[-p.n_args-1:], default=p.default, transform=None, **(p.metadata | metadata), alias_parameter=True)
+            self.add_mapping(parameter, name, lambda x: x, lambda y: [int(y)])
             self.dispatch_event('parameter_added', self, name)
             return self.parameters[name]
 
