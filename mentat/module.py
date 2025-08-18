@@ -745,7 +745,7 @@ class Module(Sequencer, EventEmitter):
             return
         else:
             self.add_parameter(name, address=None, types=p.types[-p.n_args-1:], default=p.default, transform=None, **(p.metadata | metadata), alias_parameter=True)
-            self.add_mapping(parameter, name, lambda x: x, lambda y: [int(y)])
+            self.add_mapping(parameter, name, lambda x: x, lambda y: y)
             self.dispatch_event('parameter_added', self, name)
             return self.parameters[name]
 
