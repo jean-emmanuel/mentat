@@ -732,7 +732,7 @@ class Module(Sequencer, EventEmitter):
             self.logger.error(f'could not create alias parameter {name} for {parameter} (parameter {name} already exists)')
             return
         else:
-            self.parameters[name] = Parameter(name, address=None, types=p.types[-p.n_args-1:], static_args=[], default=None, metadata=metadata)
+            self.parameters[name] = Parameter(name, address=None, types=p.types[-p.n_args-1:], static_args=[], default=p.default, metadata=metadata)
             if p.n_args == 1:
                 self.parameters[name].set(p.get())
             else:
