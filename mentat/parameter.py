@@ -402,7 +402,13 @@ class MetaParameter(Parameter):
             return False
 
         # get current value of linked parameters
-        values = [self.module.get(*x) for x in self.parameters]
+        values = []
+        for param in self.parameters:
+            if not self.module.get_parameter(*param).set_once:
+                # stop if a src parameter has never been set
+                return False
+            values.append(self.module.get(*param))
+
         # compute meta parameter value
         value = self.getter(*values)
 
