@@ -352,6 +352,8 @@ class Engine(Module):
         is terminated or when the engine restarts.
         """
         if not self.is_running:
+            self.logger.info('force quitting')
+            os._exit(1)
             return
         self.logger.info('stopping...')
         self.dispatch_event('stopping')
