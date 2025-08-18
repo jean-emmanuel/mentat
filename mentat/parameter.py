@@ -50,6 +50,7 @@ class Parameter():
         self.easing_function = None
         self.easing_mode = 'in'
 
+        self.set_once = False
         self.default = default
         self.transform = transform
         self.metadata = metadata
@@ -106,6 +107,8 @@ class Parameter():
             if value != self.args[i - self.n_args]:
                 self.args[i - self.n_args] = value
                 changed = True
+                if not self.set_once:
+                    self.set_once = True
 
         return changed
 

@@ -620,7 +620,17 @@ class Module(Sequencer, EventEmitter):
 
             if condition is True:
 
-                src_values = [self.get(*param) for param in src_params]
+                # get src values
+                src_values = []
+                for param in src_params:
+                    v = self.get(*param)
+                    if not self.get_parameter(*param).set_once:
+                        # stop if a src parameter has never been set
+                        mapping.unlock()
+                        return
+                    src_values.append(v)
+
+                # compute dest values
                 dest_values = mapping.transform(*src_values)
 
                 animating = False
