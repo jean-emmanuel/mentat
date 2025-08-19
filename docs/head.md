@@ -1,7 +1,7 @@
 ## Mentat
 
 <div class="version">
-Version: 1.8.3 (09/08/2025)
+Version: 1.8.4 (19/08/2025)
 <br/>
 License: GNU/GPL v3 (© 2025 Jean-Emmanuel Doucet)
 <br/>
