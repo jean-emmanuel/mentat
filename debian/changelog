@@ -1,3 +1,18 @@
+mentat (1.8.4) unstable; urgency=medium
+
+  [ jean-emmanuel ]
+  * module: add metadata to alias param
+  * engine: raise critical when adding a module whose name or port has already been used
+  * engine: prevent spawning scene thread when stopping
+  * sequencer: main thread guard for run()
+  * engine: add force quit on 2nd ctrl+c
+  * module: alias parameter should inherit default
+  * module: do not execute a mapping if one of the src parameters has never been set
+  * module: create alias parameter using add_parameter, copy the source parameter's metadata and add an alias flag
+  * engine: use our own thread to manage osc server lifecycle and avoid deadlock when stopping under load
+
+ -- bordun <jean-emmanuel@ammd.net>  Tue, 19 Aug 2025 10:37:21 +0200
+
 mentat (1.8.3) unstable; urgency=medium
 
   [ jean-emmanuel ]
