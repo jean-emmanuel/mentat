@@ -113,6 +113,8 @@ class Engine(Module):
         self.midi_server = None
         self.midi_ports = {}
         self.midi_drain_pending = False
+        self.midi_sync_pending = False
+
 
         self.osc_input_queue = Queue()
         self.midi_input_queue = Queue()
@@ -193,21 +195,22 @@ class Engine(Module):
             self.osc_unix_server.add_method(None, None, queue_osc)
             self.start_scene_thread('osc_unix_server', receive_osc, self.osc_unix_server)
 
-        def queue_midi():
-            while self.midi_server:
-                for event in self.midi_server.receive_events():
-                    self.midi_input_queue.put(event)
-                time.sleep(MAINLOOP_PERIOD)
+        if self.midi_ports:
+            def queue_midi():
+                while self.midi_server:
+                    for event in self.midi_server.receive_events():
+                        self.midi_input_queue.put(event)
+                    time.sleep(MAINLOOP_PERIOD)
 
-        self.midi_server = alsaseq.Sequencer(clientname=self.name, maxreceiveevents=1024)
-        for module_name in self.midi_ports:
-            port_type = alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC | alsaseq.SEQ_PORT_TYPE_APPLICATION
-            port_caps = (alsaseq.SEQ_PORT_CAP_WRITE | alsaseq.SEQ_PORT_CAP_SUBS_WRITE |
-                         alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
-            port_id = self.midi_server.create_simple_port(module_name, port_type, port_caps)
-            self.midi_ports[module_name] = port_id
-        self.midi_thread = Thread(target=queue_midi)
-        self.midi_thread.start()
+            self.midi_server = alsaseq.Sequencer(clientname=self.name, maxreceiveevents=1024)
+            for module_name in self.midi_ports:
+                port_type = alsaseq.SEQ_PORT_TYPE_MIDI_GENERIC | alsaseq.SEQ_PORT_TYPE_APPLICATION
+                port_caps = (alsaseq.SEQ_PORT_CAP_WRITE | alsaseq.SEQ_PORT_CAP_SUBS_WRITE |
+                             alsaseq.SEQ_PORT_CAP_READ | alsaseq.SEQ_PORT_CAP_SUBS_READ)
+                port_id = self.midi_server.create_simple_port(module_name, port_type, port_caps)
+                self.midi_ports[module_name] = port_id
+            self.midi_thread = Thread(target=queue_midi)
+            self.midi_thread.start()
 
     def stop_servers(self):
         """
@@ -228,8 +231,9 @@ class Engine(Module):
             self.osc_unix_server.free()
             self.osc_unix_server = None
 
-        self.midi_thread.kill()
-        self.midi_server = None
+        if self.midi_server:
+            self.midi_thread.kill()
+            self.midi_server = None
 
     @public_method
     def start(self):
@@ -462,18 +466,21 @@ class Engine(Module):
         if messages:
             # sort by timestamp
             for message in sorted(messages, key=lambda message: message[0]):
-                if self.is_running:
-                    self.send(*message[1:])
+                self.send(*message[1:])
 
-        if self.is_running:
-            if self.midi_drain_pending:
-                try:
-                    self.midi_server.drain_output()
-                    self.midi_drain_pending = False
-                except:
-                    self.logger.warning('midi pool unnavailable, trying again')
-                    pass
+        if self.midi_drain_pending:
+            try:
+                self.midi_server.drain_output()
+                self.midi_drain_pending = False
+                self.midi_sync_pending = True
+            except:
+                self.logger.warning('midi pool unnavailable, trying again')
+                pass
+
+        if self.midi_sync_pending :
             self.midi_server.sync_output_queue()
+            self.midi_sync_pending = False
+
 
     @public_method
     def send(self,
@@ -538,6 +545,8 @@ class Engine(Module):
                     self.midi_server.output_event(midi_event)
                     try:
                         self.midi_server.drain_output()
+                        self.midi_drain_pending = False
+                        self.midi_sync_pending = True
                     except:
                         self.midi_drain_pending = True
                         self.logger.warning('midi pool unnavailable, trying again')
