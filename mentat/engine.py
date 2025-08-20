@@ -287,7 +287,7 @@ class Engine(Module):
                     try:
                         self.route_osc(*message)
                     except Exception as error:
-                        self.logger.error(f'an error occured while routing osc message {message}\n{error}')
+                        self.logger.error(f'an error occured while routing osc message {message}\n{error}', exception=True)
 
                 # process incoming midi messages
                 while not self.midi_input_queue.empty():
@@ -295,7 +295,7 @@ class Engine(Module):
                     try:
                         self.route_midi(event)
                     except Exception as error:
-                        self.logger.error(f'an error occured while routing midi event {event} {args}\n{error}')
+                        self.logger.error(f'an error occured while routing midi event {event} {args}\n{error}', exception=True)
 
                 # update animations
                 if self.current_time > last_animation + ANIMATION_PERIOD_NS - MAINLOOP_PERIOD_NS / 2:
@@ -537,7 +537,7 @@ class Engine(Module):
                 try:
                     midi_event = osc_to_midi(address, args)
                 except Exception as error:
-                    self.logger.error(f'failed to generate midi event {address} {args}\n{error}')
+                    self.logger.error(f'failed to generate midi event {address} {args}\n{error}', exception=True)
                     midi_event = None
 
                 if midi_event:

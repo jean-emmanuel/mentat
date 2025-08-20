@@ -84,9 +84,13 @@ class TraceLogger(logging.Logger):
 
         return '\nTraceback (most recent call last):\n%s' % formatted
 
-    def error(self, msg, *args, **kwargs):
+    def error(self, msg, *args, exception=False, **kwargs):
 
-        msg += self.get_formatted_stack()
+        if exception:
+            msg += traceback.format_exc()
+        else:
+            msg += self.get_formatted_stack()
+
         return super().error(msg , *args, **kwargs)
 
     def critical(self, msg, *args, **kwargs):

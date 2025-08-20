@@ -874,12 +874,12 @@ class Module(Sequencer, EventEmitter):
                 try:
                     self.states[name] = json.loads(f.read())
                 except Exception as e:
-                    self.logger.info(f'failed to parse state file "{file}"\n{e}')
+                    self.logger.error(f'failed to parse state file "{file}"\n{e}', exception=True)
                 finally:
                     f.close()
 
             except Exception as e:
-                self.logger.erro(f'failed to open state file "{file}"\n{e}')
+                self.logger.error(f'failed to open state file "{file}"\n{e}', exception=True)
 
             self.logger.info(f'state "{name}" preloaded from {file}')
 
@@ -890,7 +890,7 @@ class Module(Sequencer, EventEmitter):
                     self.set_state(self.states[name], force_send=force_send)
                     self.logger.info(f'state "{name}" loaded')
                 except Exception as e:
-                    self.logger.error(f'failed to load state "{name}"\n{e}')
+                    self.logger.error(f'failed to load state "{name}"\n{e}', exception=True)
             else:
                 self.logger.error(f'state "{name}" not found')
 
@@ -910,7 +910,7 @@ class Module(Sequencer, EventEmitter):
             try:
                 pathlib.Path.unlink(f'{self.states_folder}/{name}.json')
             except Exception as e:
-                self.logger.error(f'failed to delete state file "{self.states_folder}/{name}.json"\n{e}')
+                self.logger.error(f'failed to delete state file "{self.states_folder}/{name}.json"\n{e}', exception=True)
         else:
             self.logger.error(f'state "{name}" not found')
 
