@@ -616,8 +616,8 @@ class Module(Sequencer, EventEmitter):
             src_params = mapping.src
             condition_result = True
             if mapping.n_condition > 0:
-                condition_params = src_params[-n_condition:]
-                src_params= src_params[0:-n_condition]
+                condition_params = src_params[-mapping.n_condition:]
+                src_params= src_params[0:-mapping.n_condition]
                 condition_values = [self.get(*p) for p in condition_params]
                 if mapping.condition_test:
                     condition_result = bool(mapping.condition_test(*condition_values))
