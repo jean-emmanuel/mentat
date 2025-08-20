@@ -87,9 +87,9 @@ class TraceLogger(logging.Logger):
     def error(self, msg, *args, exception=False, **kwargs):
 
         if exception:
-            msg += traceback.format_exc()
+            msg += '\n  ' + traceback.format_exc().replace('\n','\n  ')
         else:
-            msg += self.get_formatted_stack()
+            msg += self.get_formatted_stack().replace('\n','\n  ')
 
         return super().error(msg , *args, **kwargs)
 
