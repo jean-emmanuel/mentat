@@ -238,7 +238,7 @@ class Mapping():
     """
     A mapping is a value binding between two or more parameters
     """
-    def __init__(self, src, dest, transform, condition):
+    def __init__(self, src, dest, transform, condition, condition_test):
 
 
         if type(src) != list:
@@ -246,12 +246,15 @@ class Mapping():
         else:
             self.src = [(x,) if type(x) is not tuple else x for x in src]
 
-        self.has_condition = False
+        self.n_condition = 0
         if condition:
-            self.has_condition = True
-            if type(condition) != tuple:
-                condition = (condition,)
-                self.src.append(condition)
+            if type(condition) != list:
+                self.condition = [(condition,)] if type(condition) != tuple else [condition]
+            else:
+                self.condition = [(x,) if type(x) is not tuple else x for x in condition]
+
+            self.n_condition = len(self.condition)
+            self.src += self.condition
 
 
         if type(dest) != list:
@@ -262,9 +265,10 @@ class Mapping():
         self.n_args = len(self.dest)
 
         self.transform = transform
+        self.condition_test = condition_test
         self.locked = False
 
-    def match(self, param, ignore_condition=False):
+    def match(self, param):
         """
         Check if provided parameter should trigger this mapping
         """
@@ -314,12 +318,12 @@ class Mapping():
 
         # how much does self depend on other
         for param in other.dest:
-            if self.match(param, True):
+            if self.match(param):
                 e += 1
 
         # how much does other depend on self
         for param in self.dest:
-            if other.match(param, True):
+            if other.match(param):
                 e -= 1
 
         # in case of equality, resolve mapping with fewer src args first

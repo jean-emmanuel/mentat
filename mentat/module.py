@@ -505,9 +505,10 @@ class Module(Sequencer, EventEmitter):
                     dest: str|tuple[str, ...]|list[str|tuple[str, ...], ...],
                     transform: type_callback,
                     inverse: type_callback|None = None,
-                    condition: type_callback|None = None):
+                    condition: type_callback|None = None,
+                    condition_test: type_callback|None = None):
         """
-        add_mapping(src, dest, transform, inverse=None)
+        add_mapping(src, dest, transform, inverse=None, condition=None, condition_test=None)
 
         Add a value mapping between two or more parameters owned by
         the module or one of its submodules. Whenever a value change
@@ -537,17 +538,17 @@ class Module(Sequencer, EventEmitter):
             will not trigger each others indefinetely (a mapping cannot
             run twice during a cycle).
         - `condition`:
-            condition parameter, disables the mapping if False / falsy, can be
-            - `string` if there's only one source parameter owned
-            by the module itself
-            - `tuple` of `string` if the source parameter is owned
-            by a submodule  (e.g. `('submodule_name', 'parameter_name')`)
+            condition parameter(s), see `src` and `condition_test`
+        - `condition_test`:
+            function that takes one argument per condition parameter and
+            returns a boolean that determines if the mapping is active or not.
+            By default, all conditions must be True or truthy for the mapping to apply.
 
         """
-        mapping = Mapping(src, dest, transform, condition)
+        mapping = Mapping(src, dest, transform, condition, condition_test)
         self.mappings.append(mapping)
         if inverse is not None:
-            self.add_mapping(dest, src, inverse, None, condition)
+            self.add_mapping(dest, src, inverse, None, condition, condition_test)
         else:
             self.mappings_need_sorting = True
         for p in mapping.src + mapping.dest:
@@ -613,12 +614,19 @@ class Module(Sequencer, EventEmitter):
         if mapping.lock():
 
             src_params = mapping.src
-            condition = True
-            if mapping.has_condition:
-                condition = bool(self.get(*src_params[-1]))
-                src_params= src_params[0:-1]
+            condition_result = True
+            if mapping.n_condition > 0:
+                condition_params = src_params[-n_condition:]
+                src_params= src_params[0:-n_condition]
+                condition_values = [self.get(*p) for p in condition_params]
+                if mapping.condition_test:
+                    condition_result = bool(mapping.condition_test(*condition_values))
+                else:
+                    # default condition test: all conditions must be truthy
+                    if any(not v for v in condition_values):
+                        condition_result = False
 
-            if condition is True:
+            if condition_result is True:
 
                 # get src values
                 src_values = []
