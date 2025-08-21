@@ -350,6 +350,7 @@ class Engine(Module):
 
 
     @public_method
+    @force_mainthread
     def stop(self):
         """
         stop()
@@ -357,7 +358,7 @@ class Engine(Module):
         Stop engine. This is called automatically when the process
         is terminated or when the engine restarts.
         """
-        if self.is_running:
+        if not self.is_running:
             return
         if self.is_stopping:
             self.logger.info('force quitting')

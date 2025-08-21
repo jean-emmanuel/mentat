@@ -127,10 +127,10 @@ class TraceLogger(logging.Logger):
         msg += self.get_formatted_stack()
         super().critical(msg, *args, **kwargs)
         from .engine import Engine
-        try:
-            if Engine.INSTANCE is not None:
-                Engine.INSTANCE.stop()
-        except:
-            os._exit(1)
+        if Engine.INSTANCE is not None and Engine.INSTANCE.is_running:
+            self.engine = Engine.INSTANCE
+            Engine.INSTANCE.stop()
+            if threading.main_thread() != threading.current_thread():
+                raise SystemExit
 
 logging.setLoggerClass(TraceLogger)
