@@ -131,5 +131,7 @@ class TraceLogger(logging.Logger):
             Engine.INSTANCE.stop()
             if threading.main_thread() != threading.current_thread():
                 raise SystemExit
+        else:
+            os._exit(1)
 
 logging.setLoggerClass(TraceLogger)
