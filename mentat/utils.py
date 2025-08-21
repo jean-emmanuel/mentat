@@ -128,7 +128,6 @@ class TraceLogger(logging.Logger):
         super().critical(msg, *args, **kwargs)
         from .engine import Engine
         if Engine.INSTANCE is not None and Engine.INSTANCE.is_running:
-            self.engine = Engine.INSTANCE
             Engine.INSTANCE.stop()
             if threading.main_thread() != threading.current_thread():
                 raise SystemExit
