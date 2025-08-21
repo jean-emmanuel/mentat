@@ -31,10 +31,12 @@ class Sequencer():
         - `**kwargs`: keyword arguments for the scene function
         """
         if '*' in name or '[' in name:
-            self.logger.critical('characters "*" and "[" are forbidden in scene name')
+            self.logger.error('characters "*" and "[" are forbidden in scene name')
+            return
 
         if not callable(scene):
-            self.logger.critical('scene "%s" must be a function (%s provided)' % (name, type(scene).__name__))
+            self.logger.error(f'scene "{name}" must be a function ({type(scene).__name__} provided)')
+            return
 
         self.stop_scene('/%s/%s' % (self.scene_namespace, name))
         self.engine.start_scene_thread('/%s/%s' % (self.scene_namespace, name), scene, *args, **kwargs)
@@ -153,7 +155,7 @@ class Sequencer():
         """
 
         if not callable(callback):
-            self.logger.critical('callback "%s" must be a function (%s provided)' % (name, type(callback).__name__))
+            self.logger.error(f'callback must be a function ({type(callback).__name__} provided)')
             return
 
         callback(*args, **kwargs)
@@ -214,7 +216,7 @@ class Sequencer():
         ```
         """
         if not self.engine.is_scene_thread():
-            self.logger.critical('play_sequence() can only be called in a scene')
+            self.logger.error('play_sequence() can only be called in a scene')
             return
 
         while True:
