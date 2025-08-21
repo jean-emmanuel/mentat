@@ -121,6 +121,8 @@ class Module(Sequencer, EventEmitter):
                     parent = f_locals['self']
                     break
 
+            if parent is None:
+                self.logger.critical(f'could not find parent module for {self.name}')
 
         self.parent_module = parent
 
@@ -195,7 +197,7 @@ class Module(Sequencer, EventEmitter):
         """
         for module in modules:
             if module.parent_module != self:
-                self.logger.critical(f'parent module mismatch for submodule {module} (added to {self}, initialized with parent={module.parent_module})')
+                self.logger.critical(f'parent module mismatch for submodule {module} (added to self, initialized with parent={module.parent_module})')
             self.submodules[module.name] = module
             if module.protocol is None:
                 module.protocol = self.protocol

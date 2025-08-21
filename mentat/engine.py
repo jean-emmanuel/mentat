@@ -435,6 +435,9 @@ class Engine(Module):
         if module.name in self.modules:
             self.logger.critical(f'could not add module {module.name} (a module with this name has already been added)')
 
+        if module.parent_module is not None and module.parent_module != self:
+            self.logger.critical(f'parent module mismatch for submodule {module} (added to self, initialized with parent={module.parent_module})')
+
         self.modules[module.name] = module
         self.submodules[module.name] = module
         module.parent_module = self
