@@ -331,10 +331,10 @@ class Engine(Module):
                             if stat == 'exec_time':
                                 peak_time = self.statistics['exec_time'][0] / 1000000
                                 average_time = self.statistics['exec_time'][1] / self.statistics['exec_time'][2] / 1000000
-                                self.logger.info(f'statistic: main loop exec time: peak {peak_time:.3f}ms, average {average_time:.3f}ms')
+                                self.logger.debug(f'statistic: main loop exec time: peak {peak_time:.3f}ms, average {average_time:.3f}ms')
                                 self.statistics['exec_time'] = [0, 0, 0]
                             elif self.statistics[stat] != 0:
-                                self.logger.info(f'statistic: {stat}: {self.statistics[stat]} in 1s')
+                                self.logger.debug(f'statistic: {stat}: {self.statistics[stat]} in 1s')
                                 self.statistics[stat] = 0
                         self.statistics_time = current_time
 
