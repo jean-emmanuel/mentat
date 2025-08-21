@@ -126,6 +126,11 @@ class TraceLogger(logging.Logger):
 
         msg += self.get_formatted_stack()
         super().critical(msg, *args, **kwargs)
-        os._exit(1)
+        from .engine import Engine
+        try:
+            if Engine.INSTANCE is not None:
+                Engine.INSTANCE.stop()
+        except:
+            os._exit(1)
 
 logging.setLoggerClass(TraceLogger)
