@@ -66,10 +66,38 @@ def force_mainthread(method: Callable[P, T]) -> Callable[P, T]:
     return decorated
 
 
+class ColoredFormatter(logging.Formatter):
+
+    RESET_SEQ = "\033[0m"
+    COLOR_SEQ = "\033[1;%dm"
+    BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+
+    COLORS = {
+        'WARNING': YELLOW,
+        'INFO': GREEN,
+        'DEBUG': BLUE,
+        'CRITICAL': RED,
+        'ERROR': RED,
+    }
+
+    def formatMessage(self, record):
+        levelname = record.levelname
+        color = self.COLOR_SEQ % (30 + self.COLORS.get(levelname, 0))
+        record.levelname = f"{color}{levelname.rjust(8, ":")}{self.RESET_SEQ}"
+        return super().formatMessage(record)
+
+
 class TraceLogger(logging.Logger):
     """
     Add backtrace to error logs
     """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        color_handler = logging.StreamHandler()
+        color_handler.setFormatter(ColoredFormatter('%(asctime)s%(levelname)8s:%(name)s: %(message)s', '%H:%M:%S'))
+        self.propagate = False
+        self.addHandler(color_handler)
+
     def get_formatted_stack(self):
         stack = traceback.extract_stack()[:-3]
         trace = traceback.format_list(stack)
