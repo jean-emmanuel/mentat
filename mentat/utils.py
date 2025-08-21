@@ -2,6 +2,7 @@ import logging
 import traceback
 import threading
 import fnmatch
+import os
 
 from functools import wraps
 
@@ -76,14 +77,14 @@ class ColoredFormatter(logging.Formatter):
         'WARNING': YELLOW,
         'INFO': GREEN,
         'DEBUG': BLUE,
-        'CRITICAL': RED,
+        'CRITICAL': MAGENTA,
         'ERROR': RED,
     }
 
     def formatMessage(self, record):
         levelname = record.levelname
         color = self.COLOR_SEQ % (30 + self.COLORS.get(levelname, 0))
-        record.levelname = f"{color}{levelname.rjust(8, ":")}{self.RESET_SEQ}"
+        record.levelname = f"{color}{levelname.rjust(9, ":")}{self.RESET_SEQ}"
         return super().formatMessage(record)
 
 
@@ -125,6 +126,6 @@ class TraceLogger(logging.Logger):
 
         msg += self.get_formatted_stack()
         super().critical(msg, *args, **kwargs)
-        raise SystemExit
+        os._exit(1)
 
 logging.setLoggerClass(TraceLogger)
