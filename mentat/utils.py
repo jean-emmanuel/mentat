@@ -100,17 +100,15 @@ class TraceLogger(logging.Logger):
         self.addHandler(color_handler)
 
     def get_formatted_stack(self):
-        stack = traceback.extract_stack()[:]
-        trace = traceback.format_list(stack)
+        stack = traceback.extract_stack()
+        trace = traceback.format_list(stack[:-2])
         formatted = ''
         for line in trace:
-            if '  File "/usr/lib' in line or '  File "<frozen' in line:
+            if '  File "<frozen' in line:
                 continue
-            elif 'mentat/utils.py' in line:
+            elif 'mentat/utils.py' in line and 'in decorated' in line:
                 continue
-            else:
-                formatted += line
-
+            formatted += line
         return '\nTraceback (most recent call last):\n%s' % formatted
 
     def error(self, msg, *args, exception=False, **kwargs):
