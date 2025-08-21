@@ -1,3 +1,18 @@
+mentat (1.8.5) unstable; urgency=medium
+
+  [ jean-emmanuel ]
+  * mapping: allow using multiple condition parameters and specifying a custom condition test function
+  * midi: only spawn midi server & thread if there is a midi module; avoid useless drain/sync calls
+  * logging: print useful trace when using logger.error in a try catch block
+  * logger: clean exception formatting
+  * logger: add some colors
+  * engine: log statistics to debug
+  * logger: make sure critical kills the process
+  * module: more parent mismatch error cases
+  * sequencer: bad scenes should error instead of critical
+
+ -- bordun <jean-emmanuel@ammd.net>  Thu, 21 Aug 2025 10:10:19 +0200
+
 mentat (1.8.4) unstable; urgency=medium
 
   [ jean-emmanuel ]
