@@ -2,7 +2,7 @@ import logging
 import traceback
 import threading
 import fnmatch
-import os
+import sys
 
 from functools import wraps
 
@@ -100,13 +100,13 @@ class TraceLogger(logging.Logger):
         self.addHandler(color_handler)
 
     def get_formatted_stack(self):
-        stack = traceback.extract_stack()[:-3]
+        stack = traceback.extract_stack()[:]
         trace = traceback.format_list(stack)
         formatted = ''
         for line in trace:
             if '  File "/usr/lib' in line or '  File "<frozen' in line:
                 continue
-            elif 'mentat/utils.py' in line and ', in decorated' in line:
+            elif 'mentat/utils.py' in line:
                 continue
             else:
                 formatted += line
@@ -132,6 +132,6 @@ class TraceLogger(logging.Logger):
             if threading.main_thread() != threading.current_thread():
                 raise SystemExit
         else:
-            os._exit(1)
+            sys.exit()
 
 logging.setLoggerClass(TraceLogger)
