@@ -109,7 +109,7 @@ class TraceLogger(logging.Logger):
             elif 'mentat/utils.py' in line and 'in decorated' in line:
                 continue
             formatted += line
-        return '\nTraceback (most recent call last):\n%s' % formatted
+        return '\n\nTraceback (most recent call last):\n%s' % formatted
 
     def error(self, msg, *args, exception=False, **kwargs):
 
