@@ -70,7 +70,8 @@ def force_mainthread(method: Callable[P, T]) -> Callable[P, T]:
 class ColoredFormatter(logging.Formatter):
 
     RESET_SEQ = "\033[0m"
-    COLOR_SEQ = "\033[1;%dm"
+    COLOR_SEQ = "\033[0;%dm"
+    BOLD_SEQ = "\033[1;%dm"
     BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 
     COLORS = {
@@ -81,10 +82,15 @@ class ColoredFormatter(logging.Formatter):
         'ERROR': RED,
     }
 
+    def colorize(self, text, level, bold=False):
+        seq = self.BOLD_SEQ if bold else self.COLOR_SEQ
+        return f'{seq % (30 + self.COLORS.get(level, 38))}{text}{self.RESET_SEQ}'
+
     def formatMessage(self, record):
         levelname = record.levelname
-        color = self.COLOR_SEQ % (30 + self.COLORS.get(levelname, 0))
-        record.levelname = f"{color}{levelname.rjust(9, ":")}{self.RESET_SEQ}"
+        color = self.BOLD_SEQ % (30 + self.COLORS.get(levelname, 0))
+        record.levelname = self.colorize(levelname.rjust(9, ":"), levelname, True)
+        record.name = f"{'.'.join(record.name.split('.')[:-1])}.{self.colorize(record.name.split('.')[-1], 0, True)}"
         return super().formatMessage(record)
 
 
