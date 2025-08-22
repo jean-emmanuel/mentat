@@ -30,7 +30,7 @@ class Route(Sequencer):
 
         - `name`: route name
         """
-        self.logger = logging.getLogger(__name__).getChild(name)
+        self.logger = logging.getLogger(self.__class__.__name__).getChild(name)
         self.name = name
 
         Sequencer.__init__(self, 'route/' + self.name)

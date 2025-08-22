@@ -21,7 +21,7 @@ class Parameter():
         - `transform`: transform function
         - `metadata`: extra keyword arguments will be storde in parameter.metadata (dict)
         """
-        self.logger = logging.getLogger(__name__).getChild(name)
+        self.logger = logging.getLogger(self.__class__.__name__).getChild(name)
 
         if '*' in name or '[' in name:
             self.logger.critical('characters "*" and "[" are forbidden in parameter name')

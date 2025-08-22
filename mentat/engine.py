@@ -89,7 +89,7 @@ class Engine(Module):
         - `tcp_port`: osc (tcp) input port number
         - `unix_port`: osc (unix) input socket path
         """
-        self.logger = logging.getLogger(__name__).getChild(name)
+        self.logger = logging.getLogger(self.__class__.__name__).getChild(name)
         self.name = name
 
         self.port = port

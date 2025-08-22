@@ -88,9 +88,10 @@ class ColoredFormatter(logging.Formatter):
 
     def formatMessage(self, record):
         levelname = record.levelname
-        color = self.BOLD_SEQ % (30 + self.COLORS.get(levelname, 0))
         record.levelname = self.colorize(levelname.rjust(9, ":"), levelname, True)
-        record.name = f"{'.'.join(record.name.split('.')[:-1])}.{self.colorize(record.name.split('.')[-1], 0, True)}"
+        loggername = record.name.split('.')
+        loggername[-1] = f'(\'{self.colorize(loggername[-1], levelname, False)}\')'
+        record.name = ''.join(loggername)
         return super().formatMessage(record)
 
 
