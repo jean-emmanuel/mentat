@@ -5,7 +5,7 @@ from .easing import EASING_FUNCTIONS
 
 class Parameter():
 
-    def __init__(self, name, address, types, static_args=None, default=None, filter=None, transform=None, **metadata):
+    def __init__(self, name, address, types, static_args=None, default=None, transform=None, **metadata):
         """
         Parameter(name, address, types, static_args=[], default=None, transform=None, **metadata)
 
@@ -101,6 +101,8 @@ class Parameter():
 
         if self.transform:
             args = self.transform(*args)
+            if not isinstance(args, list):
+                args = [args]
 
         for i in range(self.n_args):
             value = self.cast(args[i], self.types[i - self.n_args])
