@@ -244,7 +244,7 @@ class Module(Sequencer, EventEmitter):
         - `default`: value or list of values if the parameter has multiple dynamic values
         - `transform`:
             function that takes one argument per parameter value (excluding static args)
-            and returns a list or tuple of values, it is called whenever the parameter's value
+            and returns a value or list of values, it is called whenever the parameter's value
             is set (right before type casting) and its result will be used as the new value.
             This may be used to apply custom roundings or boundaries.
         - `metadata`:
