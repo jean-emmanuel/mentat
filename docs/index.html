@@ -648,7 +648,7 @@ can be modified</li>
 <li><code>default</code>: value or list of values if the parameter has
 multiple dynamic values</li>
 <li><code>transform</code>: function that takes one argument per
-parameter value (excluding static args) and returns a list or tuple of
+parameter value (excluding static args) and returns a value or list of
 values, it is called whenever the parameter’s value is set (right before
 type casting) and its result will be used as the new value. This may be
 used to apply custom roundings or boundaries.</li>
@@ -782,7 +782,8 @@ all animations including submodules’.</li>
 </div>
 <h3 id="module.add_mapping">Module.add_mapping()</h3>
 <div class="content">
-<p><i>add_mapping(src, dest, transform, inverse=None)</i><br/></p>
+<p><i>add_mapping(src, dest, transform, inverse=None, condition=None,
+condition_test=None)</i><br/></p>
 <p>Add a value mapping between two or more parameters owned by the
 module or one of its submodules. Whenever a value change occurs in one
 of the source parameters, <code>transform</code> will be called and its
@@ -810,15 +811,12 @@ updating source parameters when destination parameters update. If
 (e.g. <code>transform(inverse(x)) != x</code>), mappings will not
 trigger each others indefinetely (a mapping cannot run twice during a
 cycle).</li>
-<li><code>condition</code>: condition parameter, disables the mapping if
-False / falsy, can be
-<ul>
-<li><code>string</code> if there’s only one source parameter owned by
-the module itself</li>
-<li><code>tuple</code> of <code>string</code> if the source parameter is
-owned by a submodule
-(e.g. <code>('submodule_name', 'parameter_name')</code>)</li>
-</ul></li>
+<li><code>condition</code>: condition parameter(s), see <code>src</code>
+and <code>condition_test</code></li>
+<li><code>condition_test</code>: function that takes one argument per
+condition parameter and returns a boolean that determines if the mapping
+is active or not. By default, all conditions must be True or truthy for
+the mapping to apply.</li>
 </ul>
 </div>
 <h3 id="module.add_meta_parameter">Module.add_meta_parameter()</h3>
