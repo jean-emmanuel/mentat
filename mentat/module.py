@@ -84,10 +84,7 @@ class Module(Sequencer, EventEmitter):
         from .engine import Engine
 
         if self != Engine.INSTANCE:
-            logger_name = name
-            if parent is not None:
-                logger_name = parent.name + '.' + name
-            self.logger = logging.getLogger(self.__class__.__name__).getChild(logger_name)
+            self.logger = logging.getLogger(self.__class__.__name__).getChild(name)
 
         self.name = name
 
