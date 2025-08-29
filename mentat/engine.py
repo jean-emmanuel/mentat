@@ -110,6 +110,7 @@ class Engine(Module):
         self.osc_inputs = {'osc':{}, 'osc.tcp': {}, 'osc.unix': {}}
         self.osc_outputs = {'osc': {}, 'osc.tcp': {}, 'osc.unix': {}}
 
+        self.midi_thread = None
         self.midi_server = None
         self.midi_ports = {}
         self.midi_drain_pending = False
@@ -286,7 +287,7 @@ class Engine(Module):
                     message = self.osc_input_queue.get()
                     try:
                         self.route_osc(*message)
-                    except Exception as error:
+                    except:
                         self.logger.error(f'an error occured while routing osc message {message}', exception=True)
 
                 # process incoming midi messages
@@ -294,8 +295,8 @@ class Engine(Module):
                     event = self.midi_input_queue.get()
                     try:
                         self.route_midi(event)
-                    except Exception as error:
-                        self.logger.error(f'an error occured while routing midi event {event} {args}', exception=True)
+                    except:
+                        self.logger.error(f'an error occured while routing midi event {event}', exception=True)
 
                 # update animations
                 if self.current_time > last_animation + ANIMATION_PERIOD_NS - MAINLOOP_PERIOD_NS / 2:
@@ -363,7 +364,7 @@ class Engine(Module):
         if self.is_stopping:
             self.logger.info('force quitting')
             os._exit(1)
-            return
+
         self.is_stopping = True
         self.logger.info('stopping...')
         self.dispatch_event('stopping')
@@ -481,7 +482,6 @@ class Engine(Module):
                 self.midi_sync_pending = True
             except:
                 self.logger.warning('midi pool unnavailable, trying again')
-                pass
 
         if self.midi_sync_pending :
             self.midi_server.sync_output_queue()
@@ -524,12 +524,12 @@ class Engine(Module):
                 self.osc_server.send(port, address, *args)
             elif protocol == 'osc.tcp':
                 # liblo doesn't actually send from the tcp server and opens a random port
-                if type(port) is str and '://' in port:
+                if isinstance(port, str) and '://' in port:
                     self.osc_tcp_server.send(port, address, *args)
                 else:
-                    self.osc_tcp_server.send('osc.tcp://127.0.0.1:%s' % port, address, *args)
+                    self.osc_tcp_server.send(f'osc.tcp://127.0.0.1:{port}', address, *args)
             elif protocol == 'osc.unix':
-                self.osc_unix_server.send('osc.unix://%s' % port, address, *args)
+                self.osc_unix_server.send(f'osc.unix://{port}', address, *args)
             else:
                 return
 
@@ -542,7 +542,7 @@ class Engine(Module):
 
                 try:
                     midi_event = osc_to_midi(address, args)
-                except Exception as error:
+                except:
                     self.logger.error(f'failed to generate midi event {address} {args}', exception=True)
                     midi_event = None
 

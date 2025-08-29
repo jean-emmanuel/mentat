@@ -6,6 +6,15 @@ class Sequencer():
     """
 
     def __init__(self, namespace):
+        """
+        Sequencer(namespace)
+
+        Sequencer object constructor.
+
+        **Parameters**
+
+        - `namespace`: namespace for scenes
+        """
         self.scene_namespace = namespace
 
     @public_method

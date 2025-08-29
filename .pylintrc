@@ -12,4 +12,6 @@ disable=no-else-return,
     consider-using-dict-items,
     bare-except,broad-exception-caught,
     no-name-in-module,
-    import-outside-toplevel
+    import-outside-toplevel,
+    line-too-long,
+    too-many-positional-arguments

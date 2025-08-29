@@ -224,7 +224,7 @@ class Module(Sequencer, EventEmitter):
                       types: str,
                       static_args: list|None = None,
                       default = None,
-                      transform: type_callback = None,
+                      transform: type_callback|None = None,
                       **metadata):
         """
         add_parameter(name, address, types, static_args=[], default=None, transform=None, **metadata)
