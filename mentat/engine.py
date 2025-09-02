@@ -72,7 +72,7 @@ class Engine(Module):
                  name: str,
                  port: int,
                  folder: str,
-                 debug: bool = False,
+                 debug: int = 0,
                  tcp_port: int|None = None,
                  unix_port: int|None = None):
         """
@@ -85,7 +85,7 @@ class Engine(Module):
         - `name`: client name
         - `port`: osc (udp) input port number
         - `folder`: path to config folder where state files will be saved to and loaded from
-        - `debug`: set to True to enable debug messages and i/o statistics
+        - `debug`: set to 1 to enable debug messages, 2 to print main loop statistics
         - `tcp_port`: osc (tcp) input port number
         - `unix_port`: osc (unix) input socket path
         """
@@ -101,7 +101,7 @@ class Engine(Module):
         else:
             Engine.INSTANCE = self
 
-        logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
+        logging.basicConfig(level=logging.DEBUG if debug > 0 else logging.INFO)
 
         self.osc_server = None
         self.osc_tcp_server = None
@@ -154,7 +154,7 @@ class Engine(Module):
         self.notifier = None
         self.restarted = os.getenv('MENTAT_RESTART') is not None
 
-        self.log_statistics = debug
+        self.log_statistics = debug == 2
         self.statistics_time = 0
         self.statistics = {
             'midi_in': 0,
