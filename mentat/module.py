@@ -141,6 +141,7 @@ class Module(Sequencer, EventEmitter):
         self.mappings_need_sorting = False
 
         self.dirty_parameters = Queue()
+        self.dirty_mappings = Queue()
         self.dirty = False
 
         self.submodules = {}
@@ -586,8 +587,7 @@ class Module(Sequencer, EventEmitter):
             tuple_param = tuple(updated_parameter) if type(updated_parameter) is list else (updated_parameter,)
             if tuple_param in self.mappings_srcs_map:
                 for mapping in self.mappings_srcs_map[tuple_param]:
-                    # if mapping.match(updated_parameter):
-                    self.update_mapping(mapping)
+                    self.dirty_mappings.put(mapping)
 
         if self.meta_parameters:
             for name in self.meta_parameters:
@@ -958,7 +958,6 @@ class Module(Sequencer, EventEmitter):
         Apply parameters' pending values and send messages if they changed.
         """
 
-        updated_parameters = []
         while not self.dirty_parameters.empty():
             parameter = self.dirty_parameters.get()
             if parameter.should_send():
@@ -966,17 +965,16 @@ class Module(Sequencer, EventEmitter):
                     self.send(parameter.address, *parameter.get_message_args(), timestamp=parameter.dirty_timestamp)
                 parameter.set_last_sent()
                 self.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
-                if parameter.name not in updated_parameters:
-                    updated_parameters.append(parameter.name)
+            self.check_mappings(parameter.name)
             parameter.dirty = False
 
-        for name in updated_parameters:
-            self.check_mappings(name)
+        while not self.dirty_mappings.empty():
+            self.update_mapping(self.dirty_mappings.get())
 
         for mapping in self.mappings:
             mapping.unlock()
 
-        if updated_parameters:
+        if not self.dirty_parameters.empty() or not self.dirty_mappings.empty():
             self.update_dirty_parameters()
         else:
             self.dirty = False
