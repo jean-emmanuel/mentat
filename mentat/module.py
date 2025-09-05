@@ -957,6 +957,8 @@ class Module(Sequencer, EventEmitter):
 
         Apply parameters' pending values and send messages if they changed.
         """
+
+        updated_parameters = []
         while not self.dirty_parameters.empty():
             parameter = self.dirty_parameters.get()
             if parameter.should_send():
@@ -964,12 +966,20 @@ class Module(Sequencer, EventEmitter):
                     self.send(parameter.address, *parameter.get_message_args(), timestamp=parameter.dirty_timestamp)
                 parameter.set_last_sent()
                 self.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
-                self.check_mappings(parameter.name)
+                if parameter.name not in updated_parameters:
+                    updated_parameters.append(parameter.name)
             parameter.dirty = False
+
+        for name in updated_parameters:
+            self.check_mappings(name)
+
         for mapping in self.mappings:
             mapping.unlock()
 
-        self.dirty = False
+        if updated_parameters:
+            self.update_dirty_parameters()
+        else:
+            self.dirty = False
 
     @public_method
     def send(self, address: str, *args, timestamp=0):
