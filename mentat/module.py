@@ -589,6 +589,7 @@ class Module(Sequencer, EventEmitter):
             if tuple_param in self.mappings_srcs_map:
                 for mapping in self.mappings_srcs_map[tuple_param]:
                     self.dirty_mappings.put(mapping)
+                    self.set_dirty()
 
         if self.meta_parameters:
             for name in self.meta_parameters:
