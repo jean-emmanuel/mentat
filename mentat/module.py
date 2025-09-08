@@ -941,7 +941,7 @@ class Module(Sequencer, EventEmitter):
 
     def set_dirty(self):
         """
-        Tell parent module we have dirty parameters
+        Tell engine we have dirty parameters
         """
         if not self.dirty:
             self.dirty = True
@@ -951,7 +951,7 @@ class Module(Sequencer, EventEmitter):
         """
         update_dirty_parameters()
 
-        Apply parameters' pending values and send messages if they changed.
+        Apply parameters' pending values and mappings, send messages and notify if they changed.
         """
 
         # check all dirty parameters in queue
