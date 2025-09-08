@@ -140,6 +140,7 @@ class Module(Sequencer, EventEmitter):
         self.mappings_srcs_map = []
         self.mappings_need_sorting = False
 
+        self.sending_parameters = []
         self.dirty_parameters = Queue()
         self.dirty_mappings = Queue()
         self.dirty = False
@@ -610,54 +611,48 @@ class Module(Sequencer, EventEmitter):
         parameters to returned values.
 
         """
-        if mapping.lock():
+        src_params = mapping.src
+        condition_result = True
+        if mapping.n_condition > 0:
+            condition_params = src_params[-mapping.n_condition:]
+            src_params= src_params[0:-mapping.n_condition]
+            condition_values = [self.get(*p) for p in condition_params]
+            if mapping.condition_test:
+                condition_result = bool(mapping.condition_test(*condition_values))
+            else:
+                # default condition test: all conditions must be truthy
+                if any(not v for v in condition_values):
+                    condition_result = False
 
-            src_params = mapping.src
-            condition_result = True
-            if mapping.n_condition > 0:
-                condition_params = src_params[-mapping.n_condition:]
-                src_params= src_params[0:-mapping.n_condition]
-                condition_values = [self.get(*p) for p in condition_params]
-                if mapping.condition_test:
-                    condition_result = bool(mapping.condition_test(*condition_values))
+        if condition_result is True:
+
+            # get src values
+            src_values = []
+            for param in src_params:
+                if not self.get_parameter(*param).set_once:
+                    # stop if a src parameter has never been set
+                    return
+                src_values.append(self.get(*param))
+
+            # compute dest values
+            dest_values = mapping.transform(*src_values)
+
+            animating = False
+            for param in src_params:
+                # preserve animation if src parameter is animating
+                if self.get_parameter(*param).animate_running is not None:
+                    animating = True
+                    break
+
+            if mapping.n_args == 1:
+                dest_values = [dest_values]
+            for i in range(mapping.n_args):
+                val = dest_values[i]
+                param = mapping.dest[i]
+                if isinstance(val, list):
+                    self.set(*param, *val, preserve_animation=animating)
                 else:
-                    # default condition test: all conditions must be truthy
-                    if any(not v for v in condition_values):
-                        condition_result = False
-
-            if condition_result is True:
-
-                # get src values
-                src_values = []
-                for param in src_params:
-                    if not self.get_parameter(*param).set_once:
-                        # stop if a src parameter has never been set
-                        mapping.unlock()
-                        return
-                    src_values.append(self.get(*param))
-
-                # compute dest values
-                dest_values = mapping.transform(*src_values)
-
-                animating = False
-                for param in src_params:
-                    # preserve animation if src parameter is animating
-                    if self.get_parameter(*param).animate_running is not None:
-                        animating = True
-                        break
-
-                if mapping.n_args == 1:
-                    dest_values = [dest_values]
-                for i in range(mapping.n_args):
-                    val = dest_values[i]
-                    param = mapping.dest[i]
-                    if isinstance(val, list):
-                        self.set(*param, *val, preserve_animation=animating)
-                    else:
-                        self.set(*param, val, preserve_animation=animating)
-
-            if not self.dirty:
-                mapping.unlock()
+                    self.set(*param, val, preserve_animation=animating)
 
     @public_method
     def add_meta_parameter(self,
@@ -951,33 +946,59 @@ class Module(Sequencer, EventEmitter):
             self.dirty = True
             self.engine.dirty_modules.put(self)
 
-    def update_dirty_parameters(self):
+    def update_dirty_parameters(self, depth=0):
         """
         update_dirty_parameters()
 
         Apply parameters' pending values and send messages if they changed.
         """
 
+        # check all dirty parameters in queue
         while not self.dirty_parameters.empty():
             parameter = self.dirty_parameters.get()
             if parameter.should_send():
-                if parameter.address:
-                    self.send(parameter.address, *parameter.get_message_args(), timestamp=parameter.dirty_timestamp)
-                parameter.set_last_sent()
-                self.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
+                # potential update and sending: save for later
+                if parameter not in self.sending_parameters:
+                    self.sending_parameters.append(parameter)
+            # add mapping to queue
             self.check_mappings(parameter.name)
             parameter.dirty = False
 
+        # check all dirty parameters in queue
         while not self.dirty_mappings.empty():
             self.update_mapping(self.dirty_mappings.get())
 
-        for mapping in self.mappings:
-            mapping.unlock()
+        # circle back if updated mappings affected our parameters
+        # limit recursion in case of inconsistent mappings
+        if (not self.dirty_parameters.empty() or not self.dirty_mappings.empty()) and depth < 10:
+            self.update_dirty_parameters(depth + 1)
 
-        if not self.dirty_parameters.empty() or not self.dirty_mappings.empty():
-            self.update_dirty_parameters()
+        # we're done updating now
         else:
+
+            # if there's a circular mapping, clean and print a warning
+            if depth == 10:
+                warn_params = []
+                while not self.dirty_mappings.empty():
+                    self.dirty_mappings.get()
+                while not self.dirty_parameters.empty():
+                    parameter = self.dirty_parameters.get()
+                    parameter.dirty = False
+                    warn_params.append(parameter.name)
+                self.logger.warning(f'circular mapping update stopped involving parameters {warn_params}')
+
+            # now we notify and send messages for parameters that did actually change in the process
+            for parameter in self.sending_parameters:
+                if parameter.should_send():
+                    if parameter.address:
+                        self.send(parameter.address, *parameter.get_message_args(), timestamp=parameter.dirty_timestamp)
+                    parameter.set_last_sent()
+                    self.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
+
+            # we're clean
+            self.sending_parameters = []
             self.dirty = False
+
 
     @public_method
     def send(self, address: str, *args, timestamp=0):

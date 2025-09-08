@@ -268,14 +268,11 @@ class Mapping():
 
         self.transform = transform
         self.condition_test = condition_test
-        self.locked = False
 
     def match(self, param):
         """
         Check if provided parameter should trigger this mapping
         """
-        if self.locked:
-            return False
 
         m = False
 
@@ -296,20 +293,6 @@ class Mapping():
                         break
 
         return m
-
-    def lock(self):
-        """
-        Simple lock to prevent feedback loop
-        """
-        if self.locked:
-            return False
-        else:
-            self.locked = True
-            return True
-
-    def unlock(self):
-        self.locked = False
-
 
     def __lt__(self, other):
         """
