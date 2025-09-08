@@ -988,6 +988,9 @@ class Module(Sequencer, EventEmitter):
                     warn_params.append(parameter.name)
                 self.logger.warning(f'circular mapping update stopped involving parameters {warn_params}')
 
+            # we're clean
+            self.dirty = False
+
             # now we notify and send messages for parameters that did actually change in the process
             for parameter in self.sending_parameters:
                 if parameter.should_send():
@@ -995,10 +998,7 @@ class Module(Sequencer, EventEmitter):
                         self.send(parameter.address, *parameter.get_message_args(), timestamp=parameter.dirty_timestamp)
                     parameter.set_last_sent()
                     self.dispatch_event('parameter_changed', self, parameter.name, parameter.get())
-
-            # we're clean
             self.sending_parameters = []
-            self.dirty = False
 
 
     @public_method
