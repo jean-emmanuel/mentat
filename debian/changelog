@@ -1,3 +1,25 @@
+mentat (1.8.6) unstable; urgency=medium
+
+  [ jean-emmanuel ]
+  * logger: unhide line that contains the logger call and in-lib lines
+  * logger: extra new line before traceback
+  * logger: bold module name
+  * logger: as nice as it gets
+  * parameter: fix transorm option
+  * parameter: adjust tranform option doc
+  * docs: update
+  * logger: remove parent module name
+  * lint: some clean
+  * engine: debug flag is now an int and stats are disabled unless debug==2
+  * module: update mapping in batch after updating parameters and re-check updated parameters as much as needed to avoid leftovers
+  * mappings: ok now mappings do not left orphans behind
+  * module: rewrite dirty parameter update routine
+  * module: set_dirty when adding a mapping to the queue
+  * module: clear dirty flag before emitting parameter change events so that the module can be dirty again if needed
+  * module: amend method description
+
+ -- bordun <jean-emmanuel@ammd.net>  Mon, 08 Sep 2025 19:47:31 +0200
+
 mentat (1.8.5) unstable; urgency=medium
 
   [ jean-emmanuel ]
