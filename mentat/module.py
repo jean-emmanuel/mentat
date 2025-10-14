@@ -633,7 +633,7 @@ class Module(Sequencer, EventEmitter):
                 if not self.get_parameter(*param):
                     self.logger.error(f'could not update mapping (parameter {param} not found)')
                     return
-                if self.get_parameter(*param).set_once:
+                if not self.get_parameter(*param).set_once:
                     # stop if a src parameter has never been set
                     return
                 src_values.append(self.get(*param))
